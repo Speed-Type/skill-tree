@@ -14,13 +14,20 @@ CREATE TABLE skill_trees (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
+CREATE TABLE statuses (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  label VARCHAR(50) NOT NULL,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
 CREATE TABLE skills (
   id SERIAL PRIMARY KEY,
   tree_id INTEGER REFERENCES skill_trees(id) ON DELETE CASCADE,
   label VARCHAR(255) NOT NULL,
   description TEXT,
-  status VARCHAR(20) DEFAULT 'not_started'
-    CHECK (status IN ('not_started', 'in_progress', 'mastered')),
+  status_id INTEGER REFERENCES statuses(id) ON DELETE SET NULL,
   x_position FLOAT DEFAULT 0,
   y_position FLOAT DEFAULT 0,
   created_at TIMESTAMP DEFAULT NOW()
