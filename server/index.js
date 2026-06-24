@@ -11,6 +11,9 @@ app.use('/users', usersRouter);
 const treesRouter = require('./routes/trees');
 app.use('/trees', treesRouter);
 
+const skillsRouter = require('./routes/skills');
+app.use('/skills', skillsRouter);
+
 // Start the server
 app.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`);
