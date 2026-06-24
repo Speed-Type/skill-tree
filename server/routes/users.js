@@ -18,9 +18,8 @@ const bcrypt = require('bcrypt'); // Necessary for server-side hashing
 router.post('/', async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password are required' });
-  }
+  // Make sure required parameters (email and password) are passed
+  if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
 
   // Encryption
   const password_hash = await bcrypt.hash(password, 10);
