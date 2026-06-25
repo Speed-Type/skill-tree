@@ -13,10 +13,16 @@ router.get('/:id', async(req, res) => {
     // Make sure the tree exists to begin with
     if(treeResult.rows.length === 0) return res.status(404).json({ error: 'Not found' });
 
-    // Also grab skills associated with this tree
+    // Grab skills associated with this tree
     const skillsResult = await pool.query('SELECT * FROM skills WHERE tree_id = $1', [req.params.id]);
+    const skillIDs = skillsResult.rows.map(s => s.id);
 
-    res.json({... treeResult.rows[0], skills: skillsResult.rows });
+    // Grab edges associated with skills in this tree
+    const edgesResult = skillIDs.length
+    ? await pool.query('SELECT * FROM skill_edges WHERE from_skill_id = ANY($1)', [skillIDs]) // If there are skills associated with the tree...
+    : { rows: [] }; // If there were no skills associated with the tree, just return an empty array
+
+    res.json({... treeResult.rows[0], skills: skillsResult.rows, edges: edgesResult.rows });
 });
 
 router.post('/', async(req, res) => {
