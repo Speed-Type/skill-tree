@@ -14,6 +14,9 @@ app.use('/trees', treesRouter);
 const skillsRouter = require('./routes/skills');
 app.use('/skills', skillsRouter);
 
+const skillEdgesRouter = require('./routes/skill_edges');
+app.use('/skill-edges', skillEdgesRouter);
+
 // Start the server
 app.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`);
