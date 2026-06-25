@@ -31,4 +31,15 @@ router.post('/', async (req, res) => {
 	res.status(201).json(result.rows[0]);
 });
 
+// NOTE: The delete endpoint currently cascade deletes ALL of the user data; that might be something to change later
+
+router.delete('/:id', async(req, res) => {
+    const result = await pool.query('DELETE FROM users WHERE id = $1 RETURNING id', [req.params.id]);
+
+    // Check that DELETE was successful
+    if(result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
+    
+    res.status(204).send();
+});
+
 module.exports = router;
