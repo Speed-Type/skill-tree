@@ -1,0 +1,652 @@
+{
+  "info": {
+    "_postman_id": "323e11d9-73ed-4f5e-89a0-b2062e158c98",
+    "name": "SkillTree API",
+    "description": "Endpoint documentation for SkillTree backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "56119197",
+    "_collection_link": "https://go.postman.co/collection/56119197-323e11d9-73ed-4f5e-89a0-b2062e158c98?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get all users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/users/",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "users",
+                ""
+              ]
+            },
+            "description": "Returns list of all users"
+          },
+          "response": []
+        },
+        {
+          "name": "Get user by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/users/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "users",
+                "1"
+              ]
+            },
+            "description": "Returns the user with the specified ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create user",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"email_name_here@email.com\", \"password\": \"password here\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/users",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "users"
+              ]
+            },
+            "description": "Requires email and password_hash in body"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete user",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/users/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "users",
+                "1"
+              ]
+            },
+            "description": "Deletes the user with the specified ID"
+          },
+          "response": []
+        }
+      ],
+      "description": "Requests that involve the users database"
+    },
+    {
+      "name": "Trees",
+      "item": [
+        {
+          "name": "Get all trees",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/trees",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "trees"
+              ]
+            },
+            "description": "Returns list of all skill trees"
+          },
+          "response": []
+        },
+        {
+          "name": "Get tree by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/trees/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "trees",
+                "1"
+              ]
+            },
+            "description": "Returns the skill tree with the specified ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create tree",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"user_id\": 1, \"title\": \"Tree title here\", \"description\": \"Description here\", \"is_public\": true}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/trees",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "trees"
+              ]
+            },
+            "description": "Requires user_id and title in body\n\ndescription, is_public are optional in body"
+          },
+          "response": []
+        },
+        {
+          "name": "Update tree",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\": \"New title here\", \"description\": \"New description here\", \"is_public\": false}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/trees/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "trees",
+                "1"
+              ]
+            },
+            "description": "Updates the skill tree with the specified ID\n\ntitle, description, is_public are optional in body"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete tree",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/trees/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "trees",
+                "1"
+              ]
+            },
+            "description": "Deletes the skill tree with the specified ID"
+          },
+          "response": []
+        }
+      ],
+      "description": "Requests that involve the trees database"
+    },
+    {
+      "name": "Skills",
+      "item": [
+        {
+          "name": "Get all skills",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/skills",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "skills"
+              ]
+            },
+            "description": "Returns list of all skills"
+          },
+          "response": []
+        },
+        {
+          "name": "Get skill by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/skills/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "skills",
+                "1"
+              ]
+            },
+            "description": "Returns the skill with the specified ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create skill",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"tree_id\": 1, \"label\": \"Label here\", \"description\": \"Description here\", \"status_id\": 1, \"x_position\": 0, \"y_position\": 0}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/skills",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "skills"
+              ]
+            },
+            "description": "Requires tree_id and label in body\n\ndescription, status_id, x_position, and y_position are optional in body"
+          },
+          "response": []
+        },
+        {
+          "name": "Update skill",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"label\": \"New label here\", \"description\": \"New description here\", \"status_id\": 1, \"x_position\": 0, \"y_position\": 0}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/skills/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "skills",
+                "1"
+              ]
+            },
+            "description": "Updates the skill with the specified ID\n\nlabel, description, status_id, x_position, and y_position are optional in body"
+          },
+          "response": []
+        },
+        {
+          "name": "Update skill status",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status_id\": 1}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/skills/1/status",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "skills",
+                "1",
+                "status"
+              ]
+            },
+            "description": "Updates the status of the skill with the specified ID\n\nstatus_id is the only argument passed in the body (passing null is valid)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update skill position",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"x_position\": 0, \"y_position\": 0}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/skills/1/position",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "skills",
+                "1",
+                "position"
+              ]
+            },
+            "description": "Updates the position of the skill with the specified ID\n\nx_position, y_position are optional in body"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete skill",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/skills/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "skills",
+                "1"
+              ]
+            },
+            "description": "Deletes the skill with the specified ID"
+          },
+          "response": []
+        }
+      ],
+      "description": "Requests that involve the skills database"
+    },
+    {
+      "name": "Skill Edges",
+      "item": [
+        {
+          "name": "Get all skill edges",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/skill-edges/",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "skill-edges",
+                ""
+              ]
+            },
+            "description": "Returns list of all skill edges"
+          },
+          "response": []
+        },
+        {
+          "name": "Get skill edge by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/skill-edges/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "skill-edges",
+                "1"
+              ]
+            },
+            "description": "Returns the skill edge with the specified ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create skill edge",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"from_skill_id\": 1, \"to_skill_id\": 2}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/skill-edges",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "skill-edges"
+              ]
+            },
+            "description": "Requires from_skill_id and to_skill_id in body"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete skill edge",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/skill-edges/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "skill-edges",
+                "1"
+              ]
+            },
+            "description": "Deletes the skill edge with the specified ID"
+          },
+          "response": []
+        }
+      ],
+      "description": "Requests that involve the skill_edges database"
+    },
+    {
+      "name": "Statuses",
+      "item": [
+        {
+          "name": "Get all statuses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/statuses",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "statuses"
+              ]
+            },
+            "description": "Returns list of all statuses"
+          },
+          "response": []
+        },
+        {
+          "name": "Get status by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/statuses/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "statuses",
+                "1"
+              ]
+            },
+            "description": "Returns the status with the specified ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create status",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"user_id\": 1, \"label\": \"Label here\", \"sort_order\": 1}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/statuses/",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "statuses",
+                ""
+              ]
+            },
+            "description": "Requires user_id and label in body\n\nsort_order is optional in body"
+          },
+          "response": []
+        },
+        {
+          "name": "Update status",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"label\": \"New label here\", \"sort_order\": 1}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/statuses/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "statuses",
+                "1"
+              ]
+            },
+            "description": "Updates the status with the specified ID\n\nlabel, sort_order are optional in body"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete status",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/statuses/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "statuses",
+                "1"
+              ]
+            },
+            "description": "Deletes the status with the specified ID"
+          },
+          "response": []
+        }
+      ],
+      "description": "Requests that involve the statuses database"
+    }
+  ]
+}
