@@ -14,8 +14,8 @@ app.use('/trees', treesRouter);
 const skillsRouter = require('./routes/skills');
 app.use('/skills', skillsRouter);
 
-const skillEdgesRouter = require('./routes/skill_edges');
-app.use('/skill-edges', skillEdgesRouter);
+const skillEdgesRouter = require('./routes/edges');
+app.use('/edges', skillEdgesRouter);
 
 const statusesRouter = require('./routes/statuses');
 app.use('/statuses', statusesRouter);
