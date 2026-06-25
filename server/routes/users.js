@@ -39,7 +39,7 @@ router.put('/:id', async(req, res) => {
     if(password) password_hash = await bcrypt.hash(password, 10); //bcrypt.hash won't work with a null password, so only encrypt when password was passed
 
 	const result = await pool.query(
-        'UPDATE users SET email = COALESCE($1, email), password_hash = COALESCE($2, password_hash) WHERE id = $3 RETURNING *',
+        'UPDATE users SET email = COALESCE($1, email), password_hash = COALESCE($2, password_hash) WHERE id = $3 RETURNING id, email, created_at',
         [email, password_hash, req.params.id]
     );
 
