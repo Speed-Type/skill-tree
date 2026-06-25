@@ -78,7 +78,37 @@
                 "users"
               ]
             },
-            "description": "Requires email and password_hash in body"
+            "description": "Requires email and password in body"
+          },
+          "response": []
+        },
+        {
+          "name": "Update user",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"new_email_here@email.com\", \"password\": \"new password here\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/users/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "users",
+                "1"
+              ]
+            },
+            "description": "Updates the user with the specified ID\n\nemail, password are optional in body"
           },
           "response": []
         },
@@ -431,14 +461,14 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/skill-edges/",
+              "raw": "http://localhost:3000/edges/",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
               "port": "3000",
               "path": [
-                "skill-edges",
+                "edges",
                 ""
               ]
             },
@@ -452,14 +482,14 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/skill-edges/1",
+              "raw": "http://localhost:3000/edges/1",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
               "port": "3000",
               "path": [
-                "skill-edges",
+                "edges",
                 "1"
               ]
             },
@@ -482,14 +512,14 @@
               }
             },
             "url": {
-              "raw": "http://localhost:3000/skill-edges",
+              "raw": "http://localhost:3000/edges",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
               "port": "3000",
               "path": [
-                "skill-edges"
+                "edges"
               ]
             },
             "description": "Requires from_skill_id and to_skill_id in body"
@@ -502,14 +532,14 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/skill-edges/1",
+              "raw": "http://localhost:3000/edges/1",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
               "port": "3000",
               "path": [
-                "skill-edges",
+                "edges",
                 "1"
               ]
             },
