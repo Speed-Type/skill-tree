@@ -31,6 +31,24 @@ router.post('/', async (req, res) => {
 	res.status(201).json(result.rows[0]);
 });
 
+router.put('/:id', async(req, res) => {
+    const { email, password } = req.body;
+
+	// Encryption
+    let password_hash = undefined;
+    if(password) password_hash = await bcrypt.hash(password, 10); //bcrypt.hash won't work with a null password, so only encrypt when password was passed
+
+	const result = await pool.query(
+        'UPDATE users SET email = COALESCE($1, email), password_hash = COALESCE($2, password_hash) WHERE id = $3 RETURNING *',
+        [email, password_hash, req.params.id]
+    );
+
+    // Check that the PUT was successful
+    if(result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
+
+	res.status(200).json(result.rows[0]);
+});
+
 // NOTE: The delete endpoint currently cascade deletes ALL of the user data; that might be something to change later
 
 router.delete('/:id', async(req, res) => {
