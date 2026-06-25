@@ -10,7 +10,7 @@ router.get('/', async(req, res) => {
 router.get('/:id', async(req, res) => {
     const result = await pool.query('SELECT * FROM skill_edges WHERE id = $1', [req.params.id]);
 
-    // Make sure the skill exists to begin with
+    // Make sure the skill edge exists to begin with
     if(result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
 
     res.json(result.rows[0]);
