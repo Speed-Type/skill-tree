@@ -1,6 +1,21 @@
-.env
-.DS_Store
-dist/
+# Dependencies
 node_modules/
+client/node_modules/
+server/node_modules/
+
+# Environment variables
+.env
+server/.env
+client/.env
+
+# Build output
+client/dist/
+client/build/
+
+# OS/editor junk
+.DS_Store
+*.log
+
+# Postman
 .postman/
 postman/
