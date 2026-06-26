@@ -3,6 +3,8 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 app.use(express.json());
+const cors = require('cors');
+app.use(cors());
 
 // Router setup
 const usersRouter = require('./routes/users');
