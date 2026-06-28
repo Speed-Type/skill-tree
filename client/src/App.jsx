@@ -18,12 +18,18 @@ function App() {
         setSkills(prev => [...prev, newSkill]);
     }
 
+    function handleStatusChanged(updatedSkill) {
+        setSkills(prev =>
+            prev.map(skill => skill.id === updatedSkill.id ? updatedSkill : skill)
+        );
+    }
+
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Something went wrong.</p>;
 
     return (
         <>
-            <SkillTreeView tree={tree} skills={skills} statuses={statuses} />
+            <SkillTreeView tree={tree} skills={skills} statuses={statuses} onStatusChanged={handleStatusChanged}/>
             <AddSkillForm treeId={1} onCreated={handleSkillCreated} />
         </>
     )

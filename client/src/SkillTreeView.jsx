@@ -1,4 +1,6 @@
-function SkillTreeView({ tree, skills, statuses }) {
+import StatusSelect from './StatusSelect'
+
+function SkillTreeView({ tree, skills, statuses, onStatusChanged }) {
     const statusLabel = (id) => statuses.find(s => s.id === id)?.label ?? 'Unknown';
 
     return (
@@ -7,13 +9,7 @@ function SkillTreeView({ tree, skills, statuses }) {
             <ul>
                 {skills.map(skill => (
                     <li key={skill.id}>
-                        {skill.label} — <strong>{statusLabel(skill.status_id)}</strong>
-                        <select name="status">
-                            <option value="volvo">Volvo</option>
-                            <option value="saab">Saab</option>
-                            <option value="mercedes">Mercedes</option>
-                            <option value="audi">Audi</option>
-                        </select>
+                        {skill.label} — <strong>{<StatusSelect skill = {skill} statuses = {statuses} onStatusChanged={onStatusChanged}/>}</strong>
                     </li>
                 ))}
             </ul>
