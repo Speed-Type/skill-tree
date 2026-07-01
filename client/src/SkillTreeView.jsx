@@ -1,6 +1,6 @@
-import StatusSelect from './StatusSelect'
+import SkillItem from './SkillItem'
 
-function SkillTreeView({ tree, skills, statuses, onStatusChanged }) {
+function SkillTreeView({ tree, skills, statuses, onStatusChanged, onSkillChanged, onSkillDeleted }) {
     const statusLabel = (id) => statuses.find(s => s.id === id)?.label ?? 'Unknown';
 
     return (
@@ -8,9 +8,14 @@ function SkillTreeView({ tree, skills, statuses, onStatusChanged }) {
             <h2>{tree.title}</h2>
             <ul>
                 {skills.map(skill => (
-                    <li key={skill.id}>
-                        {skill.label} — <strong>{<StatusSelect skill = {skill} statuses = {statuses} onStatusChanged={onStatusChanged}/>}</strong>
-                    </li>
+                    <SkillItem
+                        key = {skill.id}
+                        skill = {skill}
+                        statuses = {statuses}
+                        onStatusChanged={onStatusChanged}
+                        onSkillChanged={onSkillChanged}
+                        onSkillDeleted={onSkillDeleted}
+                    />
                 ))}
             </ul>
         </div>
