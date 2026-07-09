@@ -1,11 +1,11 @@
 import {useState} from 'react';
-import StatusSelect from './StatusSelect'
+import StatusSelect from './StatusSelect';
+import PopupButton from './PopupButton';
 
-const API_BASE = import.meta.env.VITE_API_BASE
+const API_BASE = import.meta.env.VITE_API_BASE;
 
 function SkillItem({ skill, statuses, onStatusChanged, onSkillChanged, onSkillDeleted })
 {
-    const [menuOpen, setMenuOpen] = useState(false);
     const [label, setLabel] = useState(skill.label);
     const [description, setDescription] = useState(skill.description ?? '');
 
@@ -25,7 +25,6 @@ function SkillItem({ skill, statuses, onStatusChanged, onSkillChanged, onSkillDe
 
             const updatedSkill = await res.json();
             onSkillChanged(updatedSkill);
-            setMenuOpen(false);
         }
         catch(err) {
             console.error('Failed to update skill data: ', err);
@@ -37,7 +36,6 @@ function SkillItem({ skill, statuses, onStatusChanged, onSkillChanged, onSkillDe
         try {
             await fetch(`${API_BASE}/skills/${skill.id}`, { method: 'DELETE' });
             onSkillDeleted(skill.id);
-            setMenuOpen(false);
         }
         catch(err) {
             console.error('Failed to update skill data: ', err);
@@ -48,20 +46,18 @@ function SkillItem({ skill, statuses, onStatusChanged, onSkillChanged, onSkillDe
         <li>
             <strong>{skill.label} </strong>
             {<StatusSelect skill = {skill} statuses = {statuses} onStatusChanged={onStatusChanged}/>}
-            <button onClick={() => setMenuOpen(true)}>⋯</button>
 
-            {menuOpen && (
-                <div className="overlay" onClick={() => setMenuOpen(false)}>
-                    <div className="modal" onClick={e => e.stopPropagation()}>
+            <PopupButton label = "...">
+                {({ onClose }) => (
+                    <>
                         <input value={label} onChange={e => setLabel(e.target.value)} />
                         <input value={description} onChange={e => setDescription(e.target.value)} />
 
-                        <button onClick={handleEdit}>Save Changes</button>
-                        <button onClick={handleDelete}>Delete</button>
-                        <button onClick={() => setMenuOpen(false)}>Cancel</button>
-                    </div>
-                </div>
-            )}
+                        <button onClick={() => {handleEdit(); onClose();}}>Save Changes</button>
+                        <button onClick={handleDelete}>Delete</button>                    
+                    </>
+                )}
+            </PopupButton>
         </li>
     );
 }
