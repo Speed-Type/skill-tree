@@ -1,3 +1,14 @@
+/* ===================================== Reset/Base ===================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; font-family: sans-serif; }
+
+/* ===================================== Layout ===================================== */
+
+.app { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+
+/* ===================================== Stuff from default index.css file  ===================================== */
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;
@@ -108,4 +119,22 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+/* ===================================== Components ===================================== */
+
+.overlay {
+    position: fixed;
+    inset: 0; /* shorthand for top/right/bottom/left: 0 */
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    min-width: 300px;
 }
