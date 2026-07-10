@@ -1,6 +1,6 @@
-import {useState} from 'react'
+import {useState} from 'react';
 
-const API_BASE = import.meta.env.VITE_API_BASE
+const API_BASE = import.meta.env.VITE_API_BASE;
 
 function StatusSelect({ skill, statuses, onStatusChanged })
 {
@@ -39,4 +39,4 @@ function StatusSelect({ skill, statuses, onStatusChanged })
     )
 }
 
-export default StatusSelect
+export default StatusSelect;

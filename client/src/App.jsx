@@ -1,14 +1,18 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 
-import SkillTreeView from "./SkillTreeView"
-import AddSkillForm from "./AddSkillForm"
-import { useSkillTree } from './useSkillTree'
-
-import './App.css'
+import SkillTreeView from "./SkillTreeView";
+import AddSkillForm from "./AddSkillForm";
+import { useSkillTree } from './useSkillTree';
+import StatusView from './StatusView';
+import AddStatusForm from "./AddStatusForm";
+import PopupButton from './PopupButton';
 
 function App() {
 
-    const { tree, statuses, loading, error } = useSkillTree(1); //NOTE: the argument 1 is temporary
+    const { tree, statuses: initialStatuses, loading, error } = useSkillTree(1); //NOTE: the argument 1 is temporary
+
+    // ===================================== Skill Handling =====================================
+
     const [skills, setSkills] = useState([]);
 
     //Seed local skills state once the tree data arrives
@@ -24,8 +28,6 @@ function App() {
         setSkills(prev =>
             prev.map(skill => skill.id === updatedSkill.id ? updatedSkill : skill)
         );
-
-        // Note that this is the same functionality as handleStatusChanged; may be helpful to use the same function for both later
     }
 
     // Note that this function has an ID parameter (not a skill)
@@ -35,10 +37,31 @@ function App() {
         );
     }
 
-    function handleStatusChanged(updatedSkill) {
-        setSkills(prev =>
-            prev.map(skill => skill.id === updatedSkill.id ? updatedSkill : skill)
+    // ===================================== Status Handling =====================================
+
+    const [statuses, setStatuses] = useState([]);
+
+    //Seed local statuses state once the tree data arrives
+    useEffect(() => {
+        if (initialStatuses.length > 0) setStatuses(initialStatuses);
+    }, [initialStatuses]);
+
+    function handleStatusCreated(newStatus)
+    {
+        setStatuses(prev => [...prev, newStatus]);
+    }
+
+    function handleStatusChanged(updatedStatus)
+    {
+        setStatuses(prev =>
+            prev.map(status => status.id === updatedStatus.id ? updatedStatus : status)
         );
+    }
+
+    // Note that this function has an ID parameter (not a status)
+    function handleStatusDeleted(deletedStatusID)
+    {
+        setStatuses(prev => prev.filter(status => status.id !== deletedStatusID));
     }
 
     if (loading) return <p>Loading...</p>;
@@ -50,14 +73,29 @@ function App() {
                 tree={tree}
                 skills={skills}
                 statuses={statuses}
-                onStatusChanged={handleStatusChanged}
                 onSkillChanged={handleSkillChanged}
                 onSkillDeleted={handleSkillDeleted}
             />
             
             <AddSkillForm treeId={1} onCreated={handleSkillCreated} />
+
+            <PopupButton label = "Edit Statuses">
+                {({ onClose }) => (
+                    <>
+                        <StatusView
+                            statuses={statuses}
+                            onStatusChanged={handleStatusChanged}
+                            onStatusDeleted={handleStatusDeleted}
+                        />
+                        <AddStatusForm
+                            currentCount={statuses.length}
+                            onStatusCreated={handleStatusCreated}
+                        />               
+                    </>
+                )}
+            </PopupButton>
         </>
     )
 }
 
-export default App
+export default App;

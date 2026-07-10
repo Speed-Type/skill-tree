@@ -1,8 +1,6 @@
 import SkillItem from './SkillItem'
 
-function SkillTreeView({ tree, skills, statuses, onStatusChanged, onSkillChanged, onSkillDeleted }) {
-    const statusLabel = (id) => statuses.find(s => s.id === id)?.label ?? 'Unknown';
-
+function SkillTreeView({ tree, skills, statuses, onSkillChanged, onSkillDeleted }) {
     return (
         <div>
             <h2>{tree.title}</h2>
@@ -12,7 +10,6 @@ function SkillTreeView({ tree, skills, statuses, onStatusChanged, onSkillChanged
                         key = {skill.id}
                         skill = {skill}
                         statuses = {statuses}
-                        onStatusChanged={onStatusChanged}
                         onSkillChanged={onSkillChanged}
                         onSkillDeleted={onSkillDeleted}
                     />
@@ -22,4 +19,4 @@ function SkillTreeView({ tree, skills, statuses, onStatusChanged, onSkillChanged
     );
 }
 
-export default SkillTreeView
+export default SkillTreeView;
