@@ -34,7 +34,7 @@ function AddSkillForm({ treeId, onCreated }) {
 
     return (
         <form onSubmit={handleSubmit}>
-            <input value={label} onChange={e => setLabel(e.target.value)} placeholder="New skill" />
+            <input value={label} onChange={e => setLabel(e.target.value)} placeholder="New skill" required/>
             <button type="submit">Add</button>
         </form>
     );

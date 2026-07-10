@@ -36,7 +36,7 @@ function AddStatusForm({ onStatusCreated, currentCount }) {
 
     return (
         <form onSubmit={handleSubmit}>
-            <input value={label} onChange={e => setLabel(e.target.value)} placeholder="New status" />
+            <input value={label} onChange={e => setLabel(e.target.value)} placeholder="New status" required/>
             <button type="submit">Add Status</button>
         </form>
     );
