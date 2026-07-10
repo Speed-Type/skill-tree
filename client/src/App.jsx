@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 
-import SkillTreeView from "./SkillTreeView";
-import AddSkillForm from "./AddSkillForm";
-import { useSkillTree } from './useSkillTree';
-import StatusView from './StatusView';
-import AddStatusForm from "./AddStatusForm";
-import PopupButton from './PopupButton';
+import SkillTreeView from "./components/SkillTreeView";
+import AddSkillForm from "./components/AddSkillForm";
+import { useSkillTree } from './hooks/useSkillTree';
+import StatusView from './components/StatusView';
+import AddStatusForm from "./components/AddStatusForm";
+import PopupButton from './components/PopupButton';
 
 function App() {
 
