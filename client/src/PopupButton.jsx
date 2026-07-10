@@ -8,9 +8,9 @@ function PopupButton({label, children}) {
             <button onClick = {() => setOpen(true)}>{label}</button>
 
             {open && (
-                <div className="overlay" onClick={() => setMenuOpen(false)}>
+                <div className="overlay" onClick={() => setOpen(false)}>
                     <div className="modal" onClick={e => e.stopPropagation()}>
-                        {children({ onClose: () => setOpen(false)})}
+                        {children ({ onClose: () => setOpen(false)})}
                         <button onClick={() => setOpen(false)}>Close</button>
                     </div>
                 </div>
