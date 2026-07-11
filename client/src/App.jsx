@@ -64,6 +64,17 @@ function App() {
         setStatuses(prev => prev.filter(status => status.id !== deletedStatusID));
     }
 
+
+    //NOTE: this is a sort of temporary solution to be able to grab the edges
+    const [edges, setEdges] = useState([]);
+
+    //Seed local edges state once the tree data arrives
+    useEffect(() => {
+        if (tree) setEdges(tree.edges);
+    }, [tree]);
+
+
+
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Something went wrong.</p>;
 
@@ -72,6 +83,7 @@ function App() {
             <SkillTreeView
                 tree={tree}
                 skills={skills}
+                edges={edges}
                 statuses={statuses}
                 onSkillChanged={handleSkillChanged}
                 onSkillDeleted={handleSkillDeleted}
