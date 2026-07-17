@@ -83,6 +83,9 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
 
     async function handleConnect(connection)
     {
+        // Check whether this edge connects a node to itself
+        if (connection.source === connection.target) return;
+
         try {
             const res = await fetch(`${API_BASE}/edges`, {
                 method: 'POST',
