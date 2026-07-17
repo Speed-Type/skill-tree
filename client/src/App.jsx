@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-import SkillTreeView from "./components/SkillTreeView";
+import SkillTreeView from "./components/flow/SkillTreeView";
 import AddSkillForm from "./components/AddSkillForm";
 import { useSkillTree } from './hooks/useSkillTree';
 import StatusView from './components/StatusView';
@@ -73,7 +73,10 @@ function App() {
         if (tree) setEdges(tree.edges);
     }, [tree]);
 
-
+    function handleEdgeCreated(newEdge)
+    {
+        setEdges(prev => [...prev, newEdge]);
+    }
 
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Something went wrong.</p>;
@@ -87,6 +90,7 @@ function App() {
                 statuses={statuses}
                 onSkillChanged={handleSkillChanged}
                 onSkillDeleted={handleSkillDeleted}
+                onEdgeCreated={handleEdgeCreated}
             />
             
             <AddSkillForm treeId={1} onCreated={handleSkillCreated} />
