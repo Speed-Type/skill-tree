@@ -19,9 +19,10 @@ function AddStatusForm({ onStatusCreated, currentCount }) {
                 }),
             });
 
-            if(!res.ok)
-            {
-                throw new Error(`Request failed: ${res.status}`);
+            if (!res.ok)
+            {  
+                const errorData = await res.json();
+                throw new Error(errorData.error || `Request failed: ${res.status}`);
             }
 
             const newStatus = await res.json();

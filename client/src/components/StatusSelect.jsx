@@ -16,9 +16,10 @@ function StatusSelect({ skill, statuses, onStatusChanged })
                 body: JSON.stringify({ status_id: newStatusId }),
             });
 
-            if(!res.ok)
-            {
-                throw new Error(`Request failed: ${res.status}`);
+            if (!res.ok)
+            {  
+                const errorData = await res.json();
+                throw new Error(errorData.error || `Request failed: ${res.status}`);
             }
 
             const updatedSkill = await res.json();

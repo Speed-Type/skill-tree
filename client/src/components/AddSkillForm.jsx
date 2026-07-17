@@ -17,9 +17,10 @@ function AddSkillForm({ treeId, onCreated }) {
                 body: JSON.stringify({ tree_id: treeId, label, x_position: 0, y_position: 0 }),
             });
 
-            if(!res.ok)
-            {
-                throw new Error(`Request failed: ${res.status}`);
+            if (!res.ok)
+            {  
+                const errorData = await res.json();
+                throw new Error(errorData.error || `Request failed: ${res.status}`);
             }
 
             const newSkill = await res.json();

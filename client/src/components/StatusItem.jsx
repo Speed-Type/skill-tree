@@ -16,9 +16,10 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted })
                 body: JSON.stringify({ label }) //TODO
             });
 
-            if(!res.ok)
-            {
-                throw new Error(`Request failed: ${res.status}`);
+            if (!res.ok)
+            {  
+                const errorData = await res.json();
+                throw new Error(errorData.error || `Request failed: ${res.status}`);
             }
 
             const updatedStatus = await res.json();

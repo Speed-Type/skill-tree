@@ -21,7 +21,11 @@ function SkillNode({ data })
                 body: JSON.stringify({ label, description })
             });
 
-            if(!res.ok) throw new Error(`Request failed: ${res.status}`);
+            if (!res.ok)
+            {  
+                const errorData = await res.json();
+                throw new Error(errorData.error || `Request failed: ${res.status}`);
+            }
 
             const updatedSkill = await res.json();
             onSkillChanged(updatedSkill);

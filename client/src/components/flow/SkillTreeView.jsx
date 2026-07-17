@@ -67,7 +67,11 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
                 }),
             });
 
-            if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+            if (!res.ok)
+            {  
+                const errorData = await res.json();
+                throw new Error(errorData.error || `Request failed: ${res.status}`);
+            }
 
             const updatedSkill = await res.json();
             onSkillChanged(updatedSkill);
@@ -89,7 +93,11 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
                 }),
             });
 
-            if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+            if (!res.ok)
+            {  
+                const errorData = await res.json();
+                throw new Error(errorData.error || `Request failed: ${res.status}`);
+            }
 
             const newEdge = await res.json();
             onEdgeCreated(newEdge);
