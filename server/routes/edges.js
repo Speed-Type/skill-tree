@@ -43,8 +43,11 @@ router.post('/', async(req, res) => {
         res.status(201).json(result.rows[0]);
     }
     catch (err) {
-        console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        // First check if it's a duplicate edge violation
+        if (err.code === "23505") return res.status(409).json({ error: "This edge already exists" });
+
+        console.error(err); // Log what actually broke
+        res.status(500).json({ error: 'Database error' }); // Client gets a response
     }
 });
 
