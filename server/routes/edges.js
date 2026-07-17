@@ -36,7 +36,7 @@ router.post('/', async(req, res) => {
         if (!from_skill_id || !to_skill_id) return res.status(400).json({ error: "To/from skill id's are required" });
 
         // Make sure a skill edge does not point both to and from itself
-        if (from_skill_id === to_skill_id) return res.status(400).json({ error: "A skill cannot point to itself"});
+        if (from_skill_id === to_skill_id) return res.status(409).json({ error: "A skill cannot point to itself"});
 
         const result = await pool.query('INSERT INTO skill_edges (from_skill_id, to_skill_id) VALUES ($1, $2) RETURNING *', [from_skill_id, to_skill_id]);
 
