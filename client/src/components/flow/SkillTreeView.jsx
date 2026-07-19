@@ -30,6 +30,7 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
             source: String(edge.from_skill_id),
             target: String(edge.to_skill_id),
             type: 'floating',
+            data: { onDelete: handleEdgeDelete}
         }));
 
     const [nodes, setNodes, onNodesChange] = useNodesState(buildNodes());
@@ -133,6 +134,31 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
             targetHandle: null,
         });
     }, [handleConnect]);
+
+    // Handles deletion of a single edge
+    async function handleEdgeDelete(deletedEdgeId) {
+        try {
+            const res = await fetch(`${API_BASE}/edges/${deletedEdgeId}`, { method: 'DELETE' });
+
+            if (!res.ok)
+            {  
+                const errorData = await res.json();
+                throw new Error(errorData.error || `Request failed: ${res.status}`);
+            }
+
+            onEdgeDeleted(deletedEdgeId);
+        } catch (err) {
+            console.error('Failed to delete edge: ', err);
+        }
+    }
+
+    // Handles deletion of edges (PLURAL) in the backend
+    // This is its own function because of ReactFlow's onEdgesDelete event
+    async function handleEdgesDelete(deletedEdges) {
+        for (const edge of deletedEdges) {
+            handleEdgeDelete(edge.id);
+        }
+    }
  
     return (
         <div>
@@ -160,6 +186,8 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
                     onNodeDragStop={handleNodeDragStop}
                     onConnect={handleConnect}
                     onConnectEnd={onConnectEnd}
+                    deleteKeyCode={['Backspace', 'Delete']}
+                    onEdgesDelete={handleEdgesDelete}
                     connectionMode="loose"
                     fitView
                 />

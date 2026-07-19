@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import { useStore, getStraightPath } from '@xyflow/react';
+import { useState, useCallback } from 'react';
+import { useStore, getStraightPath, EdgeLabelRenderer } from '@xyflow/react';
 
 function getNodeIntersection(intersectionNode, targetNode) {
     const { measured, internals } = intersectionNode;
@@ -25,7 +25,9 @@ function getNodeIntersection(intersectionNode, targetNode) {
     return { x, y };
 }
 
-function FloatingEdge({ id, source, target, markerEnd, style }) {
+function FloatingEdge({ id, source, target, markerEnd, style, data }) {
+    const [showDelete, setShowDelete] = useState(false);
+
     const sourceNode = useStore(useCallback((store) => store.nodeLookup.get(source), [source]));
     const targetNode = useStore(useCallback((store) => store.nodeLookup.get(target), [target]));
 
@@ -45,7 +47,38 @@ function FloatingEdge({ id, source, target, markerEnd, style }) {
         targetY: targetPoint.y,
     });
 
-    return <path id={id} className="react-flow__edge-path" d={path} markerEnd={markerEnd} style={style} />;
+    // Calculate midpoint of edge, necessary for delete popup
+    const midX = (sourcePoint.x + targetPoint.x) / 2;
+    const midY = (sourcePoint.y + targetPoint.y) / 2;
+
+    return (
+        <>
+            <path
+                id={id}
+                className="react-flow__edge-path"
+                d={path}
+                markerEnd={markerEnd}
+                style={{ ...style, pointerEvents: 'stroke', cursor: 'pointer' }}
+                onClick={() => setShowDelete(true)}
+            />
+
+            {showDelete && (
+                <EdgeLabelRenderer>
+                    <div
+                        className="nodrag nopan edge-delete-popup"
+                        style={{
+                            position: 'absolute',
+                            transform: `translate(-50%, -100%) translate(${midX}px, ${midY}px)`,
+                            pointerEvents: 'all',
+                        }}
+                    >
+
+                        <button onClick={() => data?.onDelete?.(id)}>Delete?</button>
+                    </div>
+                </EdgeLabelRenderer>
+            )}
+        </>
+    );
 }
 
 export default FloatingEdge;

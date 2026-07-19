@@ -64,8 +64,8 @@ function App() {
         setStatuses(prev => prev.filter(status => status.id !== deletedStatusID));
     }
 
+    // ===================================== Edge Handling =====================================
 
-    //NOTE: this is a sort of temporary solution to be able to grab the edges
     const [edges, setEdges] = useState([]);
 
     //Seed local edges state once the tree data arrives
@@ -76,6 +76,11 @@ function App() {
     function handleEdgeCreated(newEdge)
     {
         setEdges(prev => [...prev, newEdge]);
+    }
+
+    function handleEdgeDeleted(deletedEdgeId) {
+        setEdges(prev => prev.filter(e => String(e.id) !== deletedEdgeId));
+        // Note that these id's need to be cast because deletedEdgeId is a String from buildEdges() in SkillTreeView
     }
 
     if (loading) return <p>Loading...</p>;
@@ -91,6 +96,7 @@ function App() {
                 onSkillChanged={handleSkillChanged}
                 onSkillDeleted={handleSkillDeleted}
                 onEdgeCreated={handleEdgeCreated}
+                onEdgeDeleted={handleEdgeDeleted}
             />
             
             <AddSkillForm treeId={1} onCreated={handleSkillCreated} />
