@@ -1,16 +1,15 @@
 import '@xyflow/react/dist/style.css';
 import './SkillFlow.css';
 
-import { useEffect } from 'react';
-import SkillItem from './../SkillItem';
+import { useEffect, useCallback } from 'react';
 import { ReactFlow, useNodesState, useEdgesState, addEdge } from '@xyflow/react';
 import { nodeTypes } from './nodeTypes';
 import { edgeTypes } from './edgeTypes';
+import SkillItem from './../SkillItem';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
-
-function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillDeleted, onEdgeCreated }) {
+function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillDeleted, onEdgeCreated, onEdgeDeleted }) {
     
     const buildNodes = () => 
         skills.map(skill => ({
@@ -45,6 +44,7 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
         setEdgesState(buildEdges());
     }, [edges]);
 
+    // Sends request to update backend with new node position
     async function handleNodeDragStop(event, node) {
 
         //Check whether there has been any change in location at all (i.e. the node was not just clicked)
@@ -81,6 +81,8 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
         }
     }
 
+    // Sends request to create new edge from one node to another
+    // The connection handler that actually makes the API call
     async function handleConnect(connection)
     {
         // Check whether this edge connects a node to itself
@@ -108,6 +110,29 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
             console.error('Failed to create edge: ', err);
         }
     }
+
+    // Middleman function used to create connections when dragging from a border to the body of another node
+    // Calls handleConnect for actual edge creation in backend
+    const onConnectEnd = useCallback((event, connectionState) => {
+        // If it ended on a valid handle, onConnect already fired — nothing more to do
+        if (connectionState.isValid) return;
+
+        // Otherwise, check if the drop point landed inside a node's DOM element
+        const targetEl = event.target.closest('.react-flow__node');
+        if (!targetEl) return; // dropped on empty canvas, ignore
+
+        const targetNodeId = targetEl.getAttribute('data-id');
+        const sourceNodeId = connectionState.fromNode?.id;
+
+        if (!targetNodeId || !sourceNodeId || targetNodeId === sourceNodeId) return;
+
+        handleConnect({
+            source: sourceNodeId,
+            target: targetNodeId,
+            sourceHandle: connectionState.fromHandle?.id ?? null,
+            targetHandle: null,
+        });
+    }, [handleConnect]);
  
     return (
         <div>
@@ -134,6 +159,8 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
                     edgeTypes={edgeTypes}
                     onNodeDragStop={handleNodeDragStop}
                     onConnect={handleConnect}
+                    onConnectEnd={onConnectEnd}
+                    connectionMode="loose"
                     fitView
                 />
             </div>

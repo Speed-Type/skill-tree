@@ -1,19 +1,5 @@
 /* ===================================== Skill Tree Specific CSS ===================================== */
 
-.react-flow__handle.skill-node-target-handle {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  transform: none;
-  background: transparent;
-  border: none;
-  border-radius: inherit;
-  opacity: 0;
-  z-index: 0;
-  /* no pointer-events: none here anymore, since it needs to be hit-testable */
-}
-
 .skill-node-body {
   position: relative;
   z-index: 1;

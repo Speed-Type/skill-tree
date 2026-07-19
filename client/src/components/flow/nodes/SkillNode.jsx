@@ -47,17 +47,7 @@ function SkillNode({ data })
     }
 
     return(
-        <div className="skill-node" >
-
-            {/* This handle is the whole-node target, to catch a connection anywhere on the node */}
-            <Handle
-                type="target"
-                position={Position.Top}
-                id="node-target"
-                className="skill-node-target-handle"
-            />
-            
-            {/* These are handles to start connections from on the edges */}
+        <div className="skill-node" >            
             <Handle type="source" position={Position.Top} id="top" className="skill-node-edge-handle skill-node-edge-top" />
             <Handle type="source" position={Position.Right} id="right" className="skill-node-edge-handle skill-node-edge-right" />
             <Handle type="source" position={Position.Bottom} id="bottom" className="skill-node-edge-handle skill-node-edge-bottom" />
