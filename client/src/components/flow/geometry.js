@@ -1,4 +1,6 @@
-// getNodeIntersection(node, point) — border point on `node`
+// Purpose of this file is to hold helper functions for flow components
+
+// getNodeIntersection(node, point) — returns border point on 'node'
 // along the line from node's center to an arbitrary {x, y} point
 export function getBorderPoint(node, point) {
     const { positionAbsolute } = node.internals;

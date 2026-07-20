@@ -12,6 +12,9 @@ const API_BASE = import.meta.env.VITE_API_BASE;
 
 function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillDeleted, onEdgeCreated, onEdgeDeleted }) {
     
+    // ====================== Convert/maintain props to states for React Flow component =========================
+
+    // Function to build node data from skills prop
     const buildNodes = () => 
         skills.map(skill => ({
             id: String(skill.id), 
@@ -25,6 +28,7 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
             },
         }));
 
+    // Function to build edge data from edges prop
     const buildEdges = () => 
         edges.map(edge => ({
             id: String(edge.id),
@@ -34,6 +38,7 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
             data: { onDelete: handleEdgeDelete}
         }));
 
+    // Nodes and edges states (different than regular react useState; react flow specific)
     const [nodes, setNodes, onNodesChange] = useNodesState(buildNodes());
     const [edgesState, setEdgesState, onEdgesChange] = useEdgesState(buildEdges());
 
@@ -46,6 +51,9 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
         setEdgesState(buildEdges());
     }, [edges]);
 
+    // ===================================== Node handling ==================================================
+
+    // Handles node dragging
     // Sends request to update backend with new node position
     async function handleNodeDragStop(event, node) {
 
@@ -83,8 +91,10 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
         }
     }
 
-    // Sends request to create new edge from one node to another
-    // The connection handler that actually makes the API call
+    // ========================================= Edge handling =============================================
+
+    // Handles edge creation
+    // The connection handler that sends the actual API request
     async function handleConnect(connection)
     {
         // Check whether this edge connects a node to itself
@@ -161,10 +171,14 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
         }
     }
 
+    // ========================================= Other ReactFlow Props =============================================
+
     // Prop for ReactFlow component that prevents self connections
     const isValidConnection = useCallback((connection) => {
         return connection.source !== connection.target;
     }, []);
+
+    // ========================================= Component HTML =============================================
  
     return (
         <div>
@@ -172,27 +186,30 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
 
             <div style={{ height: '500px' }}>
                 <ReactFlow
+                    // Node and edge data
                     nodes={nodes}
                     edges={edgesState}
 
+                    // Custom node and edge objects to display the data
                     nodeTypes={nodeTypes}
                     edgeTypes={edgeTypes}
 
                     onNodesChange={onNodesChange}
                     onEdgesChange={onEdgesChange}
+                    onNodeDragStop={handleNodeDragStop} // Callback for node movement
+                    onConnect={handleConnect} // Callback for connection on node border
+                    onConnectEnd={onConnectEnd} // Callback used to check for connection on node body
 
-                    onNodeDragStop={handleNodeDragStop}
-
-                    onConnect={handleConnect}
-                    onConnectEnd={onConnectEnd}
-
+                    // Edge deletion props
                     deleteKeyCode={['Backspace', 'Delete']}
                     onEdgesDelete={handleEdgesDelete}
 
-                    connectionMode="loose"
-                    connectionLineComponent={CustomConnectionLine}
-                    isValidConnection={isValidConnection}
+                    // Connection settings
+                    connectionLineComponent={CustomConnectionLine} // Custom line for while connection is being dragged
+                    isValidConnection={isValidConnection} // Custom criteria for valid connections
 
+                    // Other settings
+                    connectionMode="loose"
                     fitView
                 />
             </div>

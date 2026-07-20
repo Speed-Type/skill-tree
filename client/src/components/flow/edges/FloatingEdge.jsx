@@ -3,17 +3,24 @@ import { useStore, getStraightPath, EdgeLabelRenderer } from '@xyflow/react';
 import { getBorderPoint } from '../geometry';
 
 function FloatingEdge({ id, source, target, markerEnd, style, data }) {
+
+    // State for showing the delete popup
     const [showDelete, setShowDelete] = useState(false);
 
+    // Get source and target nodes
     const sourceNode = useStore(useCallback((store) => store.nodeLookup.get(source), [source]));
     const targetNode = useStore(useCallback((store) => store.nodeLookup.get(target), [target]));
 
+    // Won't continue if any required variables are missing
     if (!sourceNode || !targetNode) return null;
-    if (!sourceNode.measured?.width || !sourceNode.measured?.height || !targetNode.measured?.width || !targetNode.measured?.height) {
-        return null;
-    }
+    if (!sourceNode.measured?.width || !sourceNode.measured?.height 
+        || !targetNode.measured?.width || !targetNode.measured?.height) return null;
     if (!sourceNode.internals?.positionAbsolute || !targetNode.internals?.positionAbsolute) return null;
 
+    // Calculate endpoints of edge by using getBorderPoint
+    // Imagine there's a line drawn across the centers of the source and target nodes,
+    // and then shrink that line such that the endpoints of that line are on the borders
+    // of the source and target nodes. That is where these points are
     const sourcePoint = getBorderPoint(sourceNode, {
         x: targetNode.internals.positionAbsolute.x + targetNode.measured.width / 2,
         y: targetNode.internals.positionAbsolute.y + targetNode.measured.height / 2,
@@ -23,6 +30,7 @@ function FloatingEdge({ id, source, target, markerEnd, style, data }) {
         y: sourceNode.internals.positionAbsolute.y + sourceNode.measured.height / 2,
     });
 
+    // Calculate path
     const [path] = getStraightPath({
         sourceX: sourcePoint.x,
         sourceY: sourcePoint.y,
@@ -36,6 +44,7 @@ function FloatingEdge({ id, source, target, markerEnd, style, data }) {
 
     return (
         <>
+            {/* Render the edge */}
             <path
                 id={id}
                 className="react-flow__edge-path"
@@ -45,6 +54,7 @@ function FloatingEdge({ id, source, target, markerEnd, style, data }) {
                 onClick={() => setShowDelete(true)}
             />
 
+            {/* Render the delete popup as necessary */}
             {showDelete && (
                 <EdgeLabelRenderer>
                     <div

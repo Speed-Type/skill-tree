@@ -9,8 +9,13 @@ function CustomConnectionLine() {
     const [hoveredNodeId, setHoveredNodeId] = useState(null);
     const [pointerPos, setPointerPos] = useState(null);
 
-    // Manually track which node's DOM element is under the pointer, 
-    // since useConnection().toNode only fires near an actual Handle
+    /*
+        Manually track which node's DOM element is under the pointer, 
+        since useConnection().toNode only fires near an actual Handle,
+        leading to an issue where hovering the mouse near but not on
+        the body of a node will snap it to the border instead of the
+        center of the node as desired
+    */
     useEffect(() => {
         if (!connection.inProgress) {
             setHoveredNodeId(null);
@@ -33,6 +38,7 @@ function CustomConnectionLine() {
         return () => window.removeEventListener('pointermove', handlePointerMove);
     }, [connection.inProgress, screenToFlowPosition]);
 
+    // Get the node that the mouse is hovered over, if there is one
     const hoveredNode = useStore(
         useCallback(
             (store) => (hoveredNodeId ? store.nodeLookup.get(hoveredNodeId) : null),
@@ -40,15 +46,19 @@ function CustomConnectionLine() {
         )
     );
 
+    // We know the starting node from this connection
     const fromNode = connection.fromNode;
 
-    // Don't draw the connection if we're hovering over the node we've started from
+    // Don't draw the connection if it hasn't been started
     if (!connection.inProgress) return null;
+    // Don't draw the connection if we're hovering over the node we've started from
     if (hoveredNode && fromNode && hoveredNode.id === fromNode.id) return null;
 
+    // Default connection end point at mouse position
     let toX = pointerPos?.x ?? connection.to.x;
     let toY = pointerPos?.y ?? connection.to.y;
 
+    // Override connection end point to be at the center of the hovered node if there is one
     if (hoveredNode && hoveredNode.measured?.width && hoveredNode.measured?.height) {
         const { x, y } = hoveredNode.internals.positionAbsolute;
 
@@ -62,22 +72,19 @@ function CustomConnectionLine() {
         toY = borderPoint.y;
     }
 
-    // Re-derive the start point so it lies on fromNode's border,
-    // on the line from its center through (toX, toY)
+    // Default connection start point
     let fromX = connection.from.x;
     let fromY = connection.from.y;
 
+    // Re-derive the start point so it lies on fromNode's border,
+    // on the line from its center through (toX, toY)
     if (fromNode?.measured?.width && fromNode?.measured?.height) {
         const borderPoint = getBorderPoint(fromNode, { x: toX, y: toY });
         fromX = borderPoint.x;
         fromY = borderPoint.y;
     }
 
-    // // TEMP
-    // const borderPoint = getBorderPoint(hoveredNode, { x: fromX, y: fromY });
-    // toX = borderPoint.x;
-    // toY = borderPoint.y;
-
+    // Calculate path
     const [path] = getStraightPath({ sourceX: fromX, sourceY: fromY, targetX: toX, targetY: toY });
 
     return (
