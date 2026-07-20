@@ -2,10 +2,11 @@ import '@xyflow/react/dist/style.css';
 import './SkillFlow.css';
 
 import { useEffect, useCallback } from 'react';
-import { ReactFlow, useNodesState, useEdgesState, addEdge } from '@xyflow/react';
+import { ReactFlow, useNodesState, useEdgesState, addEdge, ConnectionLineType } from '@xyflow/react';
 import { nodeTypes } from './nodeTypes';
 import { edgeTypes } from './edgeTypes';
 import SkillItem from './../SkillItem';
+import CustomConnectionLine from './connectionLines/CustomConnectionLine';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
@@ -159,36 +160,39 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
             handleEdgeDelete(edge.id);
         }
     }
+
+    // Prop for ReactFlow component that prevents self connections
+    const isValidConnection = useCallback((connection) => {
+        return connection.source !== connection.target;
+    }, []);
  
     return (
         <div>
             <h2>{tree.title}</h2>
-            {/* <ul>
-                {skills.map(skill => (
-                    <SkillItem
-                        key = {skill.id}
-                        skill = {skill}
-                        statuses = {statuses}
-                        onSkillChanged={onSkillChanged}
-                        onSkillDeleted={onSkillDeleted}
-                    />
-                ))}
-            </ul> */}
 
             <div style={{ height: '500px' }}>
                 <ReactFlow
                     nodes={nodes}
                     edges={edgesState}
-                    onNodesChange={onNodesChange}
-                    onEdgesChange={onEdgesChange}
+
                     nodeTypes={nodeTypes}
                     edgeTypes={edgeTypes}
+
+                    onNodesChange={onNodesChange}
+                    onEdgesChange={onEdgesChange}
+
                     onNodeDragStop={handleNodeDragStop}
+
                     onConnect={handleConnect}
                     onConnectEnd={onConnectEnd}
+
                     deleteKeyCode={['Backspace', 'Delete']}
                     onEdgesDelete={handleEdgesDelete}
+
                     connectionMode="loose"
+                    connectionLineComponent={CustomConnectionLine}
+                    isValidConnection={isValidConnection}
+
                     fitView
                 />
             </div>
