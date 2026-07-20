@@ -44,14 +44,24 @@ function FloatingEdge({ id, source, target, markerEnd, style, data }) {
 
     return (
         <>
-            {/* Render the edge */}
+
+            {/* Invisible wide hit-area path that sits behind to catche clicks/hover */}
+            <path
+                d={path}
+                fill="none"
+                stroke="transparent"
+                strokeWidth={20}
+                style={{ cursor: 'pointer' }}
+                onClick={() => setShowDelete(true)}
+            />
+
+            {/* Visible thin line; purely visual */}
             <path
                 id={id}
                 className="react-flow__edge-path"
                 d={path}
                 markerEnd={markerEnd}
-                style={{ ...style, pointerEvents: 'stroke', cursor: 'pointer' }}
-                onClick={() => setShowDelete(true)}
+                style={style}
             />
 
             {/* Render the delete popup as necessary */}
