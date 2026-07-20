@@ -244,6 +244,11 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
                     // Other settings
                     connectionMode="loose"
                     fitView
+
+                    // Possibly temporary
+                    connectOnClick={false} // At least for now, we don't want to have another way to create edges
+                    deleteKeyCode={null} // Currently, node deletion this way isn't synced to backend
+                    multiSelectionKeyCode={null} // Multi-selection and bulk dragging doesn't sync correctly right now
                 />
             </div>
         </div>
