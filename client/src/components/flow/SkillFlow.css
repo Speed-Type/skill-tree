@@ -1,0 +1,102 @@
+/* =========================== Skill Tree/ReactFlow Component Specific CSS =========================== */
+
+.skill-node-body {
+  position: relative;
+  z-index: 1;
+  pointer-events: none; /* let hover/drop pass through to the handle beneath */
+}
+
+/* Explicitly re-enable interaction for anything the user needs to click */
+.skill-node-body .nodrag,
+.skill-node-body strong {
+  pointer-events: auto;
+}
+
+.react-flow__handle.skill-node-edge-handle {
+  position: absolute;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  opacity: 0;
+  z-index: 2;
+  transform: none; /* cancel React Flow's default translate(-50%, -50%) */
+}
+
+.react-flow__handle.skill-node-edge-top {
+  top: -4px;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 8px;
+}
+
+.react-flow__handle.skill-node-edge-bottom {
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 8px;
+}
+
+.react-flow__handle.skill-node-edge-left {
+  left: -4px;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  height: 100%;
+}
+
+.react-flow__handle.skill-node-edge-right {
+  right: -4px;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  height: 100%;
+}
+
+.skill-node {
+  position: relative;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.skill-node-body {
+  padding: 10px;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: #fff;
+  position: relative;
+  z-index: 1; /* keeps body content above the handle strips */
+}
+
+.skill-node-edge-handle {
+  position: absolute;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  opacity: 0; /* invisible, but still interactive */
+  z-index: 2;
+}
+
+/* Thin strips along each side, slightly overlapping the border */
+.skill-node-edge-top,
+.skill-node-edge-bottom {
+  left: 0;
+  width: 100%;
+  height: 8px;
+}
+.skill-node-edge-top { top: -4px; }
+.skill-node-edge-bottom { bottom: -4px; }
+
+.skill-node-edge-left,
+.skill-node-edge-right {
+  top: 0;
+  height: 100%;
+  width: 8px;
+}
+.skill-node-edge-left { left: -4px; }
+.skill-node-edge-right { right: -4px; }
+
+.skill-node-edge-handle:hover {
+  cursor: crosshair;
+}
