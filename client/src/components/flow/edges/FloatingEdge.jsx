@@ -71,6 +71,7 @@ function FloatingEdge({ id, source, target, markerEnd, style, data }) {
                         className="nodrag nopan edge-delete-popup"
                         style={{
                             position: 'absolute',
+                            zIndex: 1000,
                             transform: `translate(-50%, -100%) translate(${midX}px, ${midY}px)`,
                             pointerEvents: 'all',
                         }}
