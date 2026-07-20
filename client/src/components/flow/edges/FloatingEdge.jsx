@@ -4,8 +4,8 @@ import { getBorderPoint } from '../geometry';
 
 function FloatingEdge({ id, source, target, markerEnd, style, data }) {
 
-    // State for showing the delete popup
-    const [showDelete, setShowDelete] = useState(false);
+    // Unpack data
+    const { onDelete, isSelected, onSelect } = data;
 
     // Get source and target nodes
     const sourceNode = useStore(useCallback((store) => store.nodeLookup.get(source), [source]));
@@ -52,7 +52,7 @@ function FloatingEdge({ id, source, target, markerEnd, style, data }) {
                 stroke="transparent"
                 strokeWidth={20}
                 style={{ cursor: 'pointer' }}
-                onClick={() => setShowDelete(true)}
+                onClick={onSelect}
             />
 
             {/* Visible thin line; purely visual */}
@@ -61,11 +61,11 @@ function FloatingEdge({ id, source, target, markerEnd, style, data }) {
                 className="react-flow__edge-path"
                 d={path}
                 markerEnd={markerEnd}
-                style={style}
+                style={{ ...style, pointerEvents: 'none' }} // Shouldn't take any pointer events; don't block hit-area
             />
 
             {/* Render the delete popup as necessary */}
-            {showDelete && (
+            {isSelected && (
                 <EdgeLabelRenderer>
                     <div
                         className="nodrag nopan edge-delete-popup"
@@ -77,7 +77,7 @@ function FloatingEdge({ id, source, target, markerEnd, style, data }) {
                         }}
                     >
 
-                        <button onClick={() => data?.onDelete?.(id)}>Delete?</button>
+                        <button onClick={() => onDelete(id)}>Delete?</button>
                     </div>
                 </EdgeLabelRenderer>
             )}

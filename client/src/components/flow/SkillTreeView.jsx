@@ -1,7 +1,7 @@
 import '@xyflow/react/dist/style.css';
 import './SkillFlow.css';
 
-import { useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { ReactFlow, useNodesState, useEdgesState, addEdge, ConnectionLineType } from '@xyflow/react';
 import { nodeTypes } from './nodeTypes';
 import { edgeTypes } from './edgeTypes';
@@ -12,6 +12,39 @@ const API_BASE = import.meta.env.VITE_API_BASE;
 
 function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillDeleted, onEdgeCreated, onEdgeDeleted }) {
     
+    // ======================= Tracking Delete Popups for Edges ==========================
+
+    const [selectedEdgeId, setSelectedEdgeId] = useState(null);
+    const reactFlowWrapperRef = useRef(null);
+
+    // Handle keypress deletes
+    useEffect(() => {
+        if (!selectedEdgeId) return;
+
+        function handleKeyDown(event) {
+            if (event.key === 'Backspace' || event.key === 'Delete') {
+                handleEdgeDelete(selectedEdgeId);
+            }
+        }
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [selectedEdgeId]);
+
+    // Auto-close edge delete popups
+    useEffect(() => {
+        if (!selectedEdgeId) return;
+
+        function handleOutsideClick(event) {
+            // If the click is on the edge's own popup button, let that handler run instead
+            if (event.target.closest('.edge-delete-popup')) return;
+            setSelectedEdgeId(null);
+        }
+
+        document.addEventListener('mousedown', handleOutsideClick, true); // true = capture phase
+        return () => document.removeEventListener('mousedown', handleOutsideClick, true);
+    }, [selectedEdgeId]);
+
     // ====================== Convert/maintain props to states for React Flow component =========================
 
     // Function to build node data from skills prop
@@ -35,7 +68,11 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
             source: String(edge.from_skill_id),
             target: String(edge.to_skill_id),
             type: 'floating',
-            data: { onDelete: handleEdgeDelete}
+            data: { 
+                onDelete: handleEdgeDelete,
+                isSelected: selectedEdgeId === String(edge.id),
+                onSelect: () => setSelectedEdgeId(String(edge.id)),
+            }
         }));
 
     // Nodes and edges states (different than regular react useState; react flow specific)
@@ -49,7 +86,7 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
 
     useEffect(() => {
         setEdgesState(buildEdges());
-    }, [edges]);
+    }, [edges, selectedEdgeId]);
 
     // ===================================== Node handling ==================================================
 
@@ -199,10 +236,6 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
                     onNodeDragStop={handleNodeDragStop} // Callback for node movement
                     onConnect={handleConnect} // Callback for connection on node border
                     onConnectEnd={onConnectEnd} // Callback used to check for connection on node body
-
-                    // Edge deletion props
-                    deleteKeyCode={['Backspace', 'Delete']}
-                    onEdgesDelete={handleEdgesDelete}
 
                     // Connection settings
                     connectionLineComponent={CustomConnectionLine} // Custom line for while connection is being dragged
