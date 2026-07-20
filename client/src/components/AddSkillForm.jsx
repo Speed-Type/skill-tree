@@ -6,6 +6,8 @@ const API_BASE = import.meta.env.VITE_API_BASE
 function AddSkillForm({ treeId, onCreated }) {
     const [label, setLabel] = useState('')
 
+    // Function to handle submitting a new skill
+    // POSTs the skill data to the database
     async function handleSubmit(e) {
         e.preventDefault();
 

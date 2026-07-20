@@ -9,13 +9,14 @@ function SkillItem({ skill, statuses, onSkillChanged, onSkillDeleted })
     const [label, setLabel] = useState(skill.label);
     const [description, setDescription] = useState(skill.description ?? '');
 
+    // Function to handle editing a skill
     async function handleEdit()
     {
         try {
             const res = await fetch(`${API_BASE}/skills/${skill.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ label, description }) //TODO
+                body: JSON.stringify({ label, description })
             });
 
             if (!res.ok)
@@ -32,6 +33,7 @@ function SkillItem({ skill, statuses, onSkillChanged, onSkillDeleted })
         }
     }
 
+    // Function to handle deleting a skill
     async function handleDelete()
     {
         try {
@@ -46,6 +48,7 @@ function SkillItem({ skill, statuses, onSkillChanged, onSkillDeleted })
     return(
         <li>
             <strong>{skill.label} </strong>
+            
             {<StatusSelect skill = {skill} statuses = {statuses} onStatusChanged={onSkillChanged}/>}
 
             <PopupButton label = "...">

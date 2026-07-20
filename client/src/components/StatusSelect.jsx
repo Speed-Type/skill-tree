@@ -1,9 +1,12 @@
+// Dropdown component to select a skill's status
+
 import {useState} from 'react';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
 function StatusSelect({ skill, statuses, onStatusChanged })
 {
+    // Function to handle a change in status for a specific skill
     async function handleChange(e)
     {
         const newStatusId = Number(e.target.value);

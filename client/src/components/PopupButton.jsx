@@ -1,3 +1,24 @@
+// Generic popup element
+// Example usage:
+
+/*
+
+<PopupButton label="...">
+    {({ onClose }) => (
+        <>
+            <!--Contents of skill edit popup here-->
+
+            <input value={label} onChange={(e) => setLabel(e.target.value)} />
+            <input value={description} onChange={(e) => setDescription(e.target.value)} />
+            
+            <button onClick={() => { handleEdit(); onClose(); }}>Save Changes</button>
+            <button onClick={handleDelete}>Delete</button>
+        </>
+    )}
+</PopupButton>
+
+*/
+
 import { useState } from 'react';
 import { createPortal } from 'react-dom'
 

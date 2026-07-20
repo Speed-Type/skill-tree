@@ -5,6 +5,8 @@ const API_BASE = import.meta.env.VITE_API_BASE
 function AddStatusForm({ onStatusCreated, currentCount }) {
     const [label, setLabel] = useState('');
 
+    // Function to handle submitting a new status
+    // POSTs the status data to the database
     async function handleSubmit(e) {
         try {
             e.preventDefault();

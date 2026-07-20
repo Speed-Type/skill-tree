@@ -1,3 +1,5 @@
+// Panel to edit statuses
+
 import StatusItem from './StatusItem';
 
 function StatusView({ statuses, onStatusChanged, onStatusDeleted }) {

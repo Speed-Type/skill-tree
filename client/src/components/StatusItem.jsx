@@ -7,13 +7,14 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted })
 {
     const [label, setLabel] = useState(status.label);
 
+    // Function to handle editing a status
     async function handleEdit()
     {
         try {
             const res = await fetch(`${API_BASE}/statuses/${status.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ label }) //TODO
+                body: JSON.stringify({ label })
             });
 
             if (!res.ok)
@@ -30,6 +31,7 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted })
         }
     }
 
+    // Function to handle deleting a status
     async function handleDelete()
     {
         try {
