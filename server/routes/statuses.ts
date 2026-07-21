@@ -1,8 +1,11 @@
-const express = require('express');
-const router = express.Router();
-const pool = require('../db');
+import { Router, Request, Response } from 'express';
+import { Status, ErrorResponse } from '../types';
 
-router.get('/', async(req, res) => {
+import pool from '../db';
+
+const router = Router();
+
+router.get('/', async(req: Request, res: Response<Status[] | ErrorResponse>) => {
     try {
         const result = await pool.query('SELECT * FROM statuses');
         res.json(result.rows);
@@ -13,7 +16,7 @@ router.get('/', async(req, res) => {
     }
 });
 
-router.get('/:id', async(req, res) => {
+router.get('/:id', async(req: Request<{ id: string }>, res: Response<Status | ErrorResponse>) => {
     try {
         const result = await pool.query('SELECT * FROM statuses WHERE id = $1 ORDER BY sort_order', [req.params.id]);
 
@@ -28,7 +31,13 @@ router.get('/:id', async(req, res) => {
     }
 });
 
-router.post('/', async(req, res) => {
+interface CreateStatusBody {
+    user_id: number;
+    label: string;
+    sort_order?: number;
+}
+
+router.post('/', async(req: Request<{}, {}, CreateStatusBody>, res: Response<Status | ErrorResponse>) => {
     try {
         const { user_id, label, sort_order } = req.body;
 
@@ -45,7 +54,12 @@ router.post('/', async(req, res) => {
     }
 });
 
-router.put('/:id', async(req, res) => {
+interface UpdateStatusBody {
+    label?: string;
+    sort_order?: number;
+}
+
+router.put('/:id', async(req: Request<{ id: string }, {}, UpdateStatusBody>, res: Response<Status | ErrorResponse>) => {
     try {
         const { label, sort_order } = req.body;
 
@@ -65,7 +79,7 @@ router.put('/:id', async(req, res) => {
     }
 });
 
-router.delete('/:id', async(req, res) => {
+router.delete('/:id', async(req: Request<{ id: string }>, res: Response<ErrorResponse>) => {
     try {
         const result = await pool.query('DELETE FROM statuses WHERE id = $1 RETURNING id', [req.params.id]);
 
@@ -80,4 +94,4 @@ router.delete('/:id', async(req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

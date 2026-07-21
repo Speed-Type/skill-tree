@@ -1,8 +1,11 @@
-const express = require('express');
-const router = express.Router();
-const pool = require('../db');
+import { Router, Request, Response } from 'express';
+import { Skill, SkillTree, TreeWithDetails, ErrorResponse } from '../types';
 
-router.get('/', async (req, res) => {
+import pool from '../db';
+
+const router = Router();
+
+router.get('/', async(req: Request, res: Response<SkillTree[] | ErrorResponse>) => {
     try {
         const result = await pool.query('SELECT * FROM skill_trees');
         res.json(result.rows);
@@ -13,7 +16,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/:id', async(req, res) => {
+router.get('/:id', async(req: Request<{ id: string }>, res: Response<TreeWithDetails | ErrorResponse>) => {
     try {
         const treeResult = await pool.query('SELECT * FROM skill_trees WHERE id = $1', [req.params.id]);
 
@@ -22,7 +25,7 @@ router.get('/:id', async(req, res) => {
 
         // Grab skills associated with this tree
         const skillsResult = await pool.query('SELECT * FROM skills WHERE tree_id = $1 ORDER BY id ASC', [req.params.id]);
-        const skillIDs = skillsResult.rows.map(s => s.id);
+        const skillIDs = skillsResult.rows.map((s: Skill) => s.id);
 
         // Grab edges associated with skills in this tree
         const edgesResult = skillIDs.length
@@ -37,7 +40,14 @@ router.get('/:id', async(req, res) => {
     }
 });
 
-router.post('/', async(req, res) => {
+interface CreateTreeBody {
+    user_id: number;
+    title: string;
+    description?: string;
+    is_public?: boolean;
+}
+
+router.post('/', async(req: Request<{}, {}, CreateTreeBody>, res: Response<SkillTree | ErrorResponse>) => {
     try {
         const { user_id, title, description, is_public } = req.body;
 
@@ -57,7 +67,13 @@ router.post('/', async(req, res) => {
     }
 });
 
-router.put('/:id', async(req, res) => {
+interface UpdateTreeBody {
+    title?: string;
+    description?: string;
+    is_public?: boolean;
+}
+
+router.put('/:id', async(req: Request<{ id: string }, {}, UpdateTreeBody>, res: Response<SkillTree | ErrorResponse>) => {
     try {
         const { title, description, is_public } = req.body;
 
@@ -77,7 +93,7 @@ router.put('/:id', async(req, res) => {
     }
 });
 
-router.delete('/:id', async(req, res) => {
+router.delete('/:id', async(req: Request<{ id: string }>, res: Response<ErrorResponse>) => {
     try {
         const result = await pool.query('DELETE FROM skill_trees WHERE id = $1 RETURNING id', [req.params.id]);
 
@@ -92,4 +108,4 @@ router.delete('/:id', async(req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
