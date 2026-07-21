@@ -53,7 +53,7 @@ router.post('/', async (req: Request<{}, {}, CreateUserBody>, res: Response<Publ
         res.status(201).json(result.rows[0]);
     }
     catch (err) {
-        // First check if it's a duplicate edge violation
+        // First check if it's a duplicate user violation
         if (isPgError(err) && err.code === "23505") return res.status(409).json({ error: "This email already exists" });
 
         console.error(err);  // Log what actually broke
