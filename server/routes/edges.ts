@@ -1,8 +1,12 @@
-const express = require('express');
-const router = express.Router();
-const pool = require('../db');
+import { Router, Request, Response } from 'express';
+import { SkillEdge, ErrorResponse } from '../../shared/types';
+import { isPgError } from '../utils';
 
-router.get('/', async(req, res) => {
+import pool from '../db';
+
+const router = Router();
+
+router.get('/', async(req: Request, res: Response<SkillEdge[] | ErrorResponse>) => {
     try {
         const result = await pool.query('SELECT * FROM skill_edges');
         res.json(result.rows);
@@ -13,7 +17,7 @@ router.get('/', async(req, res) => {
     }
 });
 
-router.get('/:id', async(req, res) => {
+router.get('/:id', async(req: Request<{ id: string }>, res: Response<SkillEdge | ErrorResponse>) => {
     try {
         const result = await pool.query('SELECT * FROM skill_edges WHERE id = $1', [req.params.id]);
 
@@ -28,7 +32,12 @@ router.get('/:id', async(req, res) => {
     }
 });
 
-router.post('/', async(req, res) => {
+interface CreateEdgeBody {
+    from_skill_id: number;
+    to_skill_id: number;
+}
+
+router.post('/', async(req: Request<{}, {}, CreateEdgeBody>, res: Response<SkillEdge | ErrorResponse>) => {
     try {
         const { from_skill_id, to_skill_id } = req.body;
 
@@ -44,14 +53,14 @@ router.post('/', async(req, res) => {
     }
     catch (err) {
         // First check if it's a duplicate edge violation
-        if (err.code === "23505") return res.status(409).json({ error: "This edge already exists" });
+        if (isPgError(err) && err.code === "23505") return res.status(409).json({ error: "This edge already exists" });
 
         console.error(err); // Log what actually broke
         res.status(500).json({ error: 'Database error' }); // Client gets a response
     }
 });
 
-router.delete('/:id', async(req, res) => {
+router.delete('/:id', async(req: Request<{ id: string }>, res: Response<ErrorResponse>) => {
     try {
         const result = await pool.query('DELETE FROM skill_edges WHERE id = $1 RETURNING id', [req.params.id]);
 
@@ -66,4 +75,4 @@ router.delete('/:id', async(req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

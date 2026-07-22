@@ -1,8 +1,12 @@
-const express = require('express');
-const router = express.Router();
-const pool = require('../db');
+import { Router, Request, Response} from 'express';
+import { User, PublicUser, ErrorResponse } from '../../shared/types';
+import { isPgError } from '../utils';
 
-router.get('/', async (req, res) => {
+import pool from '../db';
+
+const router = Router();
+
+router.get('/', async (req: Request, res: Response<PublicUser[] | ErrorResponse>) => {
     try {
         const result = await pool.query('SELECT id, email, created_at FROM users');
 	    res.json(result.rows);
@@ -13,7 +17,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req: Request<{ id: string }>, res: Response<PublicUser | ErrorResponse>) => {
     try {
         const result = await pool.query('SELECT id, email, created_at FROM users WHERE id = $1', [req.params.id]);
         if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
@@ -25,9 +29,14 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+interface CreateUserBody {
+    email: string;
+    password: string;
+}
+
 const bcrypt = require('bcrypt'); // Necessary for server-side hashing
 
-router.post('/', async (req, res) => {
+router.post('/', async (req: Request<{}, {}, CreateUserBody>, res: Response<PublicUser | ErrorResponse>) => {
     try {
         const { email, password } = req.body;
 
@@ -44,12 +53,20 @@ router.post('/', async (req, res) => {
         res.status(201).json(result.rows[0]);
     }
     catch (err) {
+        // First check if it's a duplicate user violation
+        if (isPgError(err) && err.code === "23505") return res.status(409).json({ error: "This email already exists" });
+
         console.error(err);  // Log what actually broke
         res.status(500).json({ error: 'Database error' });  // Client gets a response
     }
 });
 
-router.put('/:id', async(req, res) => {
+interface UpdateUserBody {
+    email?: string;
+    password?: string;
+}
+
+router.put('/:id', async(req: Request<{ id: string }, {}, UpdateUserBody>, res: Response<PublicUser | ErrorResponse>) => {
     try {
         const { email, password } = req.body;
 
@@ -75,7 +92,7 @@ router.put('/:id', async(req, res) => {
 
 // NOTE: The delete endpoint currently cascade deletes ALL of the user data; that might be something to change later
 
-router.delete('/:id', async(req, res) => {
+router.delete('/:id', async(req: Request<{ id: string }>, res: Response<ErrorResponse>) => {
     try {
         const result = await pool.query('DELETE FROM users WHERE id = $1 RETURNING id', [req.params.id]);
 
@@ -90,4 +107,4 @@ router.delete('/:id', async(req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

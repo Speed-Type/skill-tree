@@ -2,7 +2,15 @@
 
 import StatusItem from './StatusItem';
 
-function StatusView({ statuses, onStatusChanged, onStatusDeleted }) {
+import { Status, StatusChangedHandler, StatusDeletedHandler } from '../../../shared/types';
+
+interface StatusViewProps {
+    statuses: Status[];
+    onStatusChanged: StatusChangedHandler;
+    onStatusDeleted: StatusDeletedHandler;
+}
+
+function StatusView({ statuses, onStatusChanged, onStatusDeleted }: StatusViewProps) {
     return (
         <div>
             <h2>Edit Statuses</h2>

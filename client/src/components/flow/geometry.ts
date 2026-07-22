@@ -1,9 +1,21 @@
 // Purpose of this file is to hold helper functions for flow components
 
+import { InternalNode } from '@xyflow/react';
+
+interface Point {
+    x: number;
+    y: number;
+}
+
 // getNodeIntersection(node, point) — returns border point on 'node'
 // along the line from node's center to an arbitrary {x, y} point
-export function getBorderPoint(node, point) {
+export function getBorderPoint(node: InternalNode, point: Point) {
     const { positionAbsolute } = node.internals;
+
+    if (!node.measured?.width || !node.measured?.height) {
+        throw new Error('Node has not been measured yet');
+    }
+
     const w = node.measured.width / 2;
     const h = node.measured.height / 2;
     const x2 = positionAbsolute.x + w;

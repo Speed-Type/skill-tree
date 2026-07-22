@@ -1,10 +1,20 @@
 import {useState} from 'react';
+
 import StatusSelect from './StatusSelect';
 import PopupButton from './PopupButton';
 
+import { Skill, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../shared/types';
+
 const API_BASE = import.meta.env.VITE_API_BASE;
 
-function SkillItem({ skill, statuses, onSkillChanged, onSkillDeleted })
+interface SkillItemProps {
+    skill: Skill;
+    statuses: Status[];
+    onSkillChanged: SkillChangedHandler;
+    onSkillDeleted: SkillDeletedHandler;
+}
+
+function SkillItem({ skill, statuses, onSkillChanged, onSkillDeleted }: SkillItemProps)
 {
     const [label, setLabel] = useState(skill.label);
     const [description, setDescription] = useState(skill.description ?? '');
@@ -25,7 +35,7 @@ function SkillItem({ skill, statuses, onSkillChanged, onSkillDeleted })
                 throw new Error(errorData.error || `Request failed: ${res.status}`);
             }
 
-            const updatedSkill = await res.json();
+            const updatedSkill: Skill = await res.json();
             onSkillChanged(updatedSkill);
         }
         catch(err) {
@@ -49,7 +59,7 @@ function SkillItem({ skill, statuses, onSkillChanged, onSkillDeleted })
         <li>
             <strong>{skill.label} </strong>
             
-            {<StatusSelect skill = {skill} statuses = {statuses} onStatusChanged={onSkillChanged}/>}
+            {<StatusSelect skill = {skill} statuses = {statuses} onSkillChanged={onSkillChanged}/>}
 
             <PopupButton label = "...">
                 {({ onClose }) => (
