@@ -1,9 +1,18 @@
-import {useState} from 'react';
+import { useState } from 'react';
+
 import PopupButton from './PopupButton';
+
+import { Status, StatusChangedHandler, StatusDeletedHandler } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
-function StatusItem({ status, onStatusChanged, onStatusDeleted })
+interface StatusItemProps {
+    status: Status;
+    onStatusChanged: StatusChangedHandler;
+    onStatusDeleted: StatusDeletedHandler;
+}
+
+function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProps)
 {
     const [label, setLabel] = useState(status.label);
 
@@ -23,7 +32,7 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted })
                 throw new Error(errorData.error || `Request failed: ${res.status}`);
             }
 
-            const updatedStatus = await res.json();
+            const updatedStatus: Status = await res.json();
             onStatusChanged(updatedStatus);
         }
         catch(err) {

@@ -1,13 +1,20 @@
 import {useState} from 'react'
 
+import { Status, StatusChangedHandler } from '../types';
+
 const API_BASE = import.meta.env.VITE_API_BASE
 
-function AddStatusForm({ onStatusCreated, currentCount }) {
+interface AddStatusFormProps {
+    onStatusCreated: StatusChangedHandler;
+    currentCount: number;
+}
+
+function AddStatusForm({ onStatusCreated, currentCount }: AddStatusFormProps) {
     const [label, setLabel] = useState('');
 
     // Function to handle submitting a new status
     // POSTs the status data to the database
-    async function handleSubmit(e) {
+    async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
         try {
             e.preventDefault();
 
@@ -27,7 +34,7 @@ function AddStatusForm({ onStatusCreated, currentCount }) {
                 throw new Error(errorData.error || `Request failed: ${res.status}`);
             }
 
-            const newStatus = await res.json();
+            const newStatus: Status = await res.json();
             onStatusCreated(newStatus);
             setLabel('');
         }

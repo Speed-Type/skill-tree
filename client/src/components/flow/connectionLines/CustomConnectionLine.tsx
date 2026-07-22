@@ -1,13 +1,13 @@
 // CustomConnectionLine.jsx
 import { useState, useEffect, useCallback } from 'react';
-import { useConnection, useStore, useReactFlow, getStraightPath } from '@xyflow/react';
+import { useConnection, useStore, useReactFlow, getStraightPath, XYPosition } from '@xyflow/react';
 import { getBorderPoint } from '../geometry'
 
 function CustomConnectionLine() {
     const connection = useConnection();
     const { screenToFlowPosition } = useReactFlow();
-    const [hoveredNodeId, setHoveredNodeId] = useState(null);
-    const [pointerPos, setPointerPos] = useState(null);
+    const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+    const [pointerPos, setPointerPos] = useState<XYPosition | null>(null);
 
     /*
         Manually track which node's DOM element is under the pointer, 
@@ -23,7 +23,7 @@ function CustomConnectionLine() {
             return;
         }
 
-        function handlePointerMove(event) {
+        function handlePointerMove(event: PointerEvent) {
             const el = document.elementFromPoint(event.clientX, event.clientY);
             const nodeEl = el?.closest('.react-flow__node');
             setHoveredNodeId(nodeEl?.getAttribute('data-id') ?? null);
@@ -59,9 +59,9 @@ function CustomConnectionLine() {
     let toY = pointerPos?.y ?? connection.to.y;
 
     // Override connection end point to be at the center of the hovered node if there is one
-    if (hoveredNode && hoveredNode.measured?.width && hoveredNode.measured?.height) {
-        const { x, y } = hoveredNode.internals.positionAbsolute;
-
+    if (hoveredNode && hoveredNode.measured?.width && hoveredNode.measured?.height
+         && fromNode?.measured?.width && fromNode?.measured?.height
+    ) {
         // Stop at the target's border, along the line from source center to target center,
         // instead of clipping through to the exact center point
         const borderPoint = getBorderPoint(hoveredNode, {

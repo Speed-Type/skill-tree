@@ -1,14 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+
+import { Skill, SkillChangedHandler } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_BASE
 
+interface AddSkillFormProps {
+    treeId: number;
+    onCreated: SkillChangedHandler;
+}
 
-function AddSkillForm({ treeId, onCreated }) {
+function AddSkillForm({ treeId, onCreated }: AddSkillFormProps) {
     const [label, setLabel] = useState('')
 
     // Function to handle submitting a new skill
     // POSTs the skill data to the database
-    async function handleSubmit(e) {
+    async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
         e.preventDefault();
 
         try
@@ -25,7 +31,7 @@ function AddSkillForm({ treeId, onCreated }) {
                 throw new Error(errorData.error || `Request failed: ${res.status}`);
             }
 
-            const newSkill = await res.json();
+            const newSkill: Skill = await res.json();
             onCreated(newSkill);
             setLabel('');
         }

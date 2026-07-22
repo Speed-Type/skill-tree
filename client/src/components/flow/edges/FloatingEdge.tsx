@@ -1,8 +1,18 @@
 import { useState, useCallback } from 'react';
-import { useStore, getStraightPath, EdgeLabelRenderer } from '@xyflow/react';
+import { useStore, getStraightPath, EdgeLabelRenderer, EdgeProps, Edge } from '@xyflow/react';
 import { getBorderPoint } from '../geometry';
 
-function FloatingEdge({ id, source, target, markerEnd, style, data }) {
+export interface FloatingEdgeData extends Record<string, unknown> {
+    onDelete: (id: string) => void;
+    isSelected: boolean;
+    onSelect: (event: React.MouseEvent<SVGPathElement>) => void;
+}
+
+export type FloatingSkillEdge = Edge<FloatingEdgeData>;
+
+function FloatingEdge({ id, source, target, markerEnd, style, data }: EdgeProps<FloatingSkillEdge>) {
+
+    if(!data) return null;
 
     // Unpack data
     const { onDelete, isSelected, onSelect } = data;

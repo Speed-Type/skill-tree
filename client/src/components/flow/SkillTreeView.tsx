@@ -2,28 +2,42 @@ import '@xyflow/react/dist/style.css';
 import './SkillFlow.css';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { ReactFlow, useNodesState, useEdgesState, addEdge, ConnectionLineType } from '@xyflow/react';
+import { ReactFlow, useNodesState, useEdgesState, OnNodeDrag, Connection, OnConnectEnd, ConnectionMode, IsValidConnection } from '@xyflow/react';
 import { nodeTypes } from './nodeTypes';
 import { edgeTypes } from './edgeTypes';
-import SkillItem from './../SkillItem';
+import { SkillFlowNode } from './nodes/SkillNode';
+import { FloatingSkillEdge } from './edges/FloatingEdge';
 import CustomConnectionLine from './connectionLines/CustomConnectionLine';
+
+import { TreeWithDetails, Skill, SkillEdge, Status, SkillChangedHandler, SkillDeletedHandler } from '../../types';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
-function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillDeleted, onEdgeCreated, onEdgeDeleted }) {
+interface SkillTreeViewProps {
+    tree: TreeWithDetails;
+    skills: Skill[];
+    edges: SkillEdge[];
+    statuses: Status[];
+    onSkillChanged: SkillChangedHandler;
+    onSkillDeleted: SkillDeletedHandler;
+    onEdgeCreated: (newEdge: SkillEdge) => void;
+    onEdgeDeleted: (deletedEdgeID: string) => void;
+}
+
+function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillDeleted, onEdgeCreated, onEdgeDeleted }: SkillTreeViewProps) {
     
     // ======================= Tracking Delete Popups for Edges ==========================
 
-    const [selectedEdgeId, setSelectedEdgeId] = useState(null);
-    const reactFlowWrapperRef = useRef(null);
+    const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
+    const reactFlowWrapperRef = useRef<HTMLDivElement>(null);
 
     // Handle keypress deletes
     useEffect(() => {
         if (!selectedEdgeId) return;
 
-        function handleKeyDown(event) {
+        function handleKeyDown(event: KeyboardEvent) {
             if (event.key === 'Backspace' || event.key === 'Delete') {
-                handleEdgeDelete(selectedEdgeId);
+                handleEdgeDelete(selectedEdgeId!);
             }
         }
 
@@ -35,9 +49,10 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
     useEffect(() => {
         if (!selectedEdgeId) return;
 
-        function handleOutsideClick(event) {
+        function handleOutsideClick(event: MouseEvent) {
             // If the click is on the edge's own popup button, let that handler run instead
-            if (event.target.closest('.edge-delete-popup')) return;
+            const target = event.target as HTMLElement;
+            if (target.closest('.edge-delete-popup')) return;
             setSelectedEdgeId(null);
         }
 
@@ -48,7 +63,7 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
     // ====================== Convert/maintain props to states for React Flow component =========================
 
     // Function to build node data from skills prop
-    const buildNodes = () => 
+    const buildNodes = (): SkillFlowNode[] => 
         skills.map(skill => ({
             id: String(skill.id), 
             type: 'skill',
@@ -62,7 +77,7 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
         }));
 
     // Function to build edge data from edges prop
-    const buildEdges = () => 
+    const buildEdges = (): FloatingSkillEdge[] => 
         edges.map(edge => ({
             id: String(edge.id),
             source: String(edge.from_skill_id),
@@ -76,8 +91,8 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
         }));
 
     // Nodes and edges states (different than regular react useState; react flow specific)
-    const [nodes, setNodes, onNodesChange] = useNodesState(buildNodes());
-    const [edgesState, setEdgesState, onEdgesChange] = useEdgesState(buildEdges());
+    const [nodes, setNodes, onNodesChange] = useNodesState<SkillFlowNode>(buildNodes());
+    const [edgesState, setEdgesState, onEdgesChange] = useEdgesState<FloatingSkillEdge>(buildEdges());
 
     // Re-sync whenever the skills themselves change (e.g. on a skill delete, status edit, etc.)
     useEffect(() => {
@@ -92,14 +107,14 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
 
     // Handles node dragging
     // Sends request to update backend with new node position
-    async function handleNodeDragStop(event, node) {
+    const handleNodeDragStop : OnNodeDrag<SkillFlowNode> = async (event, node) => {
 
         //Check whether there has been any change in location at all (i.e. the node was not just clicked)
         const original = skills.find(s => String(s.id) === node.id);
         if (
             original &&
-            Number(original.x_position) === node.position.x &&
-            Number(original.y_position) === node.position.y
+            original.x_position === node.position.x &&
+            original.y_position === node.position.y
         ) {
             return; // no movement, skip the save
         }
@@ -120,7 +135,7 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
                 throw new Error(errorData.error || `Request failed: ${res.status}`);
             }
 
-            const updatedSkill = await res.json();
+            const updatedSkill: Skill = await res.json();
             onSkillChanged(updatedSkill);
         }
         catch(err) {
@@ -132,7 +147,7 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
 
     // Handles edge creation
     // The connection handler that sends the actual API request
-    async function handleConnect(connection)
+    async function handleConnect(connection: Connection)
     {
         // Check whether this edge connects a node to itself
         if (connection.source === connection.target) return;
@@ -153,7 +168,7 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
                 throw new Error(errorData.error || `Request failed: ${res.status}`);
             }
 
-            const newEdge = await res.json();
+            const newEdge: SkillEdge = await res.json();
             onEdgeCreated(newEdge);
         } catch (err) {
             console.error('Failed to create edge: ', err);
@@ -162,12 +177,13 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
 
     // Middleman function used to create connections when dragging from a border to the body of another node
     // Calls handleConnect for actual edge creation in backend
-    const onConnectEnd = useCallback((event, connectionState) => {
+    const onConnectEnd: OnConnectEnd = useCallback((event, connectionState) => {
         // If it ended on a valid handle, onConnect already fired — nothing more to do
         if (connectionState.isValid) return;
 
         // Otherwise, check if the drop point landed inside a node's DOM element
-        const targetEl = event.target.closest('.react-flow__node');
+        const target = event.target as HTMLElement;
+        const targetEl = target.closest('.react-flow__node');
         if (!targetEl) return; // dropped on empty canvas, ignore
 
         const targetNodeId = targetEl.getAttribute('data-id');
@@ -184,7 +200,7 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
     }, [handleConnect]);
 
     // Handles deletion of a single edge
-    async function handleEdgeDelete(deletedEdgeId) {
+    async function handleEdgeDelete(deletedEdgeId: string) {
         try {
             const res = await fetch(`${API_BASE}/edges/${deletedEdgeId}`, { method: 'DELETE' });
 
@@ -202,7 +218,7 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
 
     // Handles deletion of edges (PLURAL) in the backend
     // This is its own function because of ReactFlow's onEdgesDelete event
-    async function handleEdgesDelete(deletedEdges) {
+    async function handleEdgesDelete(deletedEdges: FloatingSkillEdge[]) {
         for (const edge of deletedEdges) {
             handleEdgeDelete(edge.id);
         }
@@ -211,7 +227,7 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
     // ========================================= Other ReactFlow Props =============================================
 
     // Prop for ReactFlow component that prevents self connections
-    const isValidConnection = useCallback((connection) => {
+    const isValidConnection: IsValidConnection<FloatingSkillEdge> = useCallback((connection) => {
         return connection.source !== connection.target;
     }, []);
 
@@ -221,7 +237,7 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
         <div>
             <h2>{tree.title}</h2>
 
-            <div style={{ height: '500px' }}>
+            <div style={{ height: '500px' }} ref={reactFlowWrapperRef}>
                 <ReactFlow
                     // Node and edge data
                     nodes={nodes}
@@ -242,7 +258,7 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
                     isValidConnection={isValidConnection} // Custom criteria for valid connections
 
                     // Other settings
-                    connectionMode="loose"
+                    connectionMode={ConnectionMode.Loose}
                     fitView
 
                     // Possibly temporary

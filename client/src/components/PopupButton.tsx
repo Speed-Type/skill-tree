@@ -19,10 +19,15 @@
 
 */
 
-import { useState } from 'react';
+import { useState, ReactNode } from 'react';
 import { createPortal } from 'react-dom'
 
-function PopupButton({label, children}) {
+interface PopupButtonProps {
+    label: string;
+    children: (args: { onClose: () => void }) => ReactNode;
+}
+
+function PopupButton({label, children}: PopupButtonProps) {
     const [open, setOpen] = useState(false);
 
     return(

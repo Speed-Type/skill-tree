@@ -1,12 +1,23 @@
 import { useState } from 'react';
-import { Handle, Position } from '@xyflow/react';
+import { Handle, Position, NodeProps, Node } from '@xyflow/react';
 import StatusSelect from '../../StatusSelect';
 import PopupButton from '../../PopupButton';
 
+import { Skill, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../types';
+
 const API_BASE = import.meta.env.VITE_API_BASE;
 
-function SkillNode({ data })
-{
+export interface SkillNodeData extends Record<string, unknown> {
+    skill: Skill;
+    statuses: Status[];
+    onSkillChanged: SkillChangedHandler;
+    onSkillDeleted: SkillDeletedHandler;
+}
+
+export type SkillFlowNode = Node<SkillNodeData>;
+
+function SkillNode({ data }: NodeProps<SkillFlowNode>) {
+
     // Unpack data (needs to be done because of how data is passed into react flow's nodes)
     const { skill, statuses, onSkillChanged, onSkillDeleted } = data;
 
@@ -30,7 +41,7 @@ function SkillNode({ data })
                 throw new Error(errorData.error || `Request failed: ${res.status}`);
             }
 
-            const updatedSkill = await res.json();
+            const updatedSkill: Skill = await res.json();
             onSkillChanged(updatedSkill);
         }
         catch(err) {
@@ -65,7 +76,7 @@ function SkillNode({ data })
                 <strong>{skill.label}</strong>
 
                 <div className="nodrag">
-                    <StatusSelect skill={skill} statuses={statuses} onStatusChanged={onSkillChanged} />
+                    <StatusSelect skill={skill} statuses={statuses} onSkillChanged={onSkillChanged} />
 
                     <PopupButton label="...">
                         {({ onClose }) => (
@@ -85,4 +96,4 @@ function SkillNode({ data })
     );
 }
 
-export default SkillNode
+export default SkillNode;
