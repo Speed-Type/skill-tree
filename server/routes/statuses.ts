@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { Status, ErrorResponse } from '../types';
+import { Status, ErrorResponse } from '../../shared/types';
 
 import pool from '../db';
 

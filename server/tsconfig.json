@@ -25,6 +25,6 @@
     "skipLibCheck": true,
   },
 
-  "include": ["**/*.ts"],
+  "include": ["**/*.ts", "../shared/types.ts"],
   "exclude": ["node_modules", "dist"]
 }

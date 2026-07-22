@@ -2,7 +2,7 @@
 
 import {useState} from 'react';
 
-import { Skill, Status, SkillChangedHandler } from '../types'
+import { Skill, Status, SkillChangedHandler } from '../../../shared/types';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 

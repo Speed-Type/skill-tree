@@ -1,5 +1,5 @@
 import { Router, Request, Response} from 'express';
-import { User, PublicUser, ErrorResponse } from '../types';
+import { User, PublicUser, ErrorResponse } from '../../shared/types';
 import { isPgError } from '../utils';
 
 import pool from '../db';

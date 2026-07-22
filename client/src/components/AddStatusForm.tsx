@@ -1,6 +1,6 @@
 import {useState} from 'react'
 
-import { Status, StatusChangedHandler } from '../types';
+import { Status, StatusChangedHandler } from '../../../shared/types';
 
 const API_BASE = import.meta.env.VITE_API_BASE
 

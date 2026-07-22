@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import PopupButton from './PopupButton';
 
-import { Status, StatusChangedHandler, StatusDeletedHandler } from '../types';
+import { Status, StatusChangedHandler, StatusDeletedHandler } from '../../../shared/types';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 

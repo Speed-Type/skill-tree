@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { Skill, SkillTree, TreeWithDetails, ErrorResponse } from '../types';
+import { Skill, SkillTree, TreeWithDetails, ErrorResponse } from '../../shared/types';
 
 import pool from '../db';
 

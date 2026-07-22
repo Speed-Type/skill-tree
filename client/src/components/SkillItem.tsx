@@ -3,7 +3,7 @@ import {useState} from 'react';
 import StatusSelect from './StatusSelect';
 import PopupButton from './PopupButton';
 
-import { Skill, Status, SkillChangedHandler, SkillDeletedHandler } from '../types';
+import { Skill, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../shared/types';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 

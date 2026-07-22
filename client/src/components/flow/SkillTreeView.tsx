@@ -9,7 +9,7 @@ import { SkillFlowNode } from './nodes/SkillNode';
 import { FloatingSkillEdge } from './edges/FloatingEdge';
 import CustomConnectionLine from './connectionLines/CustomConnectionLine';
 
-import { TreeWithDetails, Skill, SkillEdge, Status, SkillChangedHandler, SkillDeletedHandler } from '../../types';
+import { TreeWithDetails, Skill, SkillEdge, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../shared/types';
 
 const API_BASE = import.meta.env.VITE_API_BASE;
 
