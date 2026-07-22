@@ -6,6 +6,7 @@ import treesRouter from './routes/trees';
 import skillsRouter from './routes/skills';
 import skillEdgesRouter from './routes/edges';
 import statusesRouter from './routes/statuses';
+import authRouter from './routes/auth';
 
 import cookieParser from 'cookie-parser';
 
@@ -22,6 +23,7 @@ app.use('/trees', treesRouter);
 app.use('/skills', skillsRouter);
 app.use('/edges', skillEdgesRouter);
 app.use('/statuses', statusesRouter);
+app.use('/auth', authRouter);
 
 // Start the server
 const port = process.env.PORT;
