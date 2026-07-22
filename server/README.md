@@ -63,6 +63,13 @@ Server runs on `http://localhost:3000` by default.
 | PUT | `/statuses/:id` | Update a status | `{ label, sort_order }` |
 | DELETE | `/statuses/:id` | Delete a status | — |
 
+### Auth
+
+| Method | Endpoint | Description | Body |
+|--------|----------|-------------|------|
+| POST | `/auth/login` | Log in, sets an httpOnly auth cookie | `{ email, password }` |
+| POST | `/auth/logout` | Clear the auth cookie | — |
+
 ## Testing
 
 Import `postman_collection.json` into Postman to test all endpoints.
@@ -71,3 +78,10 @@ Import `postman_collection.json` into Postman to test all endpoints.
 
 - All dates are ISO 8601 format
 - User deletion cascades to all their trees
+- Authentication is cookie-based (httpOnly JWT). After a successful `/auth/login`,
+  the browser automatically attaches the auth cookie to subsequent requests —
+  no manual token handling required on the client. Requests must be made with
+  `credentials: 'include'` (fetch) or `withCredentials: true` (axios) for the
+  cookie to be sent, since the client and server run on different origins in dev.
+- Endpoints marked "yours, after auth" in the tables below require a valid
+  session; unauthenticated requests to these will receive a 401.
