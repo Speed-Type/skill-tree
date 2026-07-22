@@ -1,6 +1,7 @@
 import { Router, Request, Response} from 'express';
 import { User, PublicUser, ErrorResponse } from '../../shared/types';
 import { isPgError } from '../utils/utils';
+import bcrypt from 'bcrypt';
 
 import pool from '../db';
 
@@ -34,10 +35,9 @@ interface CreateUserBody {
     password: string;
 }
 
-const bcrypt = require('bcrypt'); // Necessary for server-side hashing
-
 router.post('/', async (req: Request<{}, {}, CreateUserBody>, res: Response<PublicUser | ErrorResponse>) => {
     try {
+        
         const { email, password } = req.body;
 
         // Make sure required parameters (email and password) are passed
