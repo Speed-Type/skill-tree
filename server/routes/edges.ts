@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { SkillEdge, ErrorResponse } from '../../shared/types';
-import { isPgError } from '../utils';
+import { isPgError } from '../utils/utils';
 
 import pool from '../db';
 
