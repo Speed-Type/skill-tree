@@ -7,7 +7,7 @@ import StatusView from './components/StatusView';
 import AddStatusForm from "./components/AddStatusForm";
 import PopupButton from './components/PopupButton';
 
-import { Skill, SkillEdge, Status } from './types';
+import { Skill, SkillEdge, Status } from '../../shared/types';
 
 function App() {
 

@@ -7,7 +7,7 @@
     "types": ["node"],
     "lib": ["esnext"],
 
-    "rootDir": ".",
+    "rootDir": "..",
     "outDir": "dist",
 
     // Other Outputs

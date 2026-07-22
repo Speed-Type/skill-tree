@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { TreeWithDetails, Status } from '../types'
+import { TreeWithDetails, Status } from '../../../shared/types'
 
 const API_BASE = import.meta.env.VITE_API_BASE
 
