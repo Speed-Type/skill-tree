@@ -4,8 +4,7 @@ import StatusSelect from './StatusSelect';
 import PopupButton from './PopupButton';
 
 import { Skill, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../shared/types';
-
-const API_BASE = import.meta.env.VITE_API_BASE;
+import { apiFetch } from '../lib/api';
 
 interface SkillItemProps {
     skill: Skill;
@@ -23,19 +22,11 @@ function SkillItem({ skill, statuses, onSkillChanged, onSkillDeleted }: SkillIte
     async function handleEdit()
     {
         try {
-            const res = await fetch(`${API_BASE}/skills/${skill.id}`, {
+            const updatedSkill = await apiFetch<Skill>(`/skills/${skill.id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ label, description })
+                body: JSON.stringify({ label, description }),
             });
 
-            if (!res.ok)
-            {  
-                const errorData = await res.json();
-                throw new Error(errorData.error || `Request failed: ${res.status}`);
-            }
-
-            const updatedSkill: Skill = await res.json();
             onSkillChanged(updatedSkill);
         }
         catch(err) {
@@ -47,7 +38,7 @@ function SkillItem({ skill, statuses, onSkillChanged, onSkillDeleted }: SkillIte
     async function handleDelete()
     {
         try {
-            await fetch(`${API_BASE}/skills/${skill.id}`, { method: 'DELETE' });
+            await apiFetch(`/skills/${skill.id}`, { method: 'DELETE' });
             onSkillDeleted(skill.id);
         }
         catch(err) {

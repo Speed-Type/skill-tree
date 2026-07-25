@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { TreeWithDetails, Status } from '../../../shared/types'
+import { TreeWithDetails, Status } from '../../../shared/types';
+import { apiFetch } from '../lib/api';
 
 const API_BASE = import.meta.env.VITE_API_BASE
 
@@ -17,11 +18,14 @@ export function useSkillTree(treeId: number): UseSkillTreeResult {
     const [error, setError] = useState<unknown>(null);
 
     useEffect(() => {
+        setLoading(true);
+        setError(null);
+        
         Promise.all([
-            fetch(`${API_BASE}/trees/${treeId}`).then(res => res.json()),
-            fetch(`${API_BASE}/statuses`).then(res => res.json()),
+            apiFetch<TreeWithDetails>(`/trees/${treeId}`),
+            apiFetch<Status[]>(`/statuses`),
         ])
-        .then(([treeData, statusData]: [TreeWithDetails, Status[]]) => {
+        .then(([treeData, statusData]) => {
             setTree(treeData);
             setStatuses(statusData.sort((a, b) => a.sort_order - b.sort_order));
         })

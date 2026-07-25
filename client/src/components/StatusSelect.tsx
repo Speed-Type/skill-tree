@@ -1,10 +1,7 @@
 // Dropdown component to select a skill's status
 
-import {useState} from 'react';
-
 import { Skill, Status, SkillChangedHandler } from '../../../shared/types';
-
-const API_BASE = import.meta.env.VITE_API_BASE;
+import { apiFetch } from '../lib/api';
 
 interface StatusSelectProps {
     skill: Skill;
@@ -21,19 +18,11 @@ function StatusSelect({ skill, statuses, onSkillChanged }: StatusSelectProps) {
 
         try
         {
-            const res = await fetch(`${API_BASE}/skills/${skill.id}/status`, {
+            const updatedSkill = await apiFetch<Skill>(`/skills/${skill.id}/status`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status_id: newStatusId }),
             });
 
-            if (!res.ok)
-            {  
-                const errorData = await res.json();
-                throw new Error(errorData.error || `Request failed: ${res.status}`);
-            }
-
-            const updatedSkill: Skill = await res.json();
             onSkillChanged(updatedSkill);
         }
         catch(err)
