@@ -12,7 +12,8 @@
   "dependencies": {
     "@xyflow/react": "^12.11.2",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "react-router-dom": "^7.11.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -25,5 +26,8 @@
     "globals": "^17.6.0",
     "typescript": "^7.0.2",
     "vite": "^8.1.0"
+  },
+  "allowScripts": {
+    "fsevents@2.3.3": true
   }
 }
