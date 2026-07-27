@@ -14,7 +14,8 @@ function StatusSelect({ skill, statuses, onSkillChanged }: StatusSelectProps) {
     // Function to handle a change in status for a specific skill
     async function handleChange(e: React.ChangeEvent<HTMLSelectElement>)
     {
-        const newStatusId = Number(e.target.value);
+        // An empty selection means "no status" — send null, not a fake 0/NaN id
+        const newStatusId = e.target.value === '' ? null : Number(e.target.value);
 
         try
         {
@@ -33,6 +34,7 @@ function StatusSelect({ skill, statuses, onSkillChanged }: StatusSelectProps) {
 
     return(
         <select value = {skill.status_id ?? ''} onChange = {handleChange}>
+            <option value="">None</option>
             {statuses.map(status => (
                 <option key = {status.id} value = {status.id}>{status.label}</option>
             ))}

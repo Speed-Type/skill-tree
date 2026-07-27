@@ -112,7 +112,7 @@ router.put('/:id', requireAuth, async (req: Request<{ id: string }, {}, UpdateSk
     }
 });
 
-router.put('/:id/status', requireAuth, async (req: Request<{ id: string }, {}, { status_id: number }>, res: Response<Skill | ErrorResponse>) => {
+router.put('/:id/status', requireAuth, async (req: Request<{ id: string }, {}, { status_id: number | null }>, res: Response<Skill | ErrorResponse>) => {
     try {
         const { status_id } = req.body;
 
