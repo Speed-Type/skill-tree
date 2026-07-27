@@ -381,3 +381,52 @@ select.input {
   font-size: 0.9rem;
   padding: 1rem 0;
 }
+
+/* ===================================== Auth screen ===================================== */
+ 
+.auth-shell {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+ 
+.auth-card {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+ 
+.auth-card .brand {
+  text-align: center;
+  align-items: center;
+}
+ 
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+ 
+.auth-form .btn {
+  margin-top: 0.25rem;
+}
+ 
+.btn-link {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 400;
+  text-align: center;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+ 
+.btn-link:hover {
+  color: var(--gold);
+}

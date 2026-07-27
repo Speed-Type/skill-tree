@@ -23,32 +23,40 @@ function AuthGate() {
     }
 
     return (
-        <div>
-            <h2>{mode === 'login' ? 'Log in' : 'Sign up'}</h2>
+        <div className="auth-shell">
+            <div className="auth-card panel">
+                <div className="brand">
+                    <span className="eyebrow">Skill tree</span>
+                    <h2>{mode === 'login' ? 'Log in' : 'Sign up'}</h2>
+                </div>
 
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    placeholder="Email"
-                    required
-                />
-                <input
-                    type="password"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    placeholder="Password"
-                    required
-                />
-                <button type="submit">{mode === 'login' ? 'Log in' : 'Sign up'}</button>
-            </form>
+                <form className="auth-form" onSubmit={handleSubmit}>
+                    <input
+                        className="input"
+                        type="email"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        placeholder="Email"
+                        required
+                    />
+                    <input
+                        className="input"
+                        type="password"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        placeholder="Password"
+                        required
+                    />
+                    <button className="btn btn-primary" type="submit">{mode === 'login' ? 'Log in' : 'Sign up'}</button>
+                </form>
 
-            {error && <p style={{ color: 'red' }}>{error}</p>}
 
-            <button onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}>
-                {mode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Log in'}
-            </button>
+                {error && <p className="error-text">{error}</p>}
+
+                <button className="btn-link" onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}>
+                    {mode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Log in'}
+                </button>
+            </div>
         </div>
     );
 }
