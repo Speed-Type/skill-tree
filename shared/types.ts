@@ -1,5 +1,5 @@
 export interface ErrorResponse {
-    error: string;
+  error: string;
 }
 
 export interface User {
@@ -21,8 +21,9 @@ export interface SkillTree {
 }
 
 export interface TreeWithDetails extends SkillTree {
-    skills: Skill[];
-    edges: SkillEdge[];
+  skills: Skill[];
+  edges: SkillEdge[];
+  statuses: Status[];
 }
 
 export interface Status {

@@ -10,10 +10,10 @@ function App() {
     return (
         <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/trees/:treeId" element={<TreePage />} />
 
             <Route element={<ProtectedRoute />}>
                 <Route path="/" element={<TreeListPage />} />
-                <Route path="/trees/:treeId" element={<TreePage />} />
             </Route>
         </Routes>
     );

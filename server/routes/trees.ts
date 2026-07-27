@@ -38,7 +38,14 @@ router.get('/:id', optionalAuth, async(req: Request<{ id: string }>, res: Respon
         ? await pool.query('SELECT * FROM skill_edges WHERE from_skill_id = ANY($1)', [skillIDs]) // If there are skills associated with the tree...
         : { rows: [] }; // If there were no skills associated with the tree, just return an empty array
 
-        res.json({... tree, skills: skillsResult.rows, edges: edgesResult.rows });
+        // Only the statuses actually referenced by this tree's skills — scoped to the tree, not the viewer,
+        // so a logged-out visitor sees the same labels the owner assigned
+        const statusIDs = [...new Set(skillsResult.rows.map((s: Skill) => s.status_id).filter((id): id is number => id !== null))];
+        const statusesResult = statusIDs.length
+        ? await pool.query('SELECT * FROM statuses WHERE id = ANY($1)', [statusIDs])
+        : { rows: [] };
+
+        res.json({... tree, skills: skillsResult.rows, edges: edgesResult.rows, statuses: statusesResult.rows });
     }
     catch (err) {
         console.error(err);  // Log what actually broke
