@@ -34,7 +34,7 @@ Server runs on `http://localhost:3000` by default.
 | Method | Endpoint | Description | Body |
 |--------|----------|-------------|------|
 | GET | `/trees` | Get your own trees (auth required) | — |
-| GET | `/trees/:id` | Get a tree with its skills and edges — must be public or yours | — |
+| GET | `/trees/:id` | Get a tree with its skills, edges, and relevant statuses — must be public or yours | — |
 | POST | `/trees` | Create a new tree, owned by the logged-in user (auth required) | `{ title, description, is_public }` |
 | PUT | `/trees/:id` | Update a tree — must be yours (auth required) | `{ title, description, is_public }` |
 | DELETE | `/trees/:id` | Delete a tree — must be yours, cascades (auth required) | — |
