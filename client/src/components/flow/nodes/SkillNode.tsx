@@ -9,6 +9,7 @@ import { apiFetch } from '../../../lib/api';
 export interface SkillNodeData extends Record<string, unknown> {
     skill: Skill;
     statuses: Status[];
+    isOwner: boolean;
     onSkillChanged: SkillChangedHandler;
     onSkillDeleted: SkillDeletedHandler;
 }
@@ -18,7 +19,7 @@ export type SkillFlowNode = Node<SkillNodeData>;
 function SkillNode({ data }: NodeProps<SkillFlowNode>) {
 
     // Unpack data (needs to be done because of how data is passed into react flow's nodes)
-    const { skill, statuses, onSkillChanged, onSkillDeleted } = data;
+    const { skill, statuses, isOwner, onSkillChanged, onSkillDeleted } = data;
 
     // States for label and description
     const [label, setLabel] = useState(skill.label);
@@ -52,6 +53,8 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
         }
     }
 
+    const currentStatusLabel = statuses.find(s => s.id === skill.status_id)?.label ?? 'No status';
+
     return(
         <div className="skill-node" >
             
@@ -67,20 +70,26 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
                 <strong>{skill.label}</strong>
 
                 <div className="nodrag">
-                    <StatusSelect skill={skill} statuses={statuses} onSkillChanged={onSkillChanged} />
+                    {isOwner ? (
+                        <StatusSelect skill={skill} statuses={statuses} onSkillChanged={onSkillChanged} />
+                    ) : (
+                        <span>{currentStatusLabel}</span>
+                    )}
 
-                    <PopupButton label="...">
-                        {({ onClose }) => (
-                            <>
-                                {/* Contents of skill edit popup */}
-                                <input value={label} onChange={(e) => setLabel(e.target.value)} />
-                                <input value={description} onChange={(e) => setDescription(e.target.value)} />
-                                
-                                <button onClick={() => { handleEdit(); onClose(); }}>Save Changes</button>
-                                <button onClick={handleDelete}>Delete</button>
-                            </>
-                        )}
-                    </PopupButton>
+                    {isOwner && (
+                        <PopupButton label="...">
+                            {({ onClose }) => (
+                                <>
+                                    {/* Contents of skill edit popup */}
+                                    <input value={label} onChange={(e) => setLabel(e.target.value)} />
+                                    <input value={description} onChange={(e) => setDescription(e.target.value)} />
+                                    
+                                    <button onClick={() => { handleEdit(); onClose(); }}>Save Changes</button>
+                                    <button onClick={handleDelete}>Delete</button>
+                                </>
+                            )}
+                        </PopupButton>
+                    )}
                 </div>
             </div>
         </div>

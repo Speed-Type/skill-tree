@@ -17,13 +17,14 @@ interface SkillTreeViewProps {
     skills: Skill[];
     edges: SkillEdge[];
     statuses: Status[];
+    isOwner: boolean;
     onSkillChanged: SkillChangedHandler;
     onSkillDeleted: SkillDeletedHandler;
     onEdgeCreated: (newEdge: SkillEdge) => void;
     onEdgeDeleted: (deletedEdgeID: string) => void;
 }
 
-function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillDeleted, onEdgeCreated, onEdgeDeleted }: SkillTreeViewProps) {
+function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged, onSkillDeleted, onEdgeCreated, onEdgeDeleted }: SkillTreeViewProps) {
     
     // ======================= Tracking Delete Popups for Edges ==========================
 
@@ -70,6 +71,7 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
             data: { 
                 skill,
                 statuses,
+                isOwner,
                 onSkillChanged,
                 onSkillDeleted,
             },
@@ -96,7 +98,7 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
     // Re-sync whenever the skills themselves change (e.g. on a skill delete, status edit, etc.)
     useEffect(() => {
         setNodes(buildNodes());
-    }, [skills, statuses]);
+    }, [skills, statuses, isOwner]);
 
     useEffect(() => {
         setEdgesState(buildEdges());

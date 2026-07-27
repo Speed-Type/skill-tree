@@ -108,6 +108,7 @@ function TreePage() {
                 skills={skills}
                 edges={edges}
                 statuses={displayStatuses}
+                isOwner={isOwner}
                 onSkillChanged={handleSkillChanged}
                 onSkillDeleted={handleSkillDeleted}
                 onEdgeCreated={handleEdgeCreated}
