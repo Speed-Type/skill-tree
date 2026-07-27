@@ -1,4 +1,3 @@
-// CustomConnectionLine.jsx
 import { useState, useEffect, useCallback } from 'react';
 import { useConnection, useStore, useReactFlow, getStraightPath, XYPosition } from '@xyflow/react';
 import { getBorderPoint } from '../geometry'
@@ -91,7 +90,7 @@ function CustomConnectionLine() {
         <path
             fill="none"
             strokeWidth={1.5}
-            className="react-flow__connection-path"
+            className="react-flow__connection-path connection-line-path"
             d={path}
             style={{ pointerEvents: 'none' }}
         />

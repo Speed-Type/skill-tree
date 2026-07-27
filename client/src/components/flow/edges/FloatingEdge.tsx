@@ -58,6 +58,7 @@ function FloatingEdge({ id, source, target, markerEnd, style, data }: EdgeProps<
             {/* Invisible wide hit-area path that sits behind to catche clicks/hover */}
             <path
                 d={path}
+                className="edge-hit-area"
                 fill="none"
                 stroke="transparent"
                 strokeWidth={20}
@@ -68,7 +69,7 @@ function FloatingEdge({ id, source, target, markerEnd, style, data }: EdgeProps<
             {/* Visible thin line; purely visual */}
             <path
                 id={id}
-                className="react-flow__edge-path"
+                className={`react-flow__edge-path skill-edge-path${isSelected ? ' is-selected' : ''}`}
                 d={path}
                 markerEnd={markerEnd}
                 style={{ ...style, pointerEvents: 'none' }} // Shouldn't take any pointer events; don't block hit-area

@@ -198,10 +198,10 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
     // ========================================= Component HTML =============================================
  
     return (
-        <div>
+        <div className="panel">
             <h2>{tree.title}</h2>
 
-            <div style={{ height: '500px' }} ref={reactFlowWrapperRef}>
+            <div className="flow-canvas" ref={reactFlowWrapperRef}>
                 <ReactFlow
                     // Node and edge data
                     nodes={nodes}

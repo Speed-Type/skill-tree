@@ -33,7 +33,7 @@ function StatusSelect({ skill, statuses, onSkillChanged }: StatusSelectProps) {
     }
 
     return(
-        <select value = {skill.status_id ?? ''} onChange = {handleChange}>
+        <select className="input" value = {skill.status_id ?? ''} onChange = {handleChange}>
             <option value="">None</option>
             {statuses.map(status => (
                 <option key = {status.id} value = {status.id}>{status.label}</option>

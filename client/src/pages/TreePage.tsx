@@ -102,23 +102,15 @@ function TreePage() {
     if (!tree) return <p>No tree found.</p>;
 
     return (
-        <>
-            <SkillTreeView
-                tree={tree}
-                skills={skills}
-                edges={edges}
-                statuses={displayStatuses}
-                isOwner={isOwner}
-                onSkillChanged={handleSkillChanged}
-                onSkillDeleted={handleSkillDeleted}
-                onEdgeCreated={handleEdgeCreated}
-                onEdgeDeleted={handleEdgeDeleted}
-            />
-            
-            {isOwner && (
-                <>
-                    <AddSkillForm treeId={tree.id} onCreated={handleSkillCreated} />
+        <div className="app-shell">
+            <header className="app-header">
+                <div className="brand">
+                    <span className="eyebrow">Skill tree</span>
+                    <h1>Map what you know</h1>
+                    <p className="tagline">A skill portfolio that shows how things connect, not just a list of them.</p>
+                </div>
 
+                {isOwner && (
                     <PopupButton label = "Edit Statuses">
                         {({ onClose }) => (
                             <>
@@ -134,9 +126,25 @@ function TreePage() {
                             </>
                         )}
                     </PopupButton>
-                </>
-            )}
-        </>
+                )}
+            </header>
+            
+            <main className="app-main">
+                <SkillTreeView
+                    tree={tree}
+                    skills={skills}
+                    edges={edges}
+                    statuses={displayStatuses}
+                    isOwner={isOwner}
+                    onSkillChanged={handleSkillChanged}
+                    onSkillDeleted={handleSkillDeleted}
+                    onEdgeCreated={handleEdgeCreated}
+                    onEdgeDeleted={handleEdgeDeleted}
+                />
+
+                {isOwner && ( <AddSkillForm treeId={tree.id} onCreated={handleSkillCreated} /> )}
+            </main>
+        </div>
     )
 }
 

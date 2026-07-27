@@ -1,140 +1,341 @@
+/* ===================================== Fonts ===================================== */
+ 
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
 /* ===================================== Reset/Base ===================================== */
 
 *, *::before, *::after { box-sizing: border-box; }
-body { margin: 0; font-family: sans-serif; }
-
-/* ===================================== Layout ===================================== */
-
-.app { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-
-/* ===================================== Stuff from default index.css file  ===================================== */
 
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
-
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
-
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
+  /* Palette — "skill constellation": a dark field with a warm gold spark and a violet secondary */
+  --void: #0a0b12;
+  --panel: #12131d;
+  --panel-raised: #191b28;
+  --panel-border: #262838;
+  --line: #323548;
+ 
+  --text-dim: #8b8fa3;
+  --text: #c7cbe0;
+  --text-h: #f2f0ff;
+ 
+  --gold: #e3a94a;
+  --gold-soft: rgba(227, 169, 74, 0.16);
+  --gold-line: rgba(227, 169, 74, 0.55);
+ 
+  --violet: #8b7cf6;
+  --violet-soft: rgba(139, 124, 246, 0.16);
+ 
+  --locked: #454a5c;
+ 
+  --danger: #e2607a;
+  --danger-soft: rgba(226, 96, 122, 0.14);
+ 
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 18px;
+ 
+  --sans: 'Inter', system-ui, sans-serif;
+  --heading: 'Space Grotesk', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+ 
+  font: 16px/1.5 var(--sans);
+  color-scheme: dark;
   color: var(--text);
-  background: var(--bg);
+  background: var(--void);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
-}
-
+ 
 body {
   margin: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(139, 124, 246, 0.08), transparent),
+    var(--void);
+  min-height: 100svh;
+}
+ 
+::selection {
+  background: var(--gold-soft);
+  color: var(--text-h);
+}
+ 
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
+/* ===================================== Layout ===================================== */
+
+.app-shell {
+  max-width: 1100px;
   margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
+  padding: 2.5rem 1.5rem 4rem;
+}
+ 
+.app-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--panel-border);
+}
+ 
+.app-header .brand {
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
+  gap: 0.35rem;
+}
+ 
+.app-header .tagline {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  max-width: 40ch;
+}
+ 
+.app-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+ 
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+}
+ 
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+ 
+.state-message {
+  font-family: var(--heading);
+  color: var(--text-dim);
+  padding: 3rem 1rem;
+  text-align: center;
 }
 
-h1,
+/* ===================================== Typography ===================================== */
+ 
+h1, h2, h3 {
+  font-family: var(--heading);
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+ 
+h1 {
+  font-size: 1.75rem;
+}
+ 
 h2 {
+  font-size: 1.15rem;
+  margin-bottom: 0.75rem;
+}
+ 
+p { margin: 0; }
+ 
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* ===================================== Buttons ===================================== */
+ 
+.btn {
+  font-family: var(--heading);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.01em;
+  color: var(--text-h);
+  background: var(--panel-raised);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.1s ease, background 0.15s ease;
+}
+ 
+.btn:hover {
+  border-color: var(--line);
+  background: #202333;
+}
+ 
+.btn:active {
+  transform: translateY(1px);
+}
+ 
+.btn-primary {
+  background: var(--gold-soft);
+  border-color: var(--gold-line);
+  color: var(--gold);
+}
+ 
+.btn-primary:hover {
+  background: rgba(227, 169, 74, 0.25);
+}
+ 
+.btn-danger {
+  background: transparent;
+  border-color: transparent;
+  color: var(--danger);
+}
+ 
+.btn-danger:hover {
+  background: var(--danger-soft);
+  border-color: var(--danger);
+}
+ 
+.btn-icon {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-dim);
+  padding: 0.3rem 0.55rem;
+  font-size: 1rem;
+  line-height: 1;
+}
+ 
+.btn-icon:hover {
+  color: var(--text-h);
+  background: var(--panel-raised);
+}
+
+/* ===================================== Forms ===================================== */
+ 
+.form-row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+ 
+.input,
+select.input {
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  color: var(--text-h);
+  background: var(--void);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  padding: 0.55rem 0.75rem;
+  transition: border-color 0.15s ease;
+}
+ 
+.input::placeholder {
+  color: var(--text-dim);
+}
+ 
+.input:hover {
+  border-color: var(--line);
+}
+ 
+.input:focus-visible {
+  border-color: var(--gold);
+}
+
+/* ===================================== Popup / Modal ===================================== */
+ 
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 6, 10, 0.72);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+ 
+.modal {
+  background: var(--panel-raised);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  min-width: 320px;
+  max-width: 90vw;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+}
+ 
+.modal > .btn {
+  margin-top: 1.25rem;
+}
+
+/* ===================================== Status & skill lists ===================================== */
+ 
+.status-list,
+.skill-list {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+ 
+.status-row,
+.skill-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.6rem 0.5rem 0.8rem;
+}
+ 
+.status-row strong,
+.skill-row strong {
+  flex: 1;
   font-family: var(--heading);
   font-weight: 500;
+  font-size: 0.9rem;
   color: var(--text-h);
 }
-
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
+ 
+.status-dot {
+  width: 9px;
+  height: 9px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: hsl(var(--status-hue, 220) 70% 60%);
+  box-shadow: 0 0 6px hsl(var(--status-hue, 220) 70% 60% / 0.7);
 }
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
+ 
+.status-edit-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 220px;
 }
-p {
-  margin: 0;
+ 
+.status-edit-fields .btn-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
 }
-
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
-}
-
-/* ===================================== Components ===================================== */
-
-.overlay {
-    position: fixed;
-    inset: 0; /* shorthand for top/right/bottom/left: 0 */
-    background: rgba(0, 0, 0, 0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    min-width: 300px;
+ 
+/* Native select used for status assignment on a skill */
+select.input {
+  appearance: none;
+  padding-right: 1.75rem;
+  background-image: linear-gradient(45deg, transparent 50%, var(--text-dim) 50%),
+    linear-gradient(135deg, var(--text-dim) 50%, transparent 50%);
+  background-position: calc(100% - 14px) center, calc(100% - 9px) center;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
 }

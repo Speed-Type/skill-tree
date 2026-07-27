@@ -6,6 +6,16 @@ import PopupButton from '../../PopupButton';
 import { Skill, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../../shared/types';
 import { apiFetch } from '../../../lib/api';
 
+// Deterministic hue from a status label, so any user-defined status gets a  distinct,
+// stable ring color without needing a color field in the schema
+function hueFromLabel(label: string): number {
+    let hash = 0;
+    for (let i = 0; i < label.length; i++) {
+        hash = label.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return Math.abs(hash) % 360;
+}
+
 export interface SkillNodeData extends Record<string, unknown> {
     skill: Skill;
     statuses: Status[];
@@ -24,6 +34,12 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
     // States for label and description
     const [label, setLabel] = useState(skill.label);
     const [description, setDescription] = useState(skill.description ?? '');
+
+    // Determine the current status and its associated ring style (just visuals)
+    const currentStatus = statuses.find(s => s.id === skill.status_id);
+    const ringStyle = currentStatus
+        ? ({ '--status-hue': hueFromLabel(currentStatus.label), '--status-glow': 0.35 } as React.CSSProperties)
+        : undefined;
 
     // Function to handle edits of this node
     async function handleEdit()
@@ -56,7 +72,7 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
     const currentStatusLabel = statuses.find(s => s.id === skill.status_id)?.label ?? 'No status';
 
     return(
-        <div className="skill-node" >
+        <div className={`skill-node${currentStatus ? '' : ' is-unset'}`} >
             
             {/* Handles to cover node borders */}
             <Handle type="source" position={Position.Top} id="top" className="skill-node-edge-handle skill-node-edge-top" />
@@ -67,9 +83,9 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
             {/* Actual body of the node */}
             <div className="skill-node-body">
 
-                <strong>{skill.label}</strong>
+                <strong className="skill-node-label">{skill.label}</strong>
 
-                <div className="nodrag">
+                <div className="nodrag skill-node-controls">
                     {isOwner ? (
                         <StatusSelect skill={skill} statuses={statuses} onSkillChanged={onSkillChanged} />
                     ) : (
@@ -77,16 +93,18 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
                     )}
 
                     {isOwner && (
-                        <PopupButton label="...">
+                        <PopupButton label="..." className="btn btn-icon">
                             {({ onClose }) => (
-                                <>
+                                <div className="status-edit-fields">
                                     {/* Contents of skill edit popup */}
-                                    <input value={label} onChange={(e) => setLabel(e.target.value)} />
-                                    <input value={description} onChange={(e) => setDescription(e.target.value)} />
+                                    <input className="input" value={label} onChange={(e) => setLabel(e.target.value)} />
+                                    <input className="input" value={description} onChange={(e) => setDescription(e.target.value)} />
                                     
-                                    <button onClick={() => { handleEdit(); onClose(); }}>Save Changes</button>
-                                    <button onClick={handleDelete}>Delete</button>
-                                </>
+                                    <div className="btn-row">
+                                        <button className="btn btn-primary" onClick={() => { handleEdit(); onClose(); }}>Save Changes</button>
+                                        <button className="btn btn-danger" onClick={handleDelete}>Delete</button>
+                                    </div>
+                                </div>
                             )}
                         </PopupButton>
                     )}

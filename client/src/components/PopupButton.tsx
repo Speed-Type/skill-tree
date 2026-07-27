@@ -24,21 +24,22 @@ import { createPortal } from 'react-dom'
 
 interface PopupButtonProps {
     label: string;
+    className?: string;
     children: (args: { onClose: () => void }) => ReactNode;
 }
 
-function PopupButton({label, children}: PopupButtonProps) {
+function PopupButton({label, className = 'btn btn-icon', children}: PopupButtonProps) {
     const [open, setOpen] = useState(false);
 
     return(
         <>
-            <button onClick = {() => setOpen(true)}>{label}</button>
+            <button className={className} onClick = {() => setOpen(true)}>{label}</button>
 
             {open && createPortal(
                 <div className="overlay" onClick={() => setOpen(false)}>
                     <div className="modal" onClick={e => e.stopPropagation()}>
                         {children ({ onClose: () => setOpen(false)})}
-                        <button onClick={() => setOpen(false)}>Close</button>
+                        <button className="btn" onClick={() => setOpen(false)}>Close</button>
                     </div>
                 </div>,
                 document.body
