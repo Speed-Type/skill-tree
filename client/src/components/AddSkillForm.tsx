@@ -1,8 +1,7 @@
 import { useState } from 'react';
 
 import { Skill, SkillChangedHandler } from '../../../shared/types';
-
-const API_BASE = import.meta.env.VITE_API_BASE
+import { apiFetch } from '../lib/api';
 
 interface AddSkillFormProps {
     treeId: number;
@@ -19,19 +18,11 @@ function AddSkillForm({ treeId, onCreated }: AddSkillFormProps) {
 
         try
         {
-            const res = await fetch(`${API_BASE}/skills`, {
+            const newSkill = await apiFetch<Skill>('/skills', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ tree_id: treeId, label, x_position: 0, y_position: 0 }),
             });
 
-            if (!res.ok)
-            {  
-                const errorData = await res.json();
-                throw new Error(errorData.error || `Request failed: ${res.status}`);
-            }
-
-            const newSkill: Skill = await res.json();
             onCreated(newSkill);
             setLabel('');
         }

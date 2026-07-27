@@ -1,23 +1,26 @@
 import { Router, Request, Response} from 'express';
 import { User, PublicUser, ErrorResponse } from '../../shared/types';
-import { isPgError } from '../utils';
+import { isPgError } from '../utils/utils';
+import { requireAuth } from '../middleware/auth';
+import bcrypt from 'bcrypt';
 
 import pool from '../db';
 
 const router = Router();
 
-router.get('/', async (req: Request, res: Response<PublicUser[] | ErrorResponse>) => {
+router.get('/me', requireAuth, async (req: Request, res: Response<PublicUser | ErrorResponse>) => {
     try {
-        const result = await pool.query('SELECT id, email, created_at FROM users');
-	    res.json(result.rows);
+        const result = await pool.query('SELECT id, email, created_at FROM users WHERE id = $1', [req.userId]);
+        if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
+        res.json(result.rows[0]);
     }
     catch (err) {
-        console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        console.error(err);
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
-router.get('/:id', async (req: Request<{ id: string }>, res: Response<PublicUser | ErrorResponse>) => {
+router.get('/:id', requireAuth, async (req: Request<{ id: string }>, res: Response<PublicUser | ErrorResponse>) => {
     try {
         const result = await pool.query('SELECT id, email, created_at FROM users WHERE id = $1', [req.params.id]);
         if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
@@ -34,10 +37,9 @@ interface CreateUserBody {
     password: string;
 }
 
-const bcrypt = require('bcrypt'); // Necessary for server-side hashing
-
 router.post('/', async (req: Request<{}, {}, CreateUserBody>, res: Response<PublicUser | ErrorResponse>) => {
     try {
+        
         const { email, password } = req.body;
 
         // Make sure required parameters (email and password) are passed
@@ -66,7 +68,7 @@ interface UpdateUserBody {
     password?: string;
 }
 
-router.put('/:id', async(req: Request<{ id: string }, {}, UpdateUserBody>, res: Response<PublicUser | ErrorResponse>) => {
+router.put('/me', requireAuth, async(req: Request<{ id: string }, {}, UpdateUserBody>, res: Response<PublicUser | ErrorResponse>) => {
     try {
         const { email, password } = req.body;
 
@@ -76,7 +78,7 @@ router.put('/:id', async(req: Request<{ id: string }, {}, UpdateUserBody>, res: 
 
         const result = await pool.query(
             'UPDATE users SET email = COALESCE($1, email), password_hash = COALESCE($2, password_hash) WHERE id = $3 RETURNING id, email, created_at',
-            [email, password_hash, req.params.id]
+            [email, password_hash, req.userId]
         );
 
         // Check that the PUT was successful
@@ -85,6 +87,9 @@ router.put('/:id', async(req: Request<{ id: string }, {}, UpdateUserBody>, res: 
         res.status(200).json(result.rows[0]);
     }
     catch (err) {
+        // First check if it's a duplicate user violation
+        if (isPgError(err) && err.code === "23505") return res.status(409).json({ error: "This email already exists" });
+
         console.error(err);  // Log what actually broke
         res.status(500).json({ error: 'Database error' });  // Client gets a response
     }
@@ -92,9 +97,9 @@ router.put('/:id', async(req: Request<{ id: string }, {}, UpdateUserBody>, res: 
 
 // NOTE: The delete endpoint currently cascade deletes ALL of the user data; that might be something to change later
 
-router.delete('/:id', async(req: Request<{ id: string }>, res: Response<ErrorResponse>) => {
+router.delete('/me', requireAuth, async(req: Request<{ id: string }>, res: Response<ErrorResponse>) => {
     try {
-        const result = await pool.query('DELETE FROM users WHERE id = $1 RETURNING id', [req.params.id]);
+        const result = await pool.query('DELETE FROM users WHERE id = $1 RETURNING id', [req.userId]);
 
         // Check that DELETE was successful
         if(result.rows.length === 0) return res.status(404).json({ error: 'Not found' });

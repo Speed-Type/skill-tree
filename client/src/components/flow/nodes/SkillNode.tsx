@@ -4,12 +4,12 @@ import StatusSelect from '../../StatusSelect';
 import PopupButton from '../../PopupButton';
 
 import { Skill, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../../shared/types';
-
-const API_BASE = import.meta.env.VITE_API_BASE;
+import { apiFetch } from '../../../lib/api';
 
 export interface SkillNodeData extends Record<string, unknown> {
     skill: Skill;
     statuses: Status[];
+    isOwner: boolean;
     onSkillChanged: SkillChangedHandler;
     onSkillDeleted: SkillDeletedHandler;
 }
@@ -19,7 +19,7 @@ export type SkillFlowNode = Node<SkillNodeData>;
 function SkillNode({ data }: NodeProps<SkillFlowNode>) {
 
     // Unpack data (needs to be done because of how data is passed into react flow's nodes)
-    const { skill, statuses, onSkillChanged, onSkillDeleted } = data;
+    const { skill, statuses, isOwner, onSkillChanged, onSkillDeleted } = data;
 
     // States for label and description
     const [label, setLabel] = useState(skill.label);
@@ -29,19 +29,11 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
     async function handleEdit()
     {
         try {
-            const res = await fetch(`${API_BASE}/skills/${skill.id}`, {
+            const updatedSkill = await apiFetch<Skill>(`/skills/${skill.id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ label, description })
             });
 
-            if (!res.ok)
-            {  
-                const errorData = await res.json();
-                throw new Error(errorData.error || `Request failed: ${res.status}`);
-            }
-
-            const updatedSkill: Skill = await res.json();
             onSkillChanged(updatedSkill);
         }
         catch(err) {
@@ -53,13 +45,15 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
     async function handleDelete()
     {
         try {
-            await fetch(`${API_BASE}/skills/${skill.id}`, { method: 'DELETE' });
+            await apiFetch(`/skills/${skill.id}`, { method: 'DELETE' });
             onSkillDeleted(skill.id);
         }
         catch(err) {
             console.error('Failed to update skill data: ', err);
         }
     }
+
+    const currentStatusLabel = statuses.find(s => s.id === skill.status_id)?.label ?? 'No status';
 
     return(
         <div className="skill-node" >
@@ -76,20 +70,26 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
                 <strong>{skill.label}</strong>
 
                 <div className="nodrag">
-                    <StatusSelect skill={skill} statuses={statuses} onSkillChanged={onSkillChanged} />
+                    {isOwner ? (
+                        <StatusSelect skill={skill} statuses={statuses} onSkillChanged={onSkillChanged} />
+                    ) : (
+                        <span>{currentStatusLabel}</span>
+                    )}
 
-                    <PopupButton label="...">
-                        {({ onClose }) => (
-                            <>
-                                {/* Contents of skill edit popup */}
-                                <input value={label} onChange={(e) => setLabel(e.target.value)} />
-                                <input value={description} onChange={(e) => setDescription(e.target.value)} />
-                                
-                                <button onClick={() => { handleEdit(); onClose(); }}>Save Changes</button>
-                                <button onClick={handleDelete}>Delete</button>
-                            </>
-                        )}
-                    </PopupButton>
+                    {isOwner && (
+                        <PopupButton label="...">
+                            {({ onClose }) => (
+                                <>
+                                    {/* Contents of skill edit popup */}
+                                    <input value={label} onChange={(e) => setLabel(e.target.value)} />
+                                    <input value={description} onChange={(e) => setDescription(e.target.value)} />
+                                    
+                                    <button onClick={() => { handleEdit(); onClose(); }}>Save Changes</button>
+                                    <button onClick={handleDelete}>Delete</button>
+                                </>
+                            )}
+                        </PopupButton>
+                    )}
                 </div>
             </div>
         </div>

@@ -1,8 +1,7 @@
 import {useState} from 'react'
 
 import { Status, StatusChangedHandler } from '../../../shared/types';
-
-const API_BASE = import.meta.env.VITE_API_BASE
+import { apiFetch } from '../lib/api';
 
 interface AddStatusFormProps {
     onStatusCreated: StatusChangedHandler;
@@ -18,23 +17,11 @@ function AddStatusForm({ onStatusCreated, currentCount }: AddStatusFormProps) {
         try {
             e.preventDefault();
 
-            const res = await fetch(`${API_BASE}/statuses`, {
+            const newStatus = await apiFetch<Status>('/statuses', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                user_id: 1, // temporary until auth
-                label,
-                sort_order: currentCount
-                }),
+                body: JSON.stringify({ label, sort_order: currentCount}),
             });
 
-            if (!res.ok)
-            {  
-                const errorData = await res.json();
-                throw new Error(errorData.error || `Request failed: ${res.status}`);
-            }
-
-            const newStatus: Status = await res.json();
             onStatusCreated(newStatus);
             setLabel('');
         }

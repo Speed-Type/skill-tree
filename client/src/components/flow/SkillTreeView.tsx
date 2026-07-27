@@ -10,21 +10,21 @@ import { FloatingSkillEdge } from './edges/FloatingEdge';
 import CustomConnectionLine from './connectionLines/CustomConnectionLine';
 
 import { TreeWithDetails, Skill, SkillEdge, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../shared/types';
-
-const API_BASE = import.meta.env.VITE_API_BASE;
+import { apiFetch } from '../../lib/api';
 
 interface SkillTreeViewProps {
     tree: TreeWithDetails;
     skills: Skill[];
     edges: SkillEdge[];
     statuses: Status[];
+    isOwner: boolean;
     onSkillChanged: SkillChangedHandler;
     onSkillDeleted: SkillDeletedHandler;
     onEdgeCreated: (newEdge: SkillEdge) => void;
     onEdgeDeleted: (deletedEdgeID: string) => void;
 }
 
-function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillDeleted, onEdgeCreated, onEdgeDeleted }: SkillTreeViewProps) {
+function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged, onSkillDeleted, onEdgeCreated, onEdgeDeleted }: SkillTreeViewProps) {
     
     // ======================= Tracking Delete Popups for Edges ==========================
 
@@ -71,6 +71,7 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
             data: { 
                 skill,
                 statuses,
+                isOwner,
                 onSkillChanged,
                 onSkillDeleted,
             },
@@ -97,7 +98,7 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
     // Re-sync whenever the skills themselves change (e.g. on a skill delete, status edit, etc.)
     useEffect(() => {
         setNodes(buildNodes());
-    }, [skills, statuses]);
+    }, [skills, statuses, isOwner]);
 
     useEffect(() => {
         setEdgesState(buildEdges());
@@ -120,22 +121,11 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
         }
 
         try {
-            const res = await fetch(`${API_BASE}/skills/${node.id}`, {
+            const updatedSkill = await apiFetch<Skill>(`/skills/${node.id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    x_position: node.position.x,
-                    y_position: node.position.y,
-                }),
+                body: JSON.stringify({ x_position: node.position.x, y_position: node.position.y }),
             });
 
-            if (!res.ok)
-            {  
-                const errorData = await res.json();
-                throw new Error(errorData.error || `Request failed: ${res.status}`);
-            }
-
-            const updatedSkill: Skill = await res.json();
             onSkillChanged(updatedSkill);
         }
         catch(err) {
@@ -153,22 +143,11 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
         if (connection.source === connection.target) return;
 
         try {
-            const res = await fetch(`${API_BASE}/edges`, {
+            const newEdge = await apiFetch<SkillEdge>('/edges', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    from_skill_id: connection.source,
-                    to_skill_id: connection.target,
-                }),
+                body: JSON.stringify({ from_skill_id: connection.source, to_skill_id: connection.target }),
             });
 
-            if (!res.ok)
-            {  
-                const errorData = await res.json();
-                throw new Error(errorData.error || `Request failed: ${res.status}`);
-            }
-
-            const newEdge: SkillEdge = await res.json();
             onEdgeCreated(newEdge);
         } catch (err) {
             console.error('Failed to create edge: ', err);
@@ -202,25 +181,10 @@ function SkillTreeView({ tree, skills, edges, statuses, onSkillChanged, onSkillD
     // Handles deletion of a single edge
     async function handleEdgeDelete(deletedEdgeId: string) {
         try {
-            const res = await fetch(`${API_BASE}/edges/${deletedEdgeId}`, { method: 'DELETE' });
-
-            if (!res.ok)
-            {  
-                const errorData = await res.json();
-                throw new Error(errorData.error || `Request failed: ${res.status}`);
-            }
-
+            await apiFetch(`/edges/${deletedEdgeId}`, { method: 'DELETE' });
             onEdgeDeleted(deletedEdgeId);
         } catch (err) {
             console.error('Failed to delete edge: ', err);
-        }
-    }
-
-    // Handles deletion of edges (PLURAL) in the backend
-    // This is its own function because of ReactFlow's onEdgesDelete event
-    async function handleEdgesDelete(deletedEdges: FloatingSkillEdge[]) {
-        for (const edge of deletedEdges) {
-            handleEdgeDelete(edge.id);
         }
     }
 

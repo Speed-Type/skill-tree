@@ -9,15 +9,72 @@
   },
   "item": [
     {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"email_name_here@email.com\", \"password\": \"password here\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:3000/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Log in, sets an httpOnly auth cookie\n\nRequires email and password in body"
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/auth/logout",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Clear the auth cookie"
+          },
+          "response": []
+        }
+      ],
+      "description": "Requests for handling authentication"
+    },
+    {
       "name": "Users",
       "item": [
         {
-          "name": "Get all users",
+          "name": "Get logged in user",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/users/",
+              "raw": "http://localhost:3000/users/me",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -25,10 +82,10 @@
               "port": "3000",
               "path": [
                 "users",
-                ""
+                "me"
               ]
             },
-            "description": "Returns list of all users"
+            "description": "Returns the currently logged in user"
           },
           "response": []
         },
@@ -49,7 +106,7 @@
                 "1"
               ]
             },
-            "description": "Returns the user with the specified ID"
+            "description": "Auth required\n\nReturns the user with the specified ID"
           },
           "response": []
         },
@@ -83,7 +140,7 @@
           "response": []
         },
         {
-          "name": "Update user",
+          "name": "Update logged in user",
           "request": {
             "method": "PUT",
             "header": [],
@@ -97,7 +154,7 @@
               }
             },
             "url": {
-              "raw": "http://localhost:3000/users/1",
+              "raw": "http://localhost:3000/users/me",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -105,20 +162,20 @@
               "port": "3000",
               "path": [
                 "users",
-                "1"
+                "me"
               ]
             },
-            "description": "Updates the user with the specified ID\n\nemail, password are optional in body"
+            "description": "Auth required\n\nUpdates the logged in user\n\nemail, password are optional in body"
           },
           "response": []
         },
         {
-          "name": "Delete user",
+          "name": "Delete logged in user",
           "request": {
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/users/1",
+              "raw": "http://localhost:3000/users/me",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -126,10 +183,10 @@
               "port": "3000",
               "path": [
                 "users",
-                "1"
+                "me"
               ]
             },
-            "description": "Deletes the user with the specified ID"
+            "description": "Auth required\n\nDeletes the logged in user"
           },
           "response": []
         }
@@ -140,7 +197,7 @@
       "name": "Trees",
       "item": [
         {
-          "name": "Get all trees",
+          "name": "Get logged in user's trees",
           "request": {
             "method": "GET",
             "header": [],
@@ -155,7 +212,7 @@
                 "trees"
               ]
             },
-            "description": "Returns list of all skill trees"
+            "description": "Auth required\n\nReturns list of the logged in user's skill trees"
           },
           "response": []
         },
@@ -176,7 +233,7 @@
                 "1"
               ]
             },
-            "description": "Returns the skill tree with the specified ID"
+            "description": "Returns the skill tree with the specified ID (must be public or belong to logged in user)"
           },
           "response": []
         },
@@ -187,7 +244,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\"user_id\": 1, \"title\": \"Tree title here\", \"description\": \"Description here\", \"is_public\": true}",
+              "raw": "{\"title\": \"Tree title here\", \"description\": \"Description here\", \"is_public\": true}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -205,7 +262,7 @@
                 "trees"
               ]
             },
-            "description": "Requires user_id and title in body\n\ndescription, is_public are optional in body"
+            "description": "Auth required\n\nCreates a new tree owned by the logged in user\n\nRequires title in body\n\ndescription, is_public are optional in body"
           },
           "response": []
         },
@@ -235,7 +292,7 @@
                 "1"
               ]
             },
-            "description": "Updates the skill tree with the specified ID\n\ntitle, description, is_public are optional in body"
+            "description": "Auth required\n\nUpdates the skill tree with the specified ID (must be owned by logged in user)\n\ntitle, description, is_public are optional in body"
           },
           "response": []
         },
@@ -256,7 +313,7 @@
                 "1"
               ]
             },
-            "description": "Deletes the skill tree with the specified ID"
+            "description": "Auth required\n\nDeletes the skill tree with the specified ID (must be owned by logged in user)"
           },
           "response": []
         }
@@ -282,7 +339,7 @@
                 "skills"
               ]
             },
-            "description": "Returns list of all skills"
+            "description": "Auth required\n\nReturns list of the logged in user's skills"
           },
           "response": []
         },
@@ -303,7 +360,7 @@
                 "1"
               ]
             },
-            "description": "Returns the skill with the specified ID"
+            "description": "Returns the skill with the specified ID (must be public or belong to logged in user)"
           },
           "response": []
         },
@@ -332,7 +389,7 @@
                 "skills"
               ]
             },
-            "description": "Requires tree_id and label in body\n\ndescription, status_id, x_position, and y_position are optional in body"
+            "description": "Auth required\n\nRequires tree_id (must belong to logged in user) and label in body\n\ndescription, status_id, x_position, and y_position are optional in body"
           },
           "response": []
         },
@@ -362,7 +419,7 @@
                 "1"
               ]
             },
-            "description": "Updates the skill with the specified ID\n\nlabel, description, status_id, x_position, and y_position are optional in body"
+            "description": "Auth required\n\nUpdates the skill with the specified ID (must be in a tree belonging to logged in user)\n\nlabel, description, status_id, x_position, and y_position are optional in body"
           },
           "response": []
         },
@@ -393,7 +450,7 @@
                 "status"
               ]
             },
-            "description": "Updates the status of the skill with the specified ID\n\nstatus_id is the only argument passed in the body (passing null is valid)"
+            "description": "Auth required\n\nUpdates the status of the skill with the specified ID (must be in a tree belonging to logged in user)\n\nstatus_id is the only argument passed in the body (passing null is valid)"
           },
           "response": []
         },
@@ -424,7 +481,7 @@
                 "position"
               ]
             },
-            "description": "Updates the position of the skill with the specified ID\n\nx_position, y_position are optional in body"
+            "description": "Auth required\n\nUpdates the position of the skill with the specified ID (must be in a tree belonging to logged in user)\n\nx_position, y_position are optional in body"
           },
           "response": []
         },
@@ -445,7 +502,7 @@
                 "1"
               ]
             },
-            "description": "Deletes the skill with the specified ID"
+            "description": "Auth required\n\nDeletes the skill with the specified ID (must belong to logged in user)"
           },
           "response": []
         }
@@ -472,7 +529,7 @@
                 ""
               ]
             },
-            "description": "Returns list of all skill edges"
+            "description": "Auth required\n\nReturns list of the logged in user's skills edges"
           },
           "response": []
         },
@@ -493,7 +550,7 @@
                 "1"
               ]
             },
-            "description": "Returns the skill edge with the specified ID"
+            "description": "Returns the skill edge with the specified ID (must be public or belong to logged in user)"
           },
           "response": []
         },
@@ -522,7 +579,7 @@
                 "edges"
               ]
             },
-            "description": "Requires from_skill_id and to_skill_id in body"
+            "description": "Auth required\n\nRequires from_skill_id and to_skill_id in body (skills must belong to logged in user)"
           },
           "response": []
         },
@@ -543,7 +600,7 @@
                 "1"
               ]
             },
-            "description": "Deletes the skill edge with the specified ID"
+            "description": "Auth required\n\nDeletes the skill edge with the specified ID (must belong to logged in user)"
           },
           "response": []
         }
@@ -569,7 +626,7 @@
                 "statuses"
               ]
             },
-            "description": "Returns list of all statuses"
+            "description": "Auth required\n\nReturns list of the logged in user's statuses"
           },
           "response": []
         },
@@ -590,7 +647,7 @@
                 "1"
               ]
             },
-            "description": "Returns the status with the specified ID"
+            "description": "Returns the status with the specified ID (must be public or belong to logged in user)"
           },
           "response": []
         },
@@ -601,7 +658,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\"user_id\": 1, \"label\": \"Label here\", \"sort_order\": 1}",
+              "raw": "{\"label\": \"Label here\", \"sort_order\": 1}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -620,7 +677,7 @@
                 ""
               ]
             },
-            "description": "Requires user_id and label in body\n\nsort_order is optional in body"
+            "description": "Auth required\n\nRequires label in body\n\nsort_order is optional in body"
           },
           "response": []
         },
@@ -650,7 +707,7 @@
                 "1"
               ]
             },
-            "description": "Updates the status with the specified ID\n\nlabel, sort_order are optional in body"
+            "description": "Auth required\n\nUpdates the status with the specified ID (must belong to logged in user)\n\nlabel, sort_order are optional in body"
           },
           "response": []
         },
@@ -671,7 +728,7 @@
                 "1"
               ]
             },
-            "description": "Deletes the status with the specified ID"
+            "description": "Auth required\n\nDeletes the status with the specified ID (must belong to logged in user)"
           },
           "response": []
         }

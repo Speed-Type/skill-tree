@@ -3,8 +3,7 @@ import { useState } from 'react';
 import PopupButton from './PopupButton';
 
 import { Status, StatusChangedHandler, StatusDeletedHandler } from '../../../shared/types';
-
-const API_BASE = import.meta.env.VITE_API_BASE;
+import { apiFetch } from '../lib/api';
 
 interface StatusItemProps {
     status: Status;
@@ -20,19 +19,11 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
     async function handleEdit()
     {
         try {
-            const res = await fetch(`${API_BASE}/statuses/${status.id}`, {
+            const updatedStatus = await apiFetch<Status>(`/statuses/${status.id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ label })
             });
 
-            if (!res.ok)
-            {  
-                const errorData = await res.json();
-                throw new Error(errorData.error || `Request failed: ${res.status}`);
-            }
-
-            const updatedStatus: Status = await res.json();
             onStatusChanged(updatedStatus);
         }
         catch(err) {
@@ -44,7 +35,7 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
     async function handleDelete()
     {
         try {
-            await fetch(`${API_BASE}/statuses/${status.id}`, { method: 'DELETE' });
+            await apiFetch(`/statuses/${status.id}`, { method: 'DELETE' });
             onStatusDeleted(status.id);
         }
         catch(err) {
