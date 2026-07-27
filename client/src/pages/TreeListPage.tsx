@@ -37,23 +37,44 @@ function TreeListPage() {
     if (loading) return <p>Loading...</p>;
 
     return (
-        <div>
-            <button onClick={logout}>Log out ({user?.email})</button>
+        <div className="app-shell">
+            <header className="app-header">
+                <div className="brand">
+                    <span className="eyebrow">Skill tree</span>
+                    <h1>Your skill trees</h1>
+                    <p className="tagline">Pick one up where you left off, or start a new one.</p>
+                </div>
+            </header>
 
-            <h1>Your Skill Trees</h1>
-            <ul>
-                {trees.map(tree => (
-                    <li key={tree.id}>
-                        <Link to={`/trees/${tree.id}`}>{tree.title}</Link>
-                    </li>
-                ))}
-            </ul>
+            <button className="btn" onClick={logout}>Log out ({user?.email})</button>
 
-            <form onSubmit={handleCreate}>
-                <input value={title} onChange={e => setTitle(e.target.value)} placeholder="New tree title" required />
-                <button type="submit">Create Tree</button>
-            </form>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
+            <main className="app-main">
+                {trees.length > 0 ? (
+                    <ul className="tree-list">
+                        {trees.map(tree => (
+                            <li key={tree.id}>
+                                <Link className="tree-card" to={`/trees/${tree.id}`}>{tree.title}</Link>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p className="tree-list-empty">No skill trees yet. Create your first one below.</p>
+                )}
+
+                <form className="panel form-row" onSubmit={handleCreate}>
+                    <input
+                        className="input"
+                        value={title}
+                        onChange={e => setTitle(e.target.value)}
+                        placeholder="New tree title"
+                        required
+                        style={{ flex: 1 }}
+                    />
+                    <button className="btn btn-primary" type="submit">Create tree</button>
+                </form>
+
+                {error && <p className="error-text">{error}</p>}
+            </main>
         </div>
     );
 }

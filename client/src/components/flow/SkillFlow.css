@@ -1,16 +1,109 @@
-/* =========================== Skill Tree/ReactFlow Component Specific CSS =========================== */
+/* Skill Tree/ReactFlow Component Specific CSS */
 
+/* =========================== Canvas Wrapper =========================== */
+
+.flow-canvas {
+  height: 560px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--panel-border);
+  overflow: hidden;
+  background:
+    radial-gradient(rgba(139, 124, 246, 0.14) 1px, transparent 1px) 0 0 / 26px 26px,
+    var(--void);
+}
+ 
+.flow-canvas .react-flow__background {
+  opacity: 0.6;
+}
+ 
+.flow-canvas .react-flow__controls {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: none;
+  border: 1px solid var(--panel-border);
+}
+ 
+.flow-canvas .react-flow__controls button {
+  background: var(--panel-raised);
+  border-bottom: 1px solid var(--panel-border);
+  color: var(--text);
+  fill: var(--text);
+}
+ 
+.flow-canvas .react-flow__controls button:hover {
+  background: #202333;
+}
+ 
+.flow-canvas .react-flow__attribution {
+  background: transparent;
+  color: var(--text-dim);
+}
+
+/* =========================== Node =========================== */
+
+.skill-node {
+  position: relative;
+  min-width: 160px;
+  border-radius: var(--radius);
+  background: var(--panel-raised);
+}
+ 
 .skill-node-body {
   position: relative;
   z-index: 1;
   pointer-events: none; /* let hover/drop pass through to the handle beneath */
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius);
+  background: var(--panel-raised);
+ 
+  /* Status ring, driven by --status-hue set inline per node; falls back to locked grey */
+  box-shadow:
+    0 0 0 1px hsl(var(--status-hue, 220) 0% 30% / 0.5),
+    0 0 18px hsl(var(--status-hue, 220) 70% 55% / var(--status-glow, 0));
+  border-left: 3px solid hsl(var(--status-hue, 220) 70% 55%);
+  transition: box-shadow 0.2s ease;
 }
-
+ 
+.skill-node.is-unset .skill-node-body {
+  border-left-color: var(--locked);
+}
+ 
+.skill-node-body:hover {
+  box-shadow:
+    0 0 0 1px hsl(var(--status-hue, 220) 0% 30% / 0.5),
+    0 0 22px hsl(var(--status-hue, 220) 70% 55% / 0.5);
+}
+ 
+.skill-node-label {
+  display: block;
+  font-family: var(--heading);
+  font-weight: 500;
+  font-size: 0.92rem;
+  color: var(--text-h);
+  margin-bottom: 0.45rem;
+  pointer-events: auto;
+}
+ 
+.skill-node-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  pointer-events: auto;
+}
+ 
+.skill-node-controls .input {
+  padding: 0.3rem 1.5rem 0.3rem 0.5rem;
+  font-size: 0.78rem;
+}
+ 
 /* Explicitly re-enable interaction for anything the user needs to click */
 .skill-node-body .nodrag,
 .skill-node-body strong {
   pointer-events: auto;
 }
+
+/* =========================== Connection Handles =========================== */
 
 .react-flow__handle.skill-node-edge-handle {
   position: absolute;
@@ -21,7 +114,7 @@
   z-index: 2;
   transform: none; /* cancel React Flow's default translate(-50%, -50%) */
 }
-
+ 
 .react-flow__handle.skill-node-edge-top {
   top: -4px;
   left: 0;
@@ -29,7 +122,7 @@
   width: 100%;
   height: 8px;
 }
-
+ 
 .react-flow__handle.skill-node-edge-bottom {
   bottom: -4px;
   left: 0;
@@ -37,7 +130,7 @@
   width: 100%;
   height: 8px;
 }
-
+ 
 .react-flow__handle.skill-node-edge-left {
   left: -4px;
   top: 0;
@@ -45,7 +138,7 @@
   width: 8px;
   height: 100%;
 }
-
+ 
 .react-flow__handle.skill-node-edge-right {
   right: -4px;
   top: 0;
@@ -53,50 +146,72 @@
   width: 8px;
   height: 100%;
 }
-
-.skill-node {
-  position: relative;
-  border-radius: 6px;
-  background: #fff;
-}
-
-.skill-node-body {
-  padding: 10px;
-  border: 1px solid #333;
-  border-radius: 6px;
-  background: #fff;
-  position: relative;
-  z-index: 1; /* keeps body content above the handle strips */
-}
-
-.skill-node-edge-handle {
-  position: absolute;
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  opacity: 0; /* invisible, but still interactive */
-  z-index: 2;
-}
-
-/* Thin strips along each side, slightly overlapping the border */
-.skill-node-edge-top,
-.skill-node-edge-bottom {
-  left: 0;
-  width: 100%;
-  height: 8px;
-}
-.skill-node-edge-top { top: -4px; }
-.skill-node-edge-bottom { bottom: -4px; }
-
-.skill-node-edge-left,
-.skill-node-edge-right {
-  top: 0;
-  height: 100%;
-  width: 8px;
-}
-.skill-node-edge-left { left: -4px; }
-.skill-node-edge-right { right: -4px; }
-
+ 
 .skill-node-edge-handle:hover {
   cursor: crosshair;
+}
+ 
+/* Soft glow ring that appears around the whole node on hover, hinting it's connectable */
+.skill-node::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: calc(var(--radius) + 6px);
+  border: 1px dashed transparent;
+  transition: border-color 0.15s ease;
+  pointer-events: none;
+}
+ 
+.skill-node:hover::before {
+  border-color: var(--violet-soft);
+}
+
+/* =========================== Edges =========================== */
+
+.skill-edge-path {
+  stroke: var(--line);
+  stroke-width: 1.5;
+  transition: stroke 0.15s ease, filter 0.15s ease;
+}
+ 
+.skill-edge-path.is-selected {
+  stroke: var(--gold);
+  filter: drop-shadow(0 0 4px var(--gold-line));
+}
+ 
+.react-flow__edge:hover .skill-edge-path {
+  stroke: var(--violet);
+}
+ 
+.edge-delete-popup {
+  background: var(--panel-raised);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  padding: 0.3rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+ 
+.edge-delete-popup button {
+  font-family: var(--heading);
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: var(--danger);
+  background: transparent;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+ 
+.edge-delete-popup button:hover {
+  background: var(--danger-soft);
+}
+
+/* =========================== Dragging Connection Line =========================== */
+
+.connection-line-path {
+  stroke: var(--gold);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+  filter: drop-shadow(0 0 4px var(--gold-line));
 }

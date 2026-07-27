@@ -5,6 +5,16 @@ import PopupButton from './PopupButton';
 import { Status, StatusChangedHandler, StatusDeletedHandler } from '../../../shared/types';
 import { apiFetch } from '../lib/api';
 
+// Deterministic hue from a status label, so any user-defined status gets a distinct,
+// stable color without needing a color field in the schema
+function hueFromLabel(label: string): number {
+    let hash = 0;
+    for (let i = 0; i < label.length; i++) {
+        hash = label.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return Math.abs(hash) % 360;
+}
+
 interface StatusItemProps {
     status: Status;
     onStatusChanged: StatusChangedHandler;
@@ -44,17 +54,24 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
     }
 
     return(
-        <li>
+        <li className="status-row">
+            <span
+                className="status-dot"
+                style={{ '--status-hue': hueFromLabel(status.label) } as React.CSSProperties}
+            />
             <strong>{status.label} </strong>
 
             <PopupButton label = "...">
                 {({ onClose }) => (
-                    <>
-                        <input value={label} onChange={e => setLabel(e.target.value)} />
+                    <div className="status-edit-fields">
+                        <input className="input" value={label} onChange={e => setLabel(e.target.value)} />
 
-                        <button onClick={() => {handleEdit(); onClose();}}>Save Changes</button>
-                        <button onClick={handleDelete}>Delete</button>                    
-                    </>
+                        <div className="btn-row">
+                            <button className="btn btn-primary" onClick={() => {handleEdit(); onClose();}}>Save Changes</button>
+                            <button className="btn btn-danger" onClick={handleDelete}>Delete</button>      
+                        </div>
+                                      
+                    </div>
                 )}
             </PopupButton>
         </li>

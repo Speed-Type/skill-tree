@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 function LoginPage() {
     const { user, loading } = useAuth();
 
-    if (loading) return <p>Loading...</p>;
+    if (loading) return <p className="state-message">Loading...</p>;
     if (user) return <Navigate to="/" replace />;
 
     return <AuthGate />;
