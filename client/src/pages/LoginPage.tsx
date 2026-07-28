@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router';
 import AuthGate from '../components/AuthGate';
 import { useAuth } from '../context/AuthContext';
 
