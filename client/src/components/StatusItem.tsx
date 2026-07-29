@@ -61,7 +61,7 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
             />
             <strong>{status.label} </strong>
 
-            <PopupButton label = "...">
+            <PopupButton label = "..." resetValues={() => setLabel(status.label)}>
                 {({ onClose }) => (
                     <div className="status-edit-fields">
                         <input className="input" value={label} onChange={e => setLabel(e.target.value)} />

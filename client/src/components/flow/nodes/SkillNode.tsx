@@ -93,7 +93,10 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
                     )}
 
                     {isOwner && (
-                        <PopupButton label="..." className="btn btn-icon">
+                        <PopupButton label="..." className="btn btn-icon" resetValues={() => { 
+                            setLabel(skill.label); 
+                            setDescription(skill.description ?? '');
+                        }}>
                             {({ onClose }) => (
                                 <div className="status-edit-fields">
                                     {/* Contents of skill edit popup */}

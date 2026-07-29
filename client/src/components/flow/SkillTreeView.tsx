@@ -197,6 +197,7 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
     const [treeName, setTreeName] = useState(tree.title);
     const [newTreeName, setNewTreeName] = useState(tree.title);
 
+    // Function to handle the actual change to the tree name in the database
     async function handleNameChange() {
         try {
             await apiFetch(`/trees/${tree.id}`, {
@@ -224,7 +225,7 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
 
             {/* Tree name edit popup */}
             {isOwner && (
-                <PopupButton label = "Edit Name">
+                <PopupButton label = "Edit Name" resetValues={() => setNewTreeName(treeName)}>
                     {({ onClose }) => (
                         <div className="status-edit-fields">
                             <input className="input" value={newTreeName} onChange={e => setNewTreeName(e.target.value)} />
