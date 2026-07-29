@@ -5,8 +5,9 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { ReactFlow, useNodesState, useEdgesState, OnNodeDrag, Connection, OnConnectEnd, ConnectionMode, IsValidConnection } from '@xyflow/react';
 import { nodeTypes } from './nodeTypes';
 import { edgeTypes } from './edgeTypes';
-import { SkillFlowNode } from './nodes/SkillNode';
-import { FloatingSkillEdge } from './edges/FloatingEdge';
+import { SkillFlowNode } from './nodes/SkillNode'; // Exported as types
+import { FloatingSkillEdge } from './edges/FloatingEdge'; // Exported as types
+import PopupButton from './../PopupButton';
 import CustomConnectionLine from './connectionLines/CustomConnectionLine';
 
 import { TreeWithDetails, Skill, SkillEdge, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../shared/types';
@@ -191,6 +192,23 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
         }
     }
 
+    // ======================= Tree Name Handling ==========================
+
+    const [treeName, setTreeName] = useState(tree.title);
+    const [newTreeName, setNewTreeName] = useState(tree.title);
+
+    async function handleNameChange() {
+        try {
+            await apiFetch(`/trees/${tree.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ title: newTreeName }),
+            });
+            setTreeName(newTreeName);
+        } catch (err) {
+            console.error('Failed to update tree name: ', err);
+        }
+    }
+
     // ========================================= Other ReactFlow Props =============================================
 
     // Prop for ReactFlow component that prevents self connections
@@ -202,7 +220,22 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
  
     return (
         <div className="panel">
-            <h2>{tree.title}</h2>
+            <h2>{treeName}</h2>
+
+            {/* Tree name edit popup */}
+            {isOwner && (
+                <PopupButton label = "Edit Name">
+                    {({ onClose }) => (
+                        <div className="status-edit-fields">
+                            <input className="input" value={newTreeName} onChange={e => setNewTreeName(e.target.value)} />
+                            
+                            <div className="btn-row">
+                                <button className="btn btn-primary" onClick={() => { handleNameChange(); onClose(); }}>Save Changes</button>
+                            </div>
+                        </div>
+                    )}
+                </PopupButton>
+            )}
 
             <div className="flow-canvas" ref={reactFlowWrapperRef}>
                 <ReactFlow
