@@ -81,7 +81,7 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
             <Handle type="source" position={Position.Left} id="left" className="skill-node-edge-handle skill-node-edge-left" />
 
             {/* Actual body of the node */}
-            <div className="skill-node-body">
+            <div className="skill-node-body" style={ringStyle}>
 
                 <strong className="skill-node-label">{skill.label}</strong>
 
