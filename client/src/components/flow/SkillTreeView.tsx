@@ -84,6 +84,8 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
             source: String(edge.from_skill_id),
             target: String(edge.to_skill_id),
             type: 'floating',
+            selectable: false, // We manage selection ourselves via data.isSelected; 
+                               // this stops React Flow's own native edge-selection styling from also kicking in
             data: { 
                 isOwner: isOwner,
                 onDelete: handleEdgeDelete,

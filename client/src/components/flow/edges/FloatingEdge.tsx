@@ -63,7 +63,7 @@ function FloatingEdge({ id, source, target, markerEnd, style, data }: EdgeProps<
                 fill="none"
                 stroke="transparent"
                 strokeWidth={20}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: 'pointer', pointerEvents: 'all' }}
                 onClick={onSelect}
             />
 

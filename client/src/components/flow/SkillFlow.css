@@ -179,10 +179,10 @@
   filter: drop-shadow(0 0 4px var(--gold-line));
 }
  
-.react-flow__edge:hover .skill-edge-path {
+.react-flow__edge:hover .skill-edge-path:not(.is-selected) {
   stroke: var(--violet);
 }
- 
+
 .edge-delete-popup {
   background: var(--panel-raised);
   border: 1px solid var(--panel-border);
