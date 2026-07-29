@@ -3,6 +3,7 @@ import { useStore, getStraightPath, EdgeLabelRenderer, EdgeProps, Edge } from '@
 import { getBorderPoint } from '../geometry';
 
 export interface FloatingEdgeData extends Record<string, unknown> {
+    isOwner: boolean;
     onDelete: (id: string) => void;
     isSelected: boolean;
     onSelect: (event: React.MouseEvent<SVGPathElement>) => void;
@@ -15,7 +16,7 @@ function FloatingEdge({ id, source, target, markerEnd, style, data }: EdgeProps<
     if(!data) return null;
 
     // Unpack data
-    const { onDelete, isSelected, onSelect } = data;
+    const { isOwner, onDelete, isSelected, onSelect } = data;
 
     // Get source and target nodes
     const sourceNode = useStore(useCallback((store) => store.nodeLookup.get(source), [source]));
@@ -55,7 +56,7 @@ function FloatingEdge({ id, source, target, markerEnd, style, data }: EdgeProps<
     return (
         <>
 
-            {/* Invisible wide hit-area path that sits behind to catche clicks/hover */}
+            {/* Invisible wide hit-area path that sits behind to catch clicks/hover */}
             <path
                 d={path}
                 className="edge-hit-area"
@@ -76,7 +77,7 @@ function FloatingEdge({ id, source, target, markerEnd, style, data }: EdgeProps<
             />
 
             {/* Render the delete popup as necessary */}
-            {isSelected && (
+            {isSelected && isOwner && (
                 <EdgeLabelRenderer>
                     <div
                         className="nodrag nopan edge-delete-popup"

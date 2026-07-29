@@ -85,6 +85,7 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
             target: String(edge.to_skill_id),
             type: 'floating',
             data: { 
+                isOwner: isOwner,
                 onDelete: handleEdgeDelete,
                 isSelected: selectedEdgeId === String(edge.id),
                 onSelect: () => setSelectedEdgeId(String(edge.id)),
