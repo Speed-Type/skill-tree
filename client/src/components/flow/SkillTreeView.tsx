@@ -221,22 +221,32 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
  
     return (
         <div className="panel">
-            <h2>{treeName}</h2>
+            <div className="tree-title-row">
+                <h2>{treeName}</h2>
 
-            {/* Tree name edit popup */}
-            {isOwner && (
-                <PopupButton label = "Edit Name" resetValues={() => setNewTreeName(treeName)}>
-                    {({ onClose }) => (
-                        <div className="status-edit-fields">
-                            <input className="input" value={newTreeName} onChange={e => setNewTreeName(e.target.value)} />
-                            
-                            <div className="btn-row">
-                                <button className="btn btn-primary" onClick={() => { handleNameChange(); onClose(); }}>Save Changes</button>
+                {/* Tree name edit popup */}
+                {isOwner && (
+                    <PopupButton 
+                        label = {(
+                            <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M13.5 3.5l3 3L6 17H3v-3L13.5 3.5z" />
+                            </svg>
+                        )}
+                        className="btn btn-icon"
+                        resetValues={() => setNewTreeName(treeName)}
+                    >
+                        {({ onClose }) => (
+                            <div className="status-edit-fields">
+                                <input className="input" value={newTreeName} onChange={e => setNewTreeName(e.target.value)} />
+                                
+                                <div className="btn-row">
+                                    <button className="btn btn-primary" onClick={() => { handleNameChange(); onClose(); }}>Save Changes</button>
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </PopupButton>
-            )}
+                        )}
+                    </PopupButton>
+                )}
+            </div>
 
             <div className="flow-canvas" ref={reactFlowWrapperRef}>
                 <ReactFlow

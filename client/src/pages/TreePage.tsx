@@ -112,7 +112,7 @@ function TreePage() {
                 </div>
 
                 {isOwner && (
-                    <div>
+                    <div className="header-actions">
                         <PopupButton label = "Edit Statuses">
                             {({ onClose }) => (
                                 <>
