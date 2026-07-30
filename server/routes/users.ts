@@ -30,9 +30,9 @@ router.get('/:id', requireAuth, async (req: Request<{ id: string }>, res: Respon
         console.error(err); // Log what actually broke
 
         // Check for invalid id parameter
-        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid id' });
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid input' });
 
-        res.status(500).json({ error: 'Database error' }); // Client gets a response
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -69,7 +69,7 @@ router.post('/', async (req: Request<{}, {}, CreateUserBody>, res: Response<Publ
 
         if (isPgError(err) && err.code === "22001") return res.status(400).json({ error: "One or more fields is too long" });
 
-        res.status(500).json({ error: 'Database error' }); // Client gets a response
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -107,7 +107,7 @@ router.put('/me', requireAuth, async(req: Request<{ id: string }, {}, UpdateUser
 
         if (isPgError(err) && err.code === "22001") return res.status(400).json({ error: "One or more fields is too long" });
 
-        res.status(500).json({ error: 'Database error' }); // Client gets a response
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -125,7 +125,7 @@ router.delete('/me', requireAuth, async(req: Request<{ id: string }>, res: Respo
     catch (err) {
         console.error(err); // Log what actually broke
         
-        res.status(500).json({ error: 'Database error' }); // Client gets a response
+        res.status(500).json({ error: 'Database error' });
     }
 });
 

@@ -19,7 +19,7 @@ router.get('/', requireAuth, async (req: Request, res: Response<SkillEdge[] | Er
     }
     catch (err) {
         console.error(err); // Log what actually broke
-        res.status(500).json({ error: 'Database error' }); // Client gets a response
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -50,9 +50,9 @@ router.get('/:id', optionalAuth, async (req: Request<{ id: string }>, res: Respo
         console.error(err); // Log what actually broke
 
         // Check for invalid id parameter
-        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid id' });
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid input' });
 
-        res.status(500).json({ error: 'Database error' }); // Client gets a response
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -89,7 +89,7 @@ router.post('/', requireAuth, async (req: Request<{}, {}, CreateEdgeBody>, res: 
         // Check for duplicate/reverse edge violation
         if (isPgError(err) && err.code === "23505") return res.status(409).json({ error: "This edge already exists" });
 
-        res.status(500).json({ error: 'Database error' }); // Client gets a response
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -111,9 +111,9 @@ router.delete('/:id', requireAuth, async (req: Request<{ id: string }>, res: Res
         console.error(err); // Log what actually broke
 
         // Check for invalid id parameter
-        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid id' });
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid input' });
 
-        res.status(500).json({ error: 'Database error' }); // Client gets a response
+        res.status(500).json({ error: 'Database error' });
     }
 });
 

@@ -14,7 +14,7 @@ router.get('/', requireAuth, async(req: Request, res: Response<Status[] | ErrorR
     }
     catch (err) {
         console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        res.status(500).json({ error: 'Database error' }); 
     }
 });
 
@@ -52,9 +52,9 @@ router.get('/:id', optionalAuth, async(req: Request<{ id: string }>, res: Respon
         console.error(err); // Log what actually broke
 
         // Check for invalid id parameter
-        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid id' });
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid input' });
 
-        res.status(500).json({ error: 'Database error' }); // Client gets a response
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -85,7 +85,7 @@ router.post('/', requireAuth, async(req: Request<{}, {}, CreateStatusBody>, res:
 
         if (isPgError(err) && err.code === "22001") return res.status(400).json({ error: "One or more fields is too long" });
 
-        res.status(500).json({ error: 'Database error' }); // Client gets a response
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -115,12 +115,12 @@ router.put('/:id', requireAuth, async(req: Request<{ id: string }, {}, UpdateSta
         console.error(err); // Log what actually broke
 
         // Check for invalid id parameter
-        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid id' });
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid input' });
 
         // Check for too-long label
         if (isPgError(err) && err.code === "22001") return res.status(400).json({ error: "One or more fields is too long" });
 
-        res.status(500).json({ error: 'Database error' }); // Client gets a response
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -137,9 +137,9 @@ router.delete('/:id', requireAuth, async(req: Request<{ id: string }>, res: Resp
         console.error(err); // Log what actually broke
 
         // Check for invalid id parameter
-        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid id' });
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid input' });
 
-        res.status(500).json({ error: 'Database error' }); // Client gets a response
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
