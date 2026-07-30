@@ -77,10 +77,10 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
         <div className={`skill-node${currentStatus ? '' : ' is-unset'}`} >
             
             {/* Handles to cover node borders */}
-            <Handle type="source" position={Position.Top} id="top" className="skill-node-edge-handle skill-node-edge-top" />
-            <Handle type="source" position={Position.Right} id="right" className="skill-node-edge-handle skill-node-edge-right" />
-            <Handle type="source" position={Position.Bottom} id="bottom" className="skill-node-edge-handle skill-node-edge-bottom" />
-            <Handle type="source" position={Position.Left} id="left" className="skill-node-edge-handle skill-node-edge-left" />
+            <Handle type="source" position={Position.Top} id="top" className="skill-node-edge-handle skill-node-edge-top" isConnectable={isOwner} />
+            <Handle type="source" position={Position.Right} id="right" className="skill-node-edge-handle skill-node-edge-right" isConnectable={isOwner} />
+            <Handle type="source" position={Position.Bottom} id="bottom" className="skill-node-edge-handle skill-node-edge-bottom" isConnectable={isOwner} />
+            <Handle type="source" position={Position.Left} id="left" className="skill-node-edge-handle skill-node-edge-left" isConnectable={isOwner} />
 
             {/* Actual body of the node */}
             <div className="skill-node-body" style={ringStyle}>

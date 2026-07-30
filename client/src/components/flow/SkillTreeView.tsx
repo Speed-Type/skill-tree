@@ -35,7 +35,7 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
 
     // Handle keypress deletes
     useEffect(() => {
-        if (!selectedEdgeId) return;
+        if (!selectedEdgeId || !isOwner) return;
 
         function handleKeyDown(event: KeyboardEvent) {
             if (event.key === 'Backspace' || event.key === 'Delete') {
@@ -271,6 +271,9 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
                     // Connection settings
                     connectionLineComponent={CustomConnectionLine} // Custom line for while connection is being dragged
                     isValidConnection={isValidConnection} // Custom criteria for valid connections
+
+                    // Lock out certain interactions for non-owner viewing
+                    nodesDraggable={isOwner}
 
                     // Other settings
                     connectionMode={ConnectionMode.Loose}
