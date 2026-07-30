@@ -364,6 +364,10 @@ select.input {
   background-position: calc(100% - 14px) center, calc(100% - 9px) center;
   background-size: 5px 5px, 5px 5px;
   background-repeat: no-repeat;
+  max-width: 15ch;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 /* ===================================== Tree list ===================================== */
