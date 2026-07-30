@@ -5,6 +5,7 @@ import PopupButton from '../../PopupButton';
 
 import { Skill, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../../shared/types';
 import { apiFetch } from '../../../lib/api';
+import { snackbar } from '../../../lib/snackbar';
 
 // Deterministic hue from a status label, so any user-defined status gets a  distinct,
 // stable ring color without needing a color field in the schema
@@ -63,9 +64,10 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
         try {
             await apiFetch(`/skills/${skill.id}`, { method: 'DELETE' });
             onSkillDeleted(skill.id);
+            snackbar.success('Skill deleted successfully');
         }
         catch(err) {
-            console.error('Failed to update skill data: ', err);
+            console.error('Failed to delete skill data: ', err);
         }
     }
 
@@ -75,13 +77,13 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
         <div className={`skill-node${currentStatus ? '' : ' is-unset'}`} >
             
             {/* Handles to cover node borders */}
-            <Handle type="source" position={Position.Top} id="top" className="skill-node-edge-handle skill-node-edge-top" />
-            <Handle type="source" position={Position.Right} id="right" className="skill-node-edge-handle skill-node-edge-right" />
-            <Handle type="source" position={Position.Bottom} id="bottom" className="skill-node-edge-handle skill-node-edge-bottom" />
-            <Handle type="source" position={Position.Left} id="left" className="skill-node-edge-handle skill-node-edge-left" />
+            <Handle type="source" position={Position.Top} id="top" className="skill-node-edge-handle skill-node-edge-top" isConnectable={isOwner} />
+            <Handle type="source" position={Position.Right} id="right" className="skill-node-edge-handle skill-node-edge-right" isConnectable={isOwner} />
+            <Handle type="source" position={Position.Bottom} id="bottom" className="skill-node-edge-handle skill-node-edge-bottom" isConnectable={isOwner} />
+            <Handle type="source" position={Position.Left} id="left" className="skill-node-edge-handle skill-node-edge-left" isConnectable={isOwner} />
 
             {/* Actual body of the node */}
-            <div className="skill-node-body">
+            <div className="skill-node-body" style={ringStyle}>
 
                 <strong className="skill-node-label">{skill.label}</strong>
 
@@ -93,7 +95,10 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
                     )}
 
                     {isOwner && (
-                        <PopupButton label="..." className="btn btn-icon">
+                        <PopupButton label="..." className="btn btn-icon" resetValues={() => { 
+                            setLabel(skill.label); 
+                            setDescription(skill.description ?? '');
+                        }}>
                             {({ onClose }) => (
                                 <div className="status-edit-fields">
                                     {/* Contents of skill edit popup */}

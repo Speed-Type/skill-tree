@@ -7,6 +7,7 @@ import { useSkillTree } from '../hooks/useSkillTree';
 import StatusView from '../components/StatusView';
 import AddStatusForm from "../components/AddStatusForm";
 import PopupButton from '../components/PopupButton';
+import VisibilityToggle from '../components/VisibilityToggle';
 import { useAuth } from '../context/AuthContext';
 import { apiFetch } from '../lib/api';
 
@@ -111,21 +112,25 @@ function TreePage() {
                 </div>
 
                 {isOwner && (
-                    <PopupButton label = "Edit Statuses">
-                        {({ onClose }) => (
-                            <>
-                                <StatusView
-                                    statuses={myStatuses}
-                                    onStatusChanged={handleStatusChanged}
-                                    onStatusDeleted={handleStatusDeleted}
-                                />
-                                <AddStatusForm
-                                    currentCount={myStatuses.length}
-                                    onStatusCreated={handleStatusCreated}
-                                />               
-                            </>
-                        )}
-                    </PopupButton>
+                    <div className="header-actions">
+                        <PopupButton label = "Edit Statuses">
+                            {({ onClose }) => (
+                                <>
+                                    <StatusView
+                                        statuses={myStatuses}
+                                        onStatusChanged={handleStatusChanged}
+                                        onStatusDeleted={handleStatusDeleted}
+                                    />
+                                    <AddStatusForm
+                                        currentCount={myStatuses.length}
+                                        onStatusCreated={handleStatusCreated}
+                                    />               
+                                </>
+                            )}
+                        </PopupButton>
+
+                        <VisibilityToggle tree={tree} />
+                    </div>
                 )}
             </header>
             

@@ -4,6 +4,7 @@ import PopupButton from './PopupButton';
 
 import { Status, StatusChangedHandler, StatusDeletedHandler } from '../../../shared/types';
 import { apiFetch } from '../lib/api';
+import { snackbar } from '../lib/snackbar';
 
 // Deterministic hue from a status label, so any user-defined status gets a distinct,
 // stable color without needing a color field in the schema
@@ -47,9 +48,10 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
         try {
             await apiFetch(`/statuses/${status.id}`, { method: 'DELETE' });
             onStatusDeleted(status.id);
+            snackbar.success('Status deleted successfully');
         }
         catch(err) {
-            console.error('Failed to update status data: ', err);
+            console.error('Failed to delete status: ', err);
         }
     }
 
@@ -61,7 +63,7 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
             />
             <strong>{status.label} </strong>
 
-            <PopupButton label = "...">
+            <PopupButton label = "..." resetValues={() => setLabel(status.label)}>
                 {({ onClose }) => (
                     <div className="status-edit-fields">
                         <input className="input" value={label} onChange={e => setLabel(e.target.value)} />

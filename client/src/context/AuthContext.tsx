@@ -18,7 +18,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // On first load, check whether we already have a valid cookie from a previous session
     useEffect(() => {
-        apiFetch<PublicUser>('/users/me')
+        apiFetch<PublicUser>('/users/me', { silent: true})
             .then(setUser)
             .catch(() => setUser(null)) // no valid cookie — just means logged out, not an error to surface
             .finally(() => setLoading(false));

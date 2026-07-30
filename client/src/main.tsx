@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router';
 import './index.css';
 import App from './App';
+import SnackbarContainer from './components/Snackbar';
 import { AuthProvider } from './context/AuthContext';
 
 const rootElement = document.getElementById('root');
@@ -16,6 +17,7 @@ createRoot(rootElement).render(
     <BrowserRouter>
       <AuthProvider>
         <App />
+        <SnackbarContainer />
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>,

@@ -2,15 +2,26 @@ import '@xyflow/react/dist/style.css';
 import './SkillFlow.css';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { ReactFlow, useNodesState, useEdgesState, OnNodeDrag, Connection, OnConnectEnd, ConnectionMode, IsValidConnection } from '@xyflow/react';
+import { 
+    ReactFlow,
+    useNodesState,
+    useEdgesState,
+    OnNodeDrag,
+    Connection,
+    OnConnectEnd,
+    ConnectionMode,
+    IsValidConnection,
+} from '@xyflow/react';
 import { nodeTypes } from './nodeTypes';
 import { edgeTypes } from './edgeTypes';
-import { SkillFlowNode } from './nodes/SkillNode';
-import { FloatingSkillEdge } from './edges/FloatingEdge';
+import { SkillFlowNode } from './nodes/SkillNode'; // Exported as types
+import { FloatingSkillEdge } from './edges/FloatingEdge'; // Exported as types
+import PopupButton from './../PopupButton';
 import CustomConnectionLine from './connectionLines/CustomConnectionLine';
 
 import { TreeWithDetails, Skill, SkillEdge, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../shared/types';
 import { apiFetch } from '../../lib/api';
+import { snackbar } from '../../lib/snackbar';
 
 interface SkillTreeViewProps {
     tree: TreeWithDetails;
@@ -33,7 +44,7 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
 
     // Handle keypress deletes
     useEffect(() => {
-        if (!selectedEdgeId) return;
+        if (!selectedEdgeId || !isOwner) return;
 
         function handleKeyDown(event: KeyboardEvent) {
             if (event.key === 'Backspace' || event.key === 'Delete') {
@@ -84,7 +95,10 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
             source: String(edge.from_skill_id),
             target: String(edge.to_skill_id),
             type: 'floating',
+            selectable: false, // We manage selection ourselves via data.isSelected; 
+                               // this stops React Flow's own native edge-selection styling from also kicking in
             data: { 
+                isOwner: isOwner,
                 onDelete: handleEdgeDelete,
                 isSelected: selectedEdgeId === String(edge.id),
                 onSelect: () => setSelectedEdgeId(String(edge.id)),
@@ -127,20 +141,45 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
             });
 
             onSkillChanged(updatedSkill);
+            // No need to use snackbar to confirm that operation was successful, especially since nodes can get moved a lot
         }
         catch(err) {
-            console.error('Failed to save node position: ', err);
+            console.error('Failed to update node position: ', err);
         }
     }
 
     // ========================================= Edge handling =============================================
 
+    // Shared validation so both connection paths reject invalid links consistently
+    const isConnectionAllowed = useCallback((connection: Connection | { source: string | null; target: string | null; sourceHandle?: string | null; targetHandle?: string | null }) => {
+        // Check for self-connections
+        if (!connection.source || !connection.target || connection.source === connection.target) return false;
+
+        // Check for duplicate connections
+        const hasDirectEdge = edges.some(edge =>
+            String(edge.from_skill_id) === connection.source && String(edge.to_skill_id) === connection.target
+        );
+
+        if (hasDirectEdge) return false;
+
+        const sourceNode = skills.find(skill => String(skill.id) === connection.source);
+        const targetNode = skills.find(skill => String(skill.id) === connection.target);
+
+        if (!sourceNode || !targetNode) return false;
+
+        // Check for reverse connections
+        const hasReverseConnection = edges.some(edge =>
+            String(edge.from_skill_id) === connection.target && String(edge.to_skill_id) === connection.source
+        );
+
+        return !hasReverseConnection;
+    }, [edges, skills]);
+
     // Handles edge creation
     // The connection handler that sends the actual API request
     async function handleConnect(connection: Connection)
     {
-        // Check whether this edge connects a node to itself
-        if (connection.source === connection.target) return;
+        if (!isConnectionAllowed(connection)) return;
 
         try {
             const newEdge = await apiFetch<SkillEdge>('/edges', {
@@ -183,23 +222,68 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
         try {
             await apiFetch(`/edges/${deletedEdgeId}`, { method: 'DELETE' });
             onEdgeDeleted(deletedEdgeId);
+            snackbar.success('Connection deleted successfully');
         } catch (err) {
             console.error('Failed to delete edge: ', err);
         }
     }
 
+    // ======================= Tree Name Handling ==========================
+
+    const [treeName, setTreeName] = useState(tree.title);
+    const [newTreeName, setNewTreeName] = useState(tree.title);
+
+    // Function to handle the actual change to the tree name in the database
+    async function handleNameChange() {
+        try {
+            await apiFetch(`/trees/${tree.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ title: newTreeName }),
+            });
+            setTreeName(newTreeName);
+            snackbar.success('Tree name updated successfully');
+        } catch (err) {
+            console.error('Failed to update tree name: ', err);
+        }
+    }
+
     // ========================================= Other ReactFlow Props =============================================
 
-    // Prop for ReactFlow component that prevents self connections
+    // Prop for ReactFlow component that prevents self-connections, duplicate edges, and reverse-direction links
     const isValidConnection: IsValidConnection<FloatingSkillEdge> = useCallback((connection) => {
-        return connection.source !== connection.target;
-    }, []);
+        return isConnectionAllowed(connection);
+    }, [isConnectionAllowed]);
 
     // ========================================= Component HTML =============================================
  
     return (
         <div className="panel">
-            <h2>{tree.title}</h2>
+            <div className="tree-title-row">
+                <h2>{treeName}</h2>
+
+                {/* Tree name edit popup */}
+                {isOwner && (
+                    <PopupButton 
+                        label = {(
+                            <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M13.5 3.5l3 3L6 17H3v-3L13.5 3.5z" />
+                            </svg>
+                        )}
+                        className="btn btn-icon"
+                        resetValues={() => setNewTreeName(treeName)}
+                    >
+                        {({ onClose }) => (
+                            <div className="status-edit-fields">
+                                <input className="input" value={newTreeName} onChange={e => setNewTreeName(e.target.value)} />
+                                
+                                <div className="btn-row">
+                                    <button className="btn btn-primary" onClick={() => { handleNameChange(); onClose(); }}>Save Changes</button>
+                                </div>
+                            </div>
+                        )}
+                    </PopupButton>
+                )}
+            </div>
 
             <div className="flow-canvas" ref={reactFlowWrapperRef}>
                 <ReactFlow
@@ -220,6 +304,9 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
                     // Connection settings
                     connectionLineComponent={CustomConnectionLine} // Custom line for while connection is being dragged
                     isValidConnection={isValidConnection} // Custom criteria for valid connections
+
+                    // Lock out certain interactions for non-owner viewing
+                    nodesDraggable={isOwner}
 
                     // Other settings
                     connectionMode={ConnectionMode.Loose}

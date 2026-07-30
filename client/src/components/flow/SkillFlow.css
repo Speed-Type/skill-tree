@@ -179,26 +179,31 @@
   filter: drop-shadow(0 0 4px var(--gold-line));
 }
  
-.react-flow__edge:hover .skill-edge-path {
+.react-flow__edge:hover .skill-edge-path:not(.is-selected) {
   stroke: var(--violet);
 }
- 
+
 .edge-delete-popup {
   background: var(--panel-raised);
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-sm);
-  padding: 0.3rem;
+  padding: 0.2rem;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
  
 .edge-delete-popup button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.5rem;
+  margin: 0;
   font-family: var(--heading);
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.68rem;
   color: var(--danger);
   background: transparent;
   border: none;
-  padding: 0.25rem 0.5rem;
+  padding: 0 0.3rem;
   cursor: pointer;
   border-radius: var(--radius-sm);
 }
