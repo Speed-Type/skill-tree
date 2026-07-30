@@ -49,6 +49,9 @@ router.post('/', async (req: Request<{}, {}, CreateUserBody>, res: Response<Publ
         // Make sure required parameters (email and password) are passed
         if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
 
+        // email has a VARCHAR(255) column limit; catch it before it hits the DB
+        if (email.length > 255) return res.status(400).json({ error: 'Email must be 255 characters or fewer' });
+
         // Encryption
         const password_hash = await bcrypt.hash(password, 10);
 
@@ -61,9 +64,11 @@ router.post('/', async (req: Request<{}, {}, CreateUserBody>, res: Response<Publ
     catch (err) {
         console.error(err); // Log what actually broke 
 
-        // Check if it's a duplicate user violation
+        // Check for duplicate user violation
         if (isPgError(err) && err.code === "23505") return res.status(409).json({ error: "This email already exists" });
-        
+
+        if (isPgError(err) && err.code === "22001") return res.status(400).json({ error: "One or more fields is too long" });
+
         res.status(500).json({ error: 'Database error' }); // Client gets a response
     }
 });
@@ -76,6 +81,9 @@ interface UpdateUserBody {
 router.put('/me', requireAuth, async(req: Request<{ id: string }, {}, UpdateUserBody>, res: Response<PublicUser | ErrorResponse>) => {
     try {
         const { email, password } = req.body;
+
+        // email has a VARCHAR(255) column limit; catch it before it hits the DB
+        if (email && email.length > 255) return res.status(400).json({ error: 'Email must be 255 characters or fewer' });
 
         // Encryption
         let password_hash = undefined;
@@ -93,9 +101,11 @@ router.put('/me', requireAuth, async(req: Request<{ id: string }, {}, UpdateUser
     }
     catch (err) {
         console.error(err); // Log what actually broke
-        
-        // First check if it's a duplicate user violation
+
+        // Check for duplicate user violation
         if (isPgError(err) && err.code === "23505") return res.status(409).json({ error: "This email already exists" });
+
+        if (isPgError(err) && err.code === "22001") return res.status(400).json({ error: "One or more fields is too long" });
 
         res.status(500).json({ error: 'Database error' }); // Client gets a response
     }

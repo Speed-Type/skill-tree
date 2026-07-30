@@ -69,6 +69,9 @@ router.post('/', requireAuth, async (req: Request<{}, {}, CreateSkillBody>, res:
         // Make sure required parameters are passed
         if (!tree_id || !label) return res.status(400).json({ error: 'Tree id and label are required' });
 
+        // label has a VARCHAR(255) column limit; catch it before it hits the DB
+        if (label.length > 255) return res.status(400).json({ error: 'Label must be 255 characters or fewer' });
+
         // Confirm the tree exists AND belongs to the requester before allowing an insert into it
         const treeCheck = await pool.query('SELECT id FROM skill_trees WHERE id = $1 AND user_id = $2', [tree_id, req.userId]);
         if (treeCheck.rows.length === 0) return res.status(404).json({ error: 'Not found' });
@@ -82,6 +85,9 @@ router.post('/', requireAuth, async (req: Request<{}, {}, CreateSkillBody>, res:
     }
     catch (err) {
         console.error(err); // Log what actually broke
+
+        if (isPgError(err) && err.code === "22001") return res.status(400).json({ error: "One or more fields is too long" });
+
         res.status(500).json({ error: 'Database error' }); // Client gets a response
     }
 });
@@ -97,6 +103,9 @@ interface UpdateSkillBody {
 router.put('/:id', requireAuth, async (req: Request<{ id: string }, {}, UpdateSkillBody>, res: Response<Skill | ErrorResponse>) => {
     try {
         const { label, description, status_id, x_position, y_position } = req.body;
+
+        // label has a VARCHAR(255) column limit; catch it before it hits the DB
+        if (label && label.length > 255) return res.status(400).json({ error: 'Label must be 255 characters or fewer' });
 
         const result = await pool.query(
             `UPDATE skills SET label = COALESCE($1, label), description = COALESCE($2, description), status_id = COALESCE($3, status_id),
@@ -116,6 +125,8 @@ router.put('/:id', requireAuth, async (req: Request<{ id: string }, {}, UpdateSk
 
         // Check for invalid id parameter
         if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid id' });
+
+        if (isPgError(err) && err.code === "22001") return res.status(400).json({ error: "One or more fields is too long" });
 
         res.status(500).json({ error: 'Database error' }); // Client gets a response
     }
