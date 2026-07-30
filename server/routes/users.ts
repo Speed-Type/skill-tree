@@ -27,8 +27,12 @@ router.get('/:id', requireAuth, async (req: Request<{ id: string }>, res: Respon
         res.json(result.rows[0]);
     }
     catch (err) {
-        console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        console.error(err); // Log what actually broke
+
+        // Check for invalid id parameter
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid id' });
+
+        res.status(500).json({ error: 'Database error' }); // Client gets a response
     }
 });
 
@@ -55,11 +59,12 @@ router.post('/', async (req: Request<{}, {}, CreateUserBody>, res: Response<Publ
         res.status(201).json(result.rows[0]);
     }
     catch (err) {
-        // First check if it's a duplicate user violation
-        if (isPgError(err) && err.code === "23505") return res.status(409).json({ error: "This email already exists" });
+        console.error(err); // Log what actually broke 
 
-        console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        // Check if it's a duplicate user violation
+        if (isPgError(err) && err.code === "23505") return res.status(409).json({ error: "This email already exists" });
+        
+        res.status(500).json({ error: 'Database error' }); // Client gets a response
     }
 });
 
@@ -87,11 +92,12 @@ router.put('/me', requireAuth, async(req: Request<{ id: string }, {}, UpdateUser
         res.status(200).json(result.rows[0]);
     }
     catch (err) {
+        console.error(err); // Log what actually broke
+        
         // First check if it's a duplicate user violation
         if (isPgError(err) && err.code === "23505") return res.status(409).json({ error: "This email already exists" });
 
-        console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        res.status(500).json({ error: 'Database error' }); // Client gets a response
     }
 });
 
@@ -107,8 +113,9 @@ router.delete('/me', requireAuth, async(req: Request<{ id: string }>, res: Respo
         res.status(204).send();
     }
     catch (err) {
-        console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        console.error(err); // Log what actually broke
+        
+        res.status(500).json({ error: 'Database error' }); // Client gets a response
     }
 });
 

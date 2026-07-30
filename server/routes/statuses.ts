@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { Status, ErrorResponse } from '../../shared/types';
 import { requireAuth, optionalAuth } from '../middleware/auth';
+import { isPgError } from '../utils/utils';
 
 import pool from '../db';
 
@@ -48,8 +49,12 @@ router.get('/:id', optionalAuth, async(req: Request<{ id: string }>, res: Respon
         res.json(result.rows[0]);
     }
     catch (err) {
-        console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        console.error(err); // Log what actually broke
+
+        // Check for invalid id parameter
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid id' });
+
+        res.status(500).json({ error: 'Database error' }); // Client gets a response
     }
 });
 
@@ -98,8 +103,12 @@ router.put('/:id', requireAuth, async(req: Request<{ id: string }, {}, UpdateSta
         res.json(result.rows[0]);
     }
     catch (err) {
-        console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        console.error(err); // Log what actually broke
+
+        // Check for invalid id parameter
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid id' });
+
+        res.status(500).json({ error: 'Database error' }); // Client gets a response
     }
 });
 
@@ -113,8 +122,12 @@ router.delete('/:id', requireAuth, async(req: Request<{ id: string }>, res: Resp
         res.status(204).send();
     }
     catch (err) {
-        console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        console.error(err); // Log what actually broke
+
+        // Check for invalid id parameter
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid id' });
+
+        res.status(500).json({ error: 'Database error' }); // Client gets a response
     }
 });
 
