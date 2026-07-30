@@ -42,7 +42,7 @@ import { useState, ReactNode } from 'react';
 import { createPortal } from 'react-dom'
 
 interface PopupButtonProps {
-    label: string;
+    label: ReactNode;
     className?: string;
     children: (args: { onClose: () => void }) => ReactNode;
     // Optional function that can be passed in, usually for resetting popup values
