@@ -37,7 +37,10 @@ CREATE TABLE skill_edges (
   id SERIAL PRIMARY KEY,
   from_skill_id INTEGER REFERENCES skills(id) ON DELETE CASCADE,
   to_skill_id INTEGER REFERENCES skills(id) ON DELETE CASCADE,
+);
 
-  CONSTRAINT unique_skill_edge
-    UNIQUE (from_skill_id, to_skill_id)
+CREATE UNIQUE INDEX unique_skill_edge_undirected
+ON skill_edges (
+  LEAST(from_skill_id, to_skill_id),
+  GREATEST(from_skill_id, to_skill_id)
 );

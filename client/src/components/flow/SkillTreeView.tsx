@@ -2,7 +2,16 @@ import '@xyflow/react/dist/style.css';
 import './SkillFlow.css';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { ReactFlow, useNodesState, useEdgesState, OnNodeDrag, Connection, OnConnectEnd, ConnectionMode, IsValidConnection } from '@xyflow/react';
+import { 
+    ReactFlow,
+    useNodesState,
+    useEdgesState,
+    OnNodeDrag,
+    Connection,
+    OnConnectEnd,
+    ConnectionMode,
+    IsValidConnection,
+} from '@xyflow/react';
 import { nodeTypes } from './nodeTypes';
 import { edgeTypes } from './edgeTypes';
 import { SkillFlowNode } from './nodes/SkillNode'; // Exported as types
@@ -141,12 +150,36 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
 
     // ========================================= Edge handling =============================================
 
+    // Shared validation so both connection paths reject invalid links consistently
+    const isConnectionAllowed = useCallback((connection: Connection | { source: string | null; target: string | null; sourceHandle?: string | null; targetHandle?: string | null }) => {
+        // Check for self-connections
+        if (!connection.source || !connection.target || connection.source === connection.target) return false;
+
+        // Check for duplicate connections
+        const hasDirectEdge = edges.some(edge =>
+            String(edge.from_skill_id) === connection.source && String(edge.to_skill_id) === connection.target
+        );
+
+        if (hasDirectEdge) return false;
+
+        const sourceNode = skills.find(skill => String(skill.id) === connection.source);
+        const targetNode = skills.find(skill => String(skill.id) === connection.target);
+
+        if (!sourceNode || !targetNode) return false;
+
+        // Check for reverse connections
+        const hasReverseConnection = edges.some(edge =>
+            String(edge.from_skill_id) === connection.target && String(edge.to_skill_id) === connection.source
+        );
+
+        return !hasReverseConnection;
+    }, [edges, skills]);
+
     // Handles edge creation
     // The connection handler that sends the actual API request
     async function handleConnect(connection: Connection)
     {
-        // Check whether this edge connects a node to itself
-        if (connection.source === connection.target) return;
+        if (!isConnectionAllowed(connection)) return;
 
         try {
             const newEdge = await apiFetch<SkillEdge>('/edges', {
@@ -216,10 +249,10 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
 
     // ========================================= Other ReactFlow Props =============================================
 
-    // Prop for ReactFlow component that prevents self connections
+    // Prop for ReactFlow component that prevents self-connections, duplicate edges, and reverse-direction links
     const isValidConnection: IsValidConnection<FloatingSkillEdge> = useCallback((connection) => {
-        return connection.source !== connection.target;
-    }, []);
+        return isConnectionAllowed(connection);
+    }, [isConnectionAllowed]);
 
     // ========================================= Component HTML =============================================
  
