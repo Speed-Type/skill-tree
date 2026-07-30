@@ -12,6 +12,7 @@ import CustomConnectionLine from './connectionLines/CustomConnectionLine';
 
 import { TreeWithDetails, Skill, SkillEdge, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../shared/types';
 import { apiFetch } from '../../lib/api';
+import { snackbar } from '../../lib/snackbar';
 
 interface SkillTreeViewProps {
     tree: TreeWithDetails;
@@ -131,9 +132,10 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
             });
 
             onSkillChanged(updatedSkill);
+            // No need to use snackbar to confirm that operation was successful, especially since nodes can get moved a lot
         }
         catch(err) {
-            console.error('Failed to save node position: ', err);
+            console.error('Failed to update node position: ', err);
         }
     }
 
@@ -187,6 +189,7 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
         try {
             await apiFetch(`/edges/${deletedEdgeId}`, { method: 'DELETE' });
             onEdgeDeleted(deletedEdgeId);
+            snackbar.success('Connection deleted successfully');
         } catch (err) {
             console.error('Failed to delete edge: ', err);
         }
@@ -205,6 +208,7 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
                 body: JSON.stringify({ title: newTreeName }),
             });
             setTreeName(newTreeName);
+            snackbar.success('Tree name updated successfully');
         } catch (err) {
             console.error('Failed to update tree name: ', err);
         }

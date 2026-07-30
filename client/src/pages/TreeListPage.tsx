@@ -3,13 +3,13 @@ import { Link } from 'react-router';
 import { SkillTree } from '../../../shared/types';
 import { apiFetch, ApiError } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
+import { snackbar } from '../lib/snackbar';
 
 function TreeListPage() {
     const { logout, user } = useAuth();
     const [trees, setTrees] = useState<SkillTree[]>([]);
     const [loading, setLoading] = useState(true);
     const [title, setTitle] = useState('');
-    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         apiFetch<SkillTree[]>('/trees')
@@ -19,7 +19,6 @@ function TreeListPage() {
 
     async function handleCreate(e: React.SubmitEvent<HTMLFormElement>) {
         e.preventDefault();
-        setError(null);
 
         try {
             const newTree = await apiFetch<SkillTree>('/trees', {
@@ -28,9 +27,10 @@ function TreeListPage() {
             });
             setTrees(prev => [...prev, newTree]);
             setTitle('');
+            snackbar.success('Tree created successfully');
         }
         catch (err) {
-            setError(err instanceof ApiError ? err.message : 'Something went wrong');
+            console.error('Failed to create tree: ', err);
         }
     }
 
@@ -72,8 +72,6 @@ function TreeListPage() {
                     />
                     <button className="btn btn-primary" type="submit">Create tree</button>
                 </form>
-
-                {error && <p className="error-text">{error}</p>}
             </main>
         </div>
     );

@@ -5,6 +5,7 @@ import PopupButton from '../../PopupButton';
 
 import { Skill, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../../shared/types';
 import { apiFetch } from '../../../lib/api';
+import { snackbar } from '../../../lib/snackbar';
 
 // Deterministic hue from a status label, so any user-defined status gets a  distinct,
 // stable ring color without needing a color field in the schema
@@ -63,9 +64,10 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
         try {
             await apiFetch(`/skills/${skill.id}`, { method: 'DELETE' });
             onSkillDeleted(skill.id);
+            snackbar.success('Skill deleted successfully');
         }
         catch(err) {
-            console.error('Failed to update skill data: ', err);
+            console.error('Failed to delete skill data: ', err);
         }
     }
 

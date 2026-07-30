@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { SkillTree } from '../../../shared/types';
 import { apiFetch } from '../lib/api';
+import { snackbar } from '../lib/snackbar';
 
 interface VisibilityToggleProps {
     tree: SkillTree;
@@ -23,6 +24,7 @@ function VisibilityToggle({ tree }: VisibilityToggleProps) {
             });
 
             setIsPublic(checked);
+            snackbar.success('Tree visibility updated successfully');
         }
         catch(err)
         {

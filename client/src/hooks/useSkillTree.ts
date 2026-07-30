@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react';
 import { TreeWithDetails, Status } from '../../../shared/types';
 import { apiFetch } from '../lib/api';
 
-const API_BASE = import.meta.env.VITE_API_BASE
-
 interface UseSkillTreeResult {
     tree: TreeWithDetails | null;
     loading: boolean;

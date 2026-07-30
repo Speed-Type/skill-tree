@@ -29,6 +29,9 @@
  
   --danger: #e2607a;
   --danger-soft: rgba(226, 96, 122, 0.14);
+
+  --warning: #e0a52f;
+  --warning-soft: rgba(224, 165, 47, 0.14);
  
   --radius-sm: 6px;
   --radius: 10px;
@@ -267,11 +270,6 @@ select.input {
  
 .input:focus-visible {
   border-color: var(--gold);
-}
-
-.error-text {
-  font-size: 0.85rem;
-  color: var(--danger);
 }
 
 /* ===================================== Popup / Modal ===================================== */
@@ -515,4 +513,110 @@ select.input {
 .toggle:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
+}
+
+/* ===================================== Snackbar ===================================== */
+
+.snackbar-container {
+  position: fixed;
+  z-index: 1000;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.5rem;
+  max-width: min(24rem, calc(100vw - 2.5rem));
+  pointer-events: none;
+}
+ 
+.snackbar {
+  --snackbar-accent: var(--text-dim);
+ 
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--panel-raised);
+  color: var(--text-h);
+  border: 1px solid var(--panel-border);
+  border-left: 3px solid var(--snackbar-accent);
+  border-radius: var(--radius);
+  padding: 0.65rem 0.75rem 0.65rem 0.85rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  pointer-events: auto;
+  animation: snackbar-in 0.18s ease-out;
+}
+ 
+.snackbar--success { --snackbar-accent: var(--gold); }
+.snackbar--error   { --snackbar-accent: var(--danger); }
+.snackbar--warning { --snackbar-accent: var(--warning); }
+.snackbar--info    { --snackbar-accent: var(--violet); }
+ 
+.snackbar__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--snackbar-accent);
+  color: var(--void);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+ 
+.snackbar__message {
+  flex: 1;
+  font-family: var(--sans);
+  font-size: 0.875rem;
+  line-height: 1.35;
+  color: var(--text);
+}
+ 
+.snackbar__close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.15rem;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s ease;
+}
+ 
+.snackbar__close:hover,
+.snackbar__close:focus-visible {
+  color: var(--text-h);
+}
+ 
+.snackbar__close:focus-visible {
+  outline: 2px solid var(--snackbar-accent);
+  outline-offset: 2px;
+}
+ 
+@keyframes snackbar-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.4rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+ 
+@media (prefers-reduced-motion: reduce) {
+  .snackbar {
+    animation: none;
+  }
+}
+ 
+@media (max-width: 480px) {
+  .snackbar-container {
+    left: 1rem;
+    right: 1rem;
+    max-width: none;
+  }
 }

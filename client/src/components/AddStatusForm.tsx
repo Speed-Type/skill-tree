@@ -27,7 +27,7 @@ function AddStatusForm({ onStatusCreated, currentCount }: AddStatusFormProps) {
         }
         catch(err)
         {
-            console.error('Failed to update skill status: ', err);
+            console.error('Failed to create status: ', err);
         }
     }
 

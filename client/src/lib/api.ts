@@ -1,3 +1,5 @@
+import { snackbar } from './snackbar';
+
 const API_BASE = import.meta.env.VITE_API_BASE;
 
 export class ApiError extends Error {
@@ -8,13 +10,22 @@ export class ApiError extends Error {
     }
 }
 
-export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
+export interface ApiFetchOptions extends RequestInit {
+    // Set true to suppress the automatic error snackbar for this call
+    // Useful for calls where a failure is expected/handled inline
+    // (e.g. an initial auth check that may legitimately 401)
+    silent?: boolean;
+}
+
+export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): Promise<T> {
+    const { silent, ...fetchOptions } = options;
+    
     const res = await fetch(`${API_BASE}${path}`, {
-        ...options,
+        ...fetchOptions,
         credentials: 'include', // sends the auth cookie on every request
         headers: {
             'Content-Type': 'application/json',
-            ...options.headers,
+            ...fetchOptions.headers,
         },
     });
 
@@ -26,6 +37,7 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
         } catch {
             // response body wasn't JSON — fall back to the generic message
         }
+        if (!silent) snackbar.error(message);
         throw new ApiError(message, res.status);
     }
 
