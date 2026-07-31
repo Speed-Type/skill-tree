@@ -5,7 +5,7 @@ import { apiFetch, ApiError } from '../lib/api';
 interface AuthContextValue {
     user: PublicUser | null;
     loading: boolean;
-    authError: boolean;
+    authError: ApiError | null;
     login: (email: string, password: string) => Promise<void>;
     signup: (email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
@@ -16,7 +16,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<PublicUser | null>(null);
     const [loading, setLoading] = useState(true);
-    const [authError, setAuthError] = useState(false);
+    const [authError, setAuthError] = useState<ApiError | null>(null);
 
     // On first load, check whether we already have a valid cookie from a previous session
     useEffect(() => {
@@ -25,8 +25,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             .catch((err) => {
                 if (err instanceof ApiError && err.status === 401) {
                     setUser(null); // no valid cookie — just means logged out, not an error to surface
+                } else if (err instanceof ApiError) {
+                    setAuthError(err); // real failure (network/server), distinct from "logged out"
                 } else {
-                    setAuthError(true); // real failure (network/server), distinct from "logged out"
+                    // Defensive fallback: apiFetch should _always_ throw ApiError, but just in case
+                    setAuthError(new ApiError('Unknown error', 0));
                 }
             })
             .finally(() => setLoading(false));
@@ -38,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             body: JSON.stringify({ email, password }),
         });
         setUser(loggedInUser);
-        setAuthError(false);
+        setAuthError(null);
     }
 
     async function signup(email: string, password: string) {

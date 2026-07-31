@@ -103,7 +103,10 @@ function TreePage() {
 
     if (loading) return <LoadingPage message="Loading skill tree..." />;
     if (error) {
-        if (error instanceof ApiError && error.status === 404) {
+        if (error instanceof ApiError && error.status === 0) {
+            return <ErrorPage message="Can't reach the server. Check your connection and try again." />;
+        }
+        else if (error instanceof ApiError && error.status === 404) {
             return <NotFoundPage message="This skill tree doesn't exist, or is private." />;
         }
         return <ErrorPage message="Something went wrong loading this tree." />;
