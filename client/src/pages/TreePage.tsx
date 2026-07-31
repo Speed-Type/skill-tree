@@ -8,8 +8,11 @@ import StatusView from '../components/StatusView';
 import AddStatusForm from "../components/AddStatusForm";
 import PopupButton from '../components/PopupButton';
 import VisibilityToggle from '../components/VisibilityToggle';
+import LoadingPage from '../pages/LoadingPage';
+import NotFoundPage from '../pages/NotFoundPage';
+import ErrorPage from '../pages/ErrorPage';
 import { useAuth } from '../context/AuthContext';
-import { apiFetch } from '../lib/api';
+import { apiFetch, ApiError, NETWORK_ERROR_MESSAGE } from '../lib/api';
 
 import { Skill, SkillEdge, Status } from '../../../shared/types';
 
@@ -98,9 +101,18 @@ function TreePage() {
 
     // ===========================================================================================
 
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p>Something went wrong.</p>;
-    if (!tree) return <p>No tree found.</p>;
+    if (loading) return <LoadingPage message="Loading skill tree..." />;
+    if (error) {
+        if (error instanceof ApiError && error.status === 0) {
+            return <ErrorPage message={NETWORK_ERROR_MESSAGE} />;
+        }
+        else if (error instanceof ApiError && error.status === 404) {
+            return <NotFoundPage message="This skill tree doesn't exist, or is private." />;
+        }
+        return <ErrorPage message="Something went wrong loading this tree." />;
+    }
+    // This case should never actually happen, but it's helpful for TypeScript to know that tree won't be null past this check
+    if (!tree) return <ErrorPage message="Something went wrong loading this tree." />;
 
     return (
         <div className="app-shell">

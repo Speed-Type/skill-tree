@@ -1,12 +1,13 @@
 import { Navigate } from 'react-router';
 import AuthGate from '../components/AuthGate';
 import { useAuth } from '../context/AuthContext';
+import LoadingPage from './LoadingPage';
 
 function LoginPage() {
     const { user, loading } = useAuth();
 
-    if (loading) return <p className="state-message">Loading...</p>;
-    if (user) return <Navigate to="/" replace />;
+    if (loading) return <LoadingPage />;
+    if (user) return <Navigate to="/trees" replace />;
 
     return <AuthGate />;
 }

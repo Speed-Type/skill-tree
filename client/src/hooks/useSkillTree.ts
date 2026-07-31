@@ -17,7 +17,7 @@ export function useSkillTree(treeId: number): UseSkillTreeResult {
         setLoading(true);
         setError(null);
 
-        apiFetch<TreeWithDetails>(`/trees/${treeId}`)
+        apiFetch<TreeWithDetails>(`/trees/${treeId}`, { silent: true })
             .then(setTree)
             .catch(setError)
             .finally(() => setLoading(false));

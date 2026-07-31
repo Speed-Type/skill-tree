@@ -3,8 +3,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import TreeListPage from './pages/TreeListPage';
 import TreePage from './pages/TreePage';
-
-import { Skill, SkillEdge, Status } from '../../shared/types';
+import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
     return (
@@ -13,8 +12,11 @@ function App() {
             <Route path="/trees/:treeId" element={<TreePage />} />
 
             <Route element={<ProtectedRoute />}>
-                <Route path="/" element={<TreeListPage />} />
+                <Route path="/trees" element={<TreeListPage />} />
             </Route>
+
+            {/* The catch all 404 not found route */}
+            <Route path="*" element={<NotFoundPage message="This page doesn't exist, or is private."/>} />
         </Routes>
     );
 }

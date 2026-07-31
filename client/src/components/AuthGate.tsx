@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { ApiError } from '../lib/api';
 
 function AuthGate() {
     const { login, signup } = useAuth();
