@@ -12,7 +12,7 @@ import LoadingPage from '../pages/LoadingPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import ErrorPage from '../pages/ErrorPage';
 import { useAuth } from '../context/AuthContext';
-import { apiFetch, ApiError } from '../lib/api';
+import { apiFetch, ApiError, NETWORK_ERROR_MESSAGE } from '../lib/api';
 
 import { Skill, SkillEdge, Status } from '../../../shared/types';
 
@@ -104,7 +104,7 @@ function TreePage() {
     if (loading) return <LoadingPage message="Loading skill tree..." />;
     if (error) {
         if (error instanceof ApiError && error.status === 0) {
-            return <ErrorPage message="Can't reach the server. Check your connection and try again." />;
+            return <ErrorPage message={NETWORK_ERROR_MESSAGE} />;
         }
         else if (error instanceof ApiError && error.status === 404) {
             return <NotFoundPage message="This skill tree doesn't exist, or is private." />;
