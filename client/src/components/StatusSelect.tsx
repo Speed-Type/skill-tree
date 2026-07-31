@@ -7,9 +7,12 @@ interface StatusSelectProps {
     skill: Skill;
     statuses: Status[];
     onSkillChanged: SkillChangedHandler;
+    // Called after a status (not "None") is successfully applied to a skill,
+    // so the parent can bump it to the front of the MRU order
+    onStatusUsed: (statusId: number) => void;
 }
 
-function StatusSelect({ skill, statuses, onSkillChanged }: StatusSelectProps) {
+function StatusSelect({ skill, statuses, onSkillChanged, onStatusUsed }: StatusSelectProps) {
     
     // Function to handle a change in status for a specific skill
     async function handleChange(e: React.ChangeEvent<HTMLSelectElement>)
@@ -25,6 +28,12 @@ function StatusSelect({ skill, statuses, onSkillChanged }: StatusSelectProps) {
             });
 
             onSkillChanged(updatedSkill);
+
+            // Only bump usage for an actual status, not "None"
+            if (newStatusId !== null)
+            {
+                onStatusUsed(newStatusId);
+            }
         }
         catch(err)
         {

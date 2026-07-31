@@ -78,7 +78,37 @@ function TreePage() {
     function handleStatusDeleted(deletedStatusID: number) {
         setMyStatuses(prev => prev.filter(status => status.id !== deletedStatusID));
     }
+    
+    // Function that rearranges the status list according to most recently used scheme
+    async function bumpStatusUsage(statusId: number) {
 
+        // already at the front — nothing to do
+        if (myStatuses[0]?.id === statusId) return;
+
+        const status = myStatuses.find(s => s.id === statusId);
+        if (!status) return;
+
+        const newSortOrder = (myStatuses[0]?.sort_order ?? 0) - 1;
+
+        // optimistic local reorder
+        setMyStatuses(prev =>
+            prev
+                .map(s => s.id === statusId ? { ...s, sort_order: newSortOrder } : s)
+                .sort((a, b) => a.sort_order - b.sort_order)
+        );
+
+        try {
+            await apiFetch<Status>(`/statuses/${statusId}`, {
+                method: 'PUT',
+                body: JSON.stringify({ label: status.label, sort_order: newSortOrder }),
+            });
+        } catch (err) {
+            console.error('Failed to persist status usage order: ', err);
+        }
+    }
+
+    // The list of statuses to display in the UI
+    // (if owner, all the owner's statuses; if not, just those present in the tree)
     const displayStatuses = isOwner ? myStatuses : (tree?.statuses ?? []);
 
     // ===================================== Edge Handling =====================================
@@ -157,6 +187,7 @@ function TreePage() {
                     onSkillDeleted={handleSkillDeleted}
                     onEdgeCreated={handleEdgeCreated}
                     onEdgeDeleted={handleEdgeDeleted}
+                    onStatusUsed={bumpStatusUsage}
                 />
 
                 {isOwner && ( <AddSkillForm treeId={tree.id} onCreated={handleSkillCreated} /> )}

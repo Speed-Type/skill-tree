@@ -33,9 +33,10 @@ interface SkillTreeViewProps {
     onSkillDeleted: SkillDeletedHandler;
     onEdgeCreated: (newEdge: SkillEdge) => void;
     onEdgeDeleted: (deletedEdgeID: string) => void;
+    onStatusUsed: (statusId: number) => void;
 }
 
-function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged, onSkillDeleted, onEdgeCreated, onEdgeDeleted }: SkillTreeViewProps) {
+function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged, onSkillDeleted, onEdgeCreated, onEdgeDeleted, onStatusUsed }: SkillTreeViewProps) {
     
     // ======================= Tracking Delete Popups for Edges ==========================
 
@@ -85,6 +86,7 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
                 isOwner,
                 onSkillChanged,
                 onSkillDeleted,
+                onStatusUsed,
             },
         }));
 

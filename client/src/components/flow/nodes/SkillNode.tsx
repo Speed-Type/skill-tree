@@ -23,6 +23,7 @@ export interface SkillNodeData extends Record<string, unknown> {
     isOwner: boolean;
     onSkillChanged: SkillChangedHandler;
     onSkillDeleted: SkillDeletedHandler;
+    onStatusUsed: (statusId: number) => void;
 }
 
 export type SkillFlowNode = Node<SkillNodeData>;
@@ -30,7 +31,7 @@ export type SkillFlowNode = Node<SkillNodeData>;
 function SkillNode({ data }: NodeProps<SkillFlowNode>) {
 
     // Unpack data (needs to be done because of how data is passed into react flow's nodes)
-    const { skill, statuses, isOwner, onSkillChanged, onSkillDeleted } = data;
+    const { skill, statuses, isOwner, onSkillChanged, onSkillDeleted, onStatusUsed } = data;
 
     // States for label and description
     const [label, setLabel] = useState(skill.label);
@@ -89,7 +90,7 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
 
                 <div className="nodrag skill-node-controls">
                     {isOwner ? (
-                        <StatusSelect skill={skill} statuses={statuses} onSkillChanged={onSkillChanged} />
+                        <StatusSelect skill={skill} statuses={statuses} onSkillChanged={onSkillChanged} onStatusUsed={onStatusUsed} />
                     ) : (
                         <span>{currentStatusLabel}</span>
                     )}
