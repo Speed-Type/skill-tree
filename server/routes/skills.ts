@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { Skill, ErrorResponse } from '../../shared/types';
 import { requireAuth, optionalAuth } from '../middleware/auth';
+import { isPgError } from '../utils/utils';
 
 import pool from '../db';
 
@@ -17,7 +18,7 @@ router.get('/', requireAuth, async (req: Request, res: Response<Skill[] | ErrorR
     }
     catch (err) {
         console.error(err); // Log what actually broke
-        res.status(500).json({ error: 'Database error' }); // Client gets a response
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -44,7 +45,11 @@ router.get('/:id', optionalAuth, async (req: Request<{ id: string }>, res: Respo
     }
     catch (err) {
         console.error(err); // Log what actually broke
-        res.status(500).json({ error: 'Database error' }); // Client gets a response
+
+        // Check for invalid id parameter
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid input' });
+
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -64,9 +69,18 @@ router.post('/', requireAuth, async (req: Request<{}, {}, CreateSkillBody>, res:
         // Make sure required parameters are passed
         if (!tree_id || !label) return res.status(400).json({ error: 'Tree id and label are required' });
 
+        // label has a VARCHAR(255) column limit; catch it before it hits the DB
+        if (label.length > 255) return res.status(400).json({ error: 'Label must be 255 characters or fewer' });
+
         // Confirm the tree exists AND belongs to the requester before allowing an insert into it
         const treeCheck = await pool.query('SELECT id FROM skill_trees WHERE id = $1 AND user_id = $2', [tree_id, req.userId]);
         if (treeCheck.rows.length === 0) return res.status(404).json({ error: 'Not found' });
+
+        // Confirm the status (if provided) exists AND belongs to the requester, so a skill can't be assigned to another user's status
+        if (status_id) {
+            const statusCheck = await pool.query('SELECT id FROM statuses WHERE id = $1 AND user_id = $2', [status_id, req.userId]);
+            if (statusCheck.rows.length === 0) return res.status(404).json({ error: 'Status not found' });
+        }
 
         const result = await pool.query(
             'INSERT INTO skills (tree_id, label, description, status_id, x_position, y_position) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
@@ -77,7 +91,10 @@ router.post('/', requireAuth, async (req: Request<{}, {}, CreateSkillBody>, res:
     }
     catch (err) {
         console.error(err); // Log what actually broke
-        res.status(500).json({ error: 'Database error' }); // Client gets a response
+
+        if (isPgError(err) && err.code === "22001") return res.status(400).json({ error: "One or more fields is too long" });
+
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -93,6 +110,15 @@ router.put('/:id', requireAuth, async (req: Request<{ id: string }, {}, UpdateSk
     try {
         const { label, description, status_id, x_position, y_position } = req.body;
 
+        // label has a VARCHAR(255) column limit; catch it before it hits the DB
+        if (label && label.length > 255) return res.status(400).json({ error: 'Label must be 255 characters or fewer' });
+
+        // Confirm the status (if provided) exists AND belongs to the requester, so a skill can't be assigned to another user's status
+        if (status_id) {
+            const statusCheck = await pool.query('SELECT id FROM statuses WHERE id = $1 AND user_id = $2', [status_id, req.userId]);
+            if (statusCheck.rows.length === 0) return res.status(404).json({ error: 'Status not found' });
+        }
+
         const result = await pool.query(
             `UPDATE skills SET label = COALESCE($1, label), description = COALESCE($2, description), status_id = COALESCE($3, status_id),
              x_position = COALESCE($4, x_position), y_position = COALESCE($5, y_position)
@@ -107,14 +133,26 @@ router.put('/:id', requireAuth, async (req: Request<{ id: string }, {}, UpdateSk
         res.json(result.rows[0]);
     }
     catch (err) {
-        console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        console.error(err); // Log what actually broke
+
+        // Check for invalid id parameter
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid input' });
+
+        if (isPgError(err) && err.code === "22001") return res.status(400).json({ error: "One or more fields is too long" });
+
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
 router.put('/:id/status', requireAuth, async (req: Request<{ id: string }, {}, { status_id: number | null }>, res: Response<Skill | ErrorResponse>) => {
     try {
         const { status_id } = req.body;
+
+        // Confirm the status (if not being cleared) exists AND belongs to the requester
+        if (status_id) {
+            const statusCheck = await pool.query('SELECT id FROM statuses WHERE id = $1 AND user_id = $2', [status_id, req.userId]);
+            if (statusCheck.rows.length === 0) return res.status(404).json({ error: 'Status not found' });
+        }
 
         const result = await pool.query(
             `UPDATE skills SET status_id = $1
@@ -130,7 +168,11 @@ router.put('/:id/status', requireAuth, async (req: Request<{ id: string }, {}, {
     }
     catch (err) {
         console.error(err); // Log what actually broke
-        res.status(500).json({ error: 'Database error' }); // Client gets a response
+
+        // Check for invalid id parameter
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid input' });
+
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -152,7 +194,11 @@ router.put('/:id/position', requireAuth, async (req: Request<{ id: string }, {},
     }
     catch (err) {
         console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+
+        // Check for invalid id parameter
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid input' });
+
+        res.status(500).json({ error: 'Database error' }); 
     }
 });
 
@@ -169,8 +215,12 @@ router.delete('/:id', requireAuth, async (req: Request<{ id: string }>, res: Res
         res.status(204).send();
     }
     catch (err) {
-        console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        console.error(err); // Log what actually broke
+
+        // Check for invalid id parameter
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid input' });
+
+        res.status(500).json({ error: 'Database error' });
     }
 });
 

@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { Status, ErrorResponse } from '../../shared/types';
 import { requireAuth, optionalAuth } from '../middleware/auth';
+import { isPgError } from '../utils/utils';
 
 import pool from '../db';
 
@@ -13,7 +14,7 @@ router.get('/', requireAuth, async(req: Request, res: Response<Status[] | ErrorR
     }
     catch (err) {
         console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        res.status(500).json({ error: 'Database error' }); 
     }
 });
 
@@ -48,8 +49,12 @@ router.get('/:id', optionalAuth, async(req: Request<{ id: string }>, res: Respon
         res.json(result.rows[0]);
     }
     catch (err) {
-        console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        console.error(err); // Log what actually broke
+
+        // Check for invalid id parameter
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid input' });
+
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -65,6 +70,9 @@ router.post('/', requireAuth, async(req: Request<{}, {}, CreateStatusBody>, res:
         // Make sure required parameters (label) are passed
         if (!label) return res.status(400).json({ error: "Label is required" });
 
+        // label has a VARCHAR(35) column limit; catch it before it hits the DB
+        if (label.length > 35) return res.status(400).json({ error: "Label must be 35 characters or fewer" });
+
         const result = await pool.query(
             'INSERT INTO statuses (user_id, label, sort_order) VALUES ($1, $2, $3) RETURNING *', 
             [req.userId, label, sort_order ?? 0]
@@ -73,8 +81,11 @@ router.post('/', requireAuth, async(req: Request<{}, {}, CreateStatusBody>, res:
         res.status(201).json(result.rows[0]);
     }
     catch (err) {
-        console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        console.error(err); // Log what actually broke
+
+        if (isPgError(err) && err.code === "22001") return res.status(400).json({ error: "One or more fields is too long" });
+
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -87,6 +98,9 @@ router.put('/:id', requireAuth, async(req: Request<{ id: string }, {}, UpdateSta
     try {
         const { label, sort_order } = req.body;
 
+        // label has a VARCHAR(35) column limit; catch it before it hits the DB
+        if (label && label.length > 35) return res.status(400).json({ error: "Label must be 35 characters or fewer" });
+
         const result = await pool.query(
             'UPDATE statuses SET label = COALESCE($1, label), sort_order = COALESCE($2, sort_order) WHERE id = $3 AND user_id = $4 RETURNING *',
             [label, sort_order, req.params.id, req.userId]
@@ -98,8 +112,15 @@ router.put('/:id', requireAuth, async(req: Request<{ id: string }, {}, UpdateSta
         res.json(result.rows[0]);
     }
     catch (err) {
-        console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        console.error(err); // Log what actually broke
+
+        // Check for invalid id parameter
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid input' });
+
+        // Check for too-long label
+        if (isPgError(err) && err.code === "22001") return res.status(400).json({ error: "One or more fields is too long" });
+
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -113,8 +134,12 @@ router.delete('/:id', requireAuth, async(req: Request<{ id: string }>, res: Resp
         res.status(204).send();
     }
     catch (err) {
-        console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        console.error(err); // Log what actually broke
+
+        // Check for invalid id parameter
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid input' });
+
+        res.status(500).json({ error: 'Database error' });
     }
 });
 

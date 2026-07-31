@@ -19,7 +19,7 @@ router.get('/', requireAuth, async (req: Request, res: Response<SkillEdge[] | Er
     }
     catch (err) {
         console.error(err); // Log what actually broke
-        res.status(500).json({ error: 'Database error' }); // Client gets a response
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -47,8 +47,12 @@ router.get('/:id', optionalAuth, async (req: Request<{ id: string }>, res: Respo
         res.json(result.rows[0]);
     }
     catch (err) {
-        console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        console.error(err); // Log what actually broke
+
+        // Check for invalid id parameter
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid input' });
+
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -80,11 +84,12 @@ router.post('/', requireAuth, async (req: Request<{}, {}, CreateEdgeBody>, res: 
         res.status(201).json(result.rows[0]);
     }
     catch (err) {
-        // First check if it's a duplicate edge violation
+        console.error(err); // Log what actually broke
+
+        // Check for duplicate/reverse edge violation
         if (isPgError(err) && err.code === "23505") return res.status(409).json({ error: "This edge already exists" });
 
-        console.error(err); // Log what actually broke
-        res.status(500).json({ error: 'Database error' }); // Client gets a response
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -103,8 +108,12 @@ router.delete('/:id', requireAuth, async (req: Request<{ id: string }>, res: Res
         res.status(204).send();
     }
     catch (err) {
-        console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        console.error(err); // Log what actually broke
+
+        // Check for invalid id parameter
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid input' });
+
+        res.status(500).json({ error: 'Database error' });
     }
 });
 

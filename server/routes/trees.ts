@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { Skill, SkillTree, TreeWithDetails, ErrorResponse } from '../../shared/types';
 import { requireAuth, optionalAuth } from '../middleware/auth';
+import { isPgError } from '../utils/utils';
 
 import pool from '../db';
 
@@ -13,7 +14,7 @@ router.get('/', requireAuth, async(req: Request, res: Response<SkillTree[] | Err
     }
     catch (err) {
         console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' }); // Client gets a response
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -48,8 +49,12 @@ router.get('/:id', optionalAuth, async(req: Request<{ id: string }>, res: Respon
         res.json({... tree, skills: skillsResult.rows, edges: edgesResult.rows, statuses: statusesResult.rows });
     }
     catch (err) {
-        console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        console.error(err); // Log what actually broke
+
+        // Check for invalid id parameter
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid input' });
+
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -63,6 +68,9 @@ router.post('/', requireAuth, async(req: Request<{}, {}, CreateTreeBody>, res: R
     try {
         const { title, description, is_public } = req.body;
 
+        // title has a VARCHAR(255) column limit; catch it before it hits the DB
+        if (title.length > 255) return res.status(400).json({ error: 'Title must be 255 characters or fewer' });
+
         // Make sure required parameters are passed
         if (!title) return res.status(400).json({ error: 'Title is required' });
 
@@ -74,8 +82,11 @@ router.post('/', requireAuth, async(req: Request<{}, {}, CreateTreeBody>, res: R
         res.status(201).json(result.rows[0]);
     }
     catch (err) {
-        console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        console.error(err); // Log what actually broke
+
+        if (isPgError(err) && err.code === "22001") return res.status(400).json({ error: "One or more fields is too long" });
+
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -89,6 +100,9 @@ router.put('/:id', requireAuth, async(req: Request<{ id: string }, {}, UpdateTre
     try {
         const { title, description, is_public } = req.body;
 
+        // title has a VARCHAR(255) column limit; catch it before it hits the DB
+        if (title && title.length > 255) return res.status(400).json({ error: 'Title must be 255 characters or fewer' });
+
         const result = await pool.query(
             'UPDATE skill_trees SET title = COALESCE($1, title), description = COALESCE($2, description), is_public = COALESCE($3, is_public) WHERE id = $4 AND user_id = $5 RETURNING *',
             [title, description, is_public, req.params.id, req.userId]
@@ -100,8 +114,14 @@ router.put('/:id', requireAuth, async(req: Request<{ id: string }, {}, UpdateTre
         res.json(result.rows[0]);
     }
     catch (err) {
-        console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        console.error(err); // Log what actually broke
+
+        // Check for invalid id parameter
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid input' });
+
+        if (isPgError(err) && err.code === "22001") return res.status(400).json({ error: "One or more fields is too long" });
+
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
@@ -118,8 +138,12 @@ router.delete('/:id', requireAuth, async(req: Request<{ id: string }>, res: Resp
         res.status(204).send();
     }
     catch (err) {
-        console.error(err);  // Log what actually broke
-        res.status(500).json({ error: 'Database error' });  // Client gets a response
+        console.error(err); // Log what actually broke
+
+        // Check for invalid id parameter
+        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid input' });
+
+        res.status(500).json({ error: 'Database error' });
     }
 });
 
