@@ -4,6 +4,7 @@ import { SkillTree } from '../../../shared/types';
 import { apiFetch, ApiError } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { snackbar } from '../lib/snackbar';
+import LoadingPage from './LoadingPage';
 
 function TreeListPage() {
     const { logout, user } = useAuth();
@@ -34,7 +35,7 @@ function TreeListPage() {
         }
     }
 
-    if (loading) return <p>Loading...</p>;
+    if (loading) return <LoadingPage message="Loading skill tree list..." />;
 
     return (
         <div className="app-shell">

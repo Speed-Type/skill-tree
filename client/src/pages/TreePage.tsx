@@ -8,6 +8,7 @@ import StatusView from '../components/StatusView';
 import AddStatusForm from "../components/AddStatusForm";
 import PopupButton from '../components/PopupButton';
 import VisibilityToggle from '../components/VisibilityToggle';
+import LoadingPage from '../pages/LoadingPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import ErrorPage from '../pages/ErrorPage';
 import { useAuth } from '../context/AuthContext';
@@ -100,7 +101,7 @@ function TreePage() {
 
     // ===========================================================================================
 
-    if (loading) return <p>Loading...</p>;
+    if (loading) return <LoadingPage message="Loading skill tree..." />;
     if (error) {
         if (error instanceof ApiError && error.status === 404) {
             return <NotFoundPage message="This skill tree doesn't exist, or is private." />;
