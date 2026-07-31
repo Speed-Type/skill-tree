@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { Skill, SkillTree, TreeWithDetails, ErrorResponse } from '../../shared/types';
 import { requireAuth, optionalAuth } from '../middleware/auth';
 import { isPgError } from '../utils/utils';
+import { MAX_LENGTHS } from '../../shared/constants';
 
 import pool from '../db';
 
@@ -68,8 +69,11 @@ router.post('/', requireAuth, async(req: Request<{}, {}, CreateTreeBody>, res: R
     try {
         const { title, description, is_public } = req.body;
 
-        // title has a VARCHAR(255) column limit; catch it before it hits the DB
-        if (title.length > 255) return res.status(400).json({ error: 'Title must be 255 characters or fewer' });
+        // title has a character limit; catch it before it hits the DB
+        if (title.length > MAX_LENGTHS.treeTitle) return res.status(400).json({ error: `Title must be ${MAX_LENGTHS.treeTitle} characters or fewer` });
+
+        // description has a character limit; catch it before it hits the DB
+        if (description && description.length > MAX_LENGTHS.treeDescription) return res.status(400).json({ error: `Description must be ${MAX_LENGTHS.treeDescription} characters or fewer` });
 
         // Make sure required parameters are passed
         if (!title) return res.status(400).json({ error: 'Title is required' });
@@ -100,8 +104,11 @@ router.put('/:id', requireAuth, async(req: Request<{ id: string }, {}, UpdateTre
     try {
         const { title, description, is_public } = req.body;
 
-        // title has a VARCHAR(255) column limit; catch it before it hits the DB
-        if (title && title.length > 255) return res.status(400).json({ error: 'Title must be 255 characters or fewer' });
+        // title has a character limit; catch it before it hits the DB
+        if (title && title.length > MAX_LENGTHS.treeTitle) return res.status(400).json({ error: `Title must be ${MAX_LENGTHS.treeTitle} characters or fewer` });
+
+        // description has a character limit; catch it before it hits the DB
+        if (description && description.length > MAX_LENGTHS.treeDescription) return res.status(400).json({ error: `Description must be ${MAX_LENGTHS.treeDescription} characters or fewer` });
 
         const result = await pool.query(
             'UPDATE skill_trees SET title = COALESCE($1, title), description = COALESCE($2, description), is_public = COALESCE($3, is_public) WHERE id = $4 AND user_id = $5 RETURNING *',

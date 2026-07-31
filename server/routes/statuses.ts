@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { Status, ErrorResponse } from '../../shared/types';
 import { requireAuth, optionalAuth } from '../middleware/auth';
 import { isPgError } from '../utils/utils';
+import { MAX_LENGTHS } from '../../shared/constants';
 
 import pool from '../db';
 
@@ -70,8 +71,8 @@ router.post('/', requireAuth, async(req: Request<{}, {}, CreateStatusBody>, res:
         // Make sure required parameters (label) are passed
         if (!label) return res.status(400).json({ error: "Label is required" });
 
-        // label has a VARCHAR(35) column limit; catch it before it hits the DB
-        if (label.length > 35) return res.status(400).json({ error: "Label must be 35 characters or fewer" });
+        // label has a character limit; catch it before it hits the DB
+        if (label.length > MAX_LENGTHS.statusLabel) return res.status(400).json({ error: `Label must be ${MAX_LENGTHS.statusLabel} characters or fewer` });
 
         const result = await pool.query(
             'INSERT INTO statuses (user_id, label, sort_order) VALUES ($1, $2, $3) RETURNING *', 
@@ -98,8 +99,8 @@ router.put('/:id', requireAuth, async(req: Request<{ id: string }, {}, UpdateSta
     try {
         const { label, sort_order } = req.body;
 
-        // label has a VARCHAR(35) column limit; catch it before it hits the DB
-        if (label && label.length > 35) return res.status(400).json({ error: "Label must be 35 characters or fewer" });
+        // label has a character limit; catch it before it hits the DB
+        if (label && label.length > MAX_LENGTHS.statusLabel) return res.status(400).json({ error: `Label must be ${MAX_LENGTHS.statusLabel} characters or fewer` });
 
         const result = await pool.query(
             'UPDATE statuses SET label = COALESCE($1, label), sort_order = COALESCE($2, sort_order) WHERE id = $3 AND user_id = $4 RETURNING *',

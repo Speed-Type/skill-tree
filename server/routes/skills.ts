@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { Skill, ErrorResponse } from '../../shared/types';
 import { requireAuth, optionalAuth } from '../middleware/auth';
 import { isPgError } from '../utils/utils';
+import { MAX_LENGTHS } from '../../shared/constants';
 
 import pool from '../db';
 
@@ -69,8 +70,11 @@ router.post('/', requireAuth, async (req: Request<{}, {}, CreateSkillBody>, res:
         // Make sure required parameters are passed
         if (!tree_id || !label) return res.status(400).json({ error: 'Tree id and label are required' });
 
-        // label has a VARCHAR(255) column limit; catch it before it hits the DB
-        if (label.length > 255) return res.status(400).json({ error: 'Label must be 255 characters or fewer' });
+        // label has a character limit; catch it before it hits the DB
+        if (label.length > MAX_LENGTHS.skillLabel) return res.status(400).json({ error: `Label must be ${MAX_LENGTHS.skillLabel} characters or fewer` });
+
+        // description has a character limit; catch it before it hits the DB
+        if (description && description.length > MAX_LENGTHS.skillDescription) return res.status(400).json({ error: `Description must be ${MAX_LENGTHS.skillDescription} characters or fewer` });
 
         // Confirm the tree exists AND belongs to the requester before allowing an insert into it
         const treeCheck = await pool.query('SELECT id FROM skill_trees WHERE id = $1 AND user_id = $2', [tree_id, req.userId]);
@@ -110,8 +114,11 @@ router.put('/:id', requireAuth, async (req: Request<{ id: string }, {}, UpdateSk
     try {
         const { label, description, status_id, x_position, y_position } = req.body;
 
-        // label has a VARCHAR(255) column limit; catch it before it hits the DB
-        if (label && label.length > 255) return res.status(400).json({ error: 'Label must be 255 characters or fewer' });
+        // label has a character limit; catch it before it hits the DB
+        if (label && label.length > MAX_LENGTHS.skillLabel) return res.status(400).json({ error: `Label must be ${MAX_LENGTHS.skillLabel} characters or fewer` });
+
+        // description has a character limit; catch it before it hits the DB
+        if (description && description.length > MAX_LENGTHS.skillDescription) return res.status(400).json({ error: `Description must be ${MAX_LENGTHS.skillDescription} characters or fewer` });
 
         // Confirm the status (if provided) exists AND belongs to the requester, so a skill can't be assigned to another user's status
         if (status_id) {

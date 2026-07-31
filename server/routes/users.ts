@@ -2,6 +2,7 @@ import { Router, Request, Response} from 'express';
 import { User, PublicUser, ErrorResponse } from '../../shared/types';
 import { isPgError } from '../utils/utils';
 import { requireAuth } from '../middleware/auth';
+import { MAX_LENGTHS } from '../../shared/constants';
 import bcrypt from 'bcrypt';
 
 import pool from '../db';
@@ -49,8 +50,8 @@ router.post('/', async (req: Request<{}, {}, CreateUserBody>, res: Response<Publ
         // Make sure required parameters (email and password) are passed
         if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
 
-        // email has a VARCHAR(255) column limit; catch it before it hits the DB
-        if (email.length > 255) return res.status(400).json({ error: 'Email must be 255 characters or fewer' });
+        // email has a character limit; catch it before it hits the DB
+        if (email.length > MAX_LENGTHS.userEmail) return res.status(400).json({ error: `Email must be ${MAX_LENGTHS.userEmail} characters or fewer`  });
 
         // Encryption
         const password_hash = await bcrypt.hash(password, 10);
@@ -82,8 +83,8 @@ router.put('/me', requireAuth, async(req: Request<{ id: string }, {}, UpdateUser
     try {
         const { email, password } = req.body;
 
-        // email has a VARCHAR(255) column limit; catch it before it hits the DB
-        if (email && email.length > 255) return res.status(400).json({ error: 'Email must be 255 characters or fewer' });
+        // email has a character limit; catch it before it hits the DB
+        if (email && email.length > MAX_LENGTHS.userEmail) return res.status(400).json({ error: `Email must be ${MAX_LENGTHS.userEmail} characters or fewer` });
 
         // Encryption
         let password_hash = undefined;

@@ -8,8 +8,8 @@ CREATE TABLE users (
 CREATE TABLE skill_trees (
   id SERIAL PRIMARY KEY,
   user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-  title VARCHAR(255) NOT NULL,
-  description TEXT,
+  title VARCHAR(80) NOT NULL,
+  description VARCHAR(500),
   is_public BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT NOW()
 );
@@ -17,7 +17,7 @@ CREATE TABLE skill_trees (
 CREATE TABLE statuses (
   id SERIAL PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  label VARCHAR(35) NOT NULL,
+  label VARCHAR(30) NOT NULL,
   sort_order INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMP DEFAULT NOW()
 );
@@ -25,8 +25,8 @@ CREATE TABLE statuses (
 CREATE TABLE skills (
   id SERIAL PRIMARY KEY,
   tree_id INTEGER REFERENCES skill_trees(id) ON DELETE CASCADE,
-  label VARCHAR(255) NOT NULL,
-  description TEXT,
+  label VARCHAR(60) NOT NULL,
+  description VARCHAR(280),
   status_id INTEGER REFERENCES statuses(id) ON DELETE SET NULL,
   x_position FLOAT DEFAULT 0,
   y_position FLOAT DEFAULT 0,

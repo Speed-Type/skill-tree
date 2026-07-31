@@ -6,6 +6,7 @@ import PopupButton from '../../PopupButton';
 import { Skill, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../../shared/types';
 import { apiFetch } from '../../../lib/api';
 import { snackbar } from '../../../lib/snackbar';
+import { MAX_LENGTHS } from '../../../../../shared/constants';
 
 // Deterministic hue from a status label, so any user-defined status gets a  distinct,
 // stable ring color without needing a color field in the schema
@@ -23,6 +24,7 @@ export interface SkillNodeData extends Record<string, unknown> {
     isOwner: boolean;
     onSkillChanged: SkillChangedHandler;
     onSkillDeleted: SkillDeletedHandler;
+    onStatusUsed: (statusId: number) => void;
 }
 
 export type SkillFlowNode = Node<SkillNodeData>;
@@ -30,7 +32,7 @@ export type SkillFlowNode = Node<SkillNodeData>;
 function SkillNode({ data }: NodeProps<SkillFlowNode>) {
 
     // Unpack data (needs to be done because of how data is passed into react flow's nodes)
-    const { skill, statuses, isOwner, onSkillChanged, onSkillDeleted } = data;
+    const { skill, statuses, isOwner, onSkillChanged, onSkillDeleted, onStatusUsed } = data;
 
     // States for label and description
     const [label, setLabel] = useState(skill.label);
@@ -89,7 +91,7 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
 
                 <div className="nodrag skill-node-controls">
                     {isOwner ? (
-                        <StatusSelect skill={skill} statuses={statuses} onSkillChanged={onSkillChanged} />
+                        <StatusSelect skill={skill} statuses={statuses} onSkillChanged={onSkillChanged} onStatusUsed={onStatusUsed} />
                     ) : (
                         <span>{currentStatusLabel}</span>
                     )}
@@ -102,7 +104,13 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
                             {({ onClose }) => (
                                 <div className="status-edit-fields">
                                     {/* Contents of skill edit popup */}
-                                    <input className="input" value={label} onChange={(e) => setLabel(e.target.value)} />
+                                    <input
+                                        className="input"
+                                        value={label}
+                                        onChange={(e) => setLabel(e.target.value)}
+                                        maxLength={MAX_LENGTHS.skillLabel}
+                                    />
+                                    
                                     <input className="input" value={description} onChange={(e) => setDescription(e.target.value)} />
                                     
                                     <div className="btn-row">

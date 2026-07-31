@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { MAX_LENGTHS } from '../../../shared/constants';
 
 function AuthGate() {
     const { login, signup } = useAuth();
@@ -35,6 +36,7 @@ function AuthGate() {
                         onChange={e => setEmail(e.target.value)}
                         placeholder="Email"
                         required
+                        maxLength={MAX_LENGTHS.userEmail}
                     />
                     <input
                         className="input"
@@ -43,6 +45,7 @@ function AuthGate() {
                         onChange={e => setPassword(e.target.value)}
                         placeholder="Password"
                         required
+                        // Note that password has no max length limit
                     />
                     <button className="btn btn-primary" type="submit">{mode === 'login' ? 'Log in' : 'Sign up'}</button>
                 </form>

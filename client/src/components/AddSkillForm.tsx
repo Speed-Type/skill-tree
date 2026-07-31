@@ -1,7 +1,7 @@
 import { useState } from 'react';
-
 import { Skill, SkillChangedHandler } from '../../../shared/types';
 import { apiFetch } from '../lib/api';
+import { MAX_LENGTHS } from '../../../shared/constants';
 
 interface AddSkillFormProps {
     treeId: number;
@@ -34,7 +34,15 @@ function AddSkillForm({ treeId, onCreated }: AddSkillFormProps) {
 
     return (
         <form className="panel form-row" onSubmit={handleSubmit}>
-            <input className="input" value={label} onChange={e => setLabel(e.target.value)} placeholder="New skill" required/>
+            <input
+                className="input"
+                value={label}
+                onChange={e => setLabel(e.target.value)}
+                placeholder="New skill"
+                required
+                maxLength={MAX_LENGTHS.skillLabel}
+            />
+            
             <button className="btn btn-primary" type="submit">Add</button>
         </form>
     );

@@ -22,6 +22,7 @@ import CustomConnectionLine from './connectionLines/CustomConnectionLine';
 import { TreeWithDetails, Skill, SkillEdge, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../shared/types';
 import { apiFetch } from '../../lib/api';
 import { snackbar } from '../../lib/snackbar';
+import { MAX_LENGTHS } from '../../../../shared/constants';
 
 interface SkillTreeViewProps {
     tree: TreeWithDetails;
@@ -33,9 +34,10 @@ interface SkillTreeViewProps {
     onSkillDeleted: SkillDeletedHandler;
     onEdgeCreated: (newEdge: SkillEdge) => void;
     onEdgeDeleted: (deletedEdgeID: string) => void;
+    onStatusUsed: (statusId: number) => void;
 }
 
-function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged, onSkillDeleted, onEdgeCreated, onEdgeDeleted }: SkillTreeViewProps) {
+function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged, onSkillDeleted, onEdgeCreated, onEdgeDeleted, onStatusUsed }: SkillTreeViewProps) {
     
     // ======================= Tracking Delete Popups for Edges ==========================
 
@@ -85,6 +87,7 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
                 isOwner,
                 onSkillChanged,
                 onSkillDeleted,
+                onStatusUsed,
             },
         }));
 
@@ -274,7 +277,12 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
                     >
                         {({ onClose }) => (
                             <div className="status-edit-fields">
-                                <input className="input" value={newTreeName} onChange={e => setNewTreeName(e.target.value)} />
+                                <input
+                                    className="input"
+                                    value={newTreeName}
+                                    onChange={e => setNewTreeName(e.target.value)}
+                                    maxLength={MAX_LENGTHS.treeTitle}
+                                />
                                 
                                 <div className="btn-row">
                                     <button className="btn btn-primary" onClick={() => { handleNameChange(); onClose(); }}>Save Changes</button>
