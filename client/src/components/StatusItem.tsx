@@ -5,6 +5,7 @@ import PopupButton from './PopupButton';
 import { Status, StatusChangedHandler, StatusDeletedHandler } from '../../../shared/types';
 import { apiFetch } from '../lib/api';
 import { snackbar } from '../lib/snackbar';
+import { MAX_LENGTHS } from '../../../shared/constants';
 
 // Deterministic hue from a status label, so any user-defined status gets a distinct,
 // stable color without needing a color field in the schema
@@ -66,7 +67,12 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
             <PopupButton label = "..." resetValues={() => setLabel(status.label)}>
                 {({ onClose }) => (
                     <div className="status-edit-fields">
-                        <input className="input" value={label} onChange={e => setLabel(e.target.value)} />
+                        <input
+                            className="input"
+                            value={label}
+                            onChange={e => setLabel(e.target.value)}
+                            maxLength={MAX_LENGTHS.statusLabel}
+                        />
 
                         <div className="btn-row">
                             <button className="btn btn-primary" onClick={() => {handleEdit(); onClose();}}>Save Changes</button>

@@ -6,6 +6,7 @@ import PopupButton from '../../PopupButton';
 import { Skill, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../../shared/types';
 import { apiFetch } from '../../../lib/api';
 import { snackbar } from '../../../lib/snackbar';
+import { MAX_LENGTHS } from '../../../../../shared/constants';
 
 // Deterministic hue from a status label, so any user-defined status gets a  distinct,
 // stable ring color without needing a color field in the schema
@@ -103,7 +104,13 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
                             {({ onClose }) => (
                                 <div className="status-edit-fields">
                                     {/* Contents of skill edit popup */}
-                                    <input className="input" value={label} onChange={(e) => setLabel(e.target.value)} />
+                                    <input
+                                        className="input"
+                                        value={label}
+                                        onChange={(e) => setLabel(e.target.value)}
+                                        maxLength={MAX_LENGTHS.skillLabel}
+                                    />
+                                    
                                     <input className="input" value={description} onChange={(e) => setDescription(e.target.value)} />
                                     
                                     <div className="btn-row">

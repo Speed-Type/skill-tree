@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { snackbar } from '../lib/snackbar';
 import LoadingPage from './LoadingPage';
 import ErrorPage from './ErrorPage';
+import { MAX_LENGTHS } from '../../../shared/constants';
 
 function TreeListPage() {
     const { logout, user } = useAuth();
@@ -79,6 +80,7 @@ function TreeListPage() {
                         placeholder="New tree title"
                         required
                         style={{ flex: 1 }}
+                        maxLength={MAX_LENGTHS.treeTitle}
                     />
                     <button className="btn btn-primary" type="submit">Create tree</button>
                 </form>
