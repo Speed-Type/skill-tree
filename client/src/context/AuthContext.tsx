@@ -1,10 +1,11 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { PublicUser } from '../../../shared/types';
-import { apiFetch } from '../lib/api';
+import { apiFetch, ApiError } from '../lib/api';
 
 interface AuthContextValue {
     user: PublicUser | null;
     loading: boolean;
+    authError: boolean;
     login: (email: string, password: string) => Promise<void>;
     signup: (email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
@@ -15,12 +16,19 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<PublicUser | null>(null);
     const [loading, setLoading] = useState(true);
+    const [authError, setAuthError] = useState(false);
 
     // On first load, check whether we already have a valid cookie from a previous session
     useEffect(() => {
         apiFetch<PublicUser>('/users/me', { silent: true})
             .then(setUser)
-            .catch(() => setUser(null)) // no valid cookie — just means logged out, not an error to surface
+            .catch((err) => {
+                if (err instanceof ApiError && err.status === 401) {
+                    setUser(null); // no valid cookie — just means logged out, not an error to surface
+                } else {
+                    setAuthError(true); // real failure (network/server), distinct from "logged out"
+                }
+            })
             .finally(() => setLoading(false));
     }, []);
 
@@ -30,6 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             body: JSON.stringify({ email, password }),
         });
         setUser(loggedInUser);
+        setAuthError(false);
     }
 
     async function signup(email: string, password: string) {
@@ -46,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
+        <AuthContext.Provider value={{ user, loading, authError, login, signup, logout }}>
             {children}
         </AuthContext.Provider>
     );
