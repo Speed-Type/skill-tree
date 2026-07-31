@@ -72,6 +72,9 @@ router.post('/', requireAuth, async(req: Request<{}, {}, CreateTreeBody>, res: R
         // title has a character limit; catch it before it hits the DB
         if (title.length > MAX_LENGTHS.treeTitle) return res.status(400).json({ error: `Title must be ${MAX_LENGTHS.treeTitle} characters or fewer` });
 
+        // description has a character limit; catch it before it hits the DB
+        if (description && description.length > MAX_LENGTHS.treeDescription) return res.status(400).json({ error: `Description must be ${MAX_LENGTHS.treeDescription} characters or fewer` });
+
         // Make sure required parameters are passed
         if (!title) return res.status(400).json({ error: 'Title is required' });
 
@@ -103,6 +106,9 @@ router.put('/:id', requireAuth, async(req: Request<{ id: string }, {}, UpdateTre
 
         // title has a character limit; catch it before it hits the DB
         if (title && title.length > MAX_LENGTHS.treeTitle) return res.status(400).json({ error: `Title must be ${MAX_LENGTHS.treeTitle} characters or fewer` });
+
+        // description has a character limit; catch it before it hits the DB
+        if (description && description.length > MAX_LENGTHS.treeDescription) return res.status(400).json({ error: `Description must be ${MAX_LENGTHS.treeDescription} characters or fewer` });
 
         const result = await pool.query(
             'UPDATE skill_trees SET title = COALESCE($1, title), description = COALESCE($2, description), is_public = COALESCE($3, is_public) WHERE id = $4 AND user_id = $5 RETURNING *',

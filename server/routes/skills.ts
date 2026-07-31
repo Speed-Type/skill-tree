@@ -73,6 +73,9 @@ router.post('/', requireAuth, async (req: Request<{}, {}, CreateSkillBody>, res:
         // label has a character limit; catch it before it hits the DB
         if (label.length > MAX_LENGTHS.skillLabel) return res.status(400).json({ error: `Label must be ${MAX_LENGTHS.skillLabel} characters or fewer` });
 
+        // description has a character limit; catch it before it hits the DB
+        if (description && description.length > MAX_LENGTHS.skillDescription) return res.status(400).json({ error: `Description must be ${MAX_LENGTHS.skillDescription} characters or fewer` });
+
         // Confirm the tree exists AND belongs to the requester before allowing an insert into it
         const treeCheck = await pool.query('SELECT id FROM skill_trees WHERE id = $1 AND user_id = $2', [tree_id, req.userId]);
         if (treeCheck.rows.length === 0) return res.status(404).json({ error: 'Not found' });
@@ -113,6 +116,9 @@ router.put('/:id', requireAuth, async (req: Request<{ id: string }, {}, UpdateSk
 
         // label has a character limit; catch it before it hits the DB
         if (label && label.length > MAX_LENGTHS.skillLabel) return res.status(400).json({ error: `Label must be ${MAX_LENGTHS.skillLabel} characters or fewer` });
+
+        // description has a character limit; catch it before it hits the DB
+        if (description && description.length > MAX_LENGTHS.skillDescription) return res.status(400).json({ error: `Description must be ${MAX_LENGTHS.skillDescription} characters or fewer` });
 
         // Confirm the status (if provided) exists AND belongs to the requester, so a skill can't be assigned to another user's status
         if (status_id) {

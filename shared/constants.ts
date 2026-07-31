@@ -4,6 +4,8 @@
 export const MAX_LENGTHS = {
     userEmail: 255,
     treeTitle: 80,
+    treeDescription: 500,
     statusLabel: 30,
     skillLabel: 60,
+    skillDescription: 280,
 } as const;
