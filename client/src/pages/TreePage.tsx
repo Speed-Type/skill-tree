@@ -107,7 +107,8 @@ function TreePage() {
         }
         return <ErrorPage message="Something went wrong loading this tree." />;
     }
-    if (!tree) return <p>No tree found.</p>;
+    // This case should never actually happen, but it's helpful for TypeScript to know that tree won't be null past this check
+    if (!tree) return <ErrorPage message="Something went wrong loading this tree." />;
 
     return (
         <div className="app-shell">
