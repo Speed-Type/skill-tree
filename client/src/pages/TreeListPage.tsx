@@ -1,20 +1,23 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { SkillTree } from '../../../shared/types';
-import { apiFetch, ApiError } from '../lib/api';
+import { apiFetch, ApiError, NETWORK_ERROR_MESSAGE } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { snackbar } from '../lib/snackbar';
 import LoadingPage from './LoadingPage';
+import ErrorPage from './ErrorPage';
 
 function TreeListPage() {
     const { logout, user } = useAuth();
     const [trees, setTrees] = useState<SkillTree[]>([]);
     const [loading, setLoading] = useState(true);
     const [title, setTitle] = useState('');
+    const [error, setError] = useState<unknown>(null);
 
     useEffect(() => {
-        apiFetch<SkillTree[]>('/trees')
+        apiFetch<SkillTree[]>('/trees', { silent: true })
             .then(setTrees)
+            .catch(setError)
             .finally(() => setLoading(false));
     }, []);
 
@@ -36,6 +39,12 @@ function TreeListPage() {
     }
 
     if (loading) return <LoadingPage message="Loading skill tree list..." />;
+    if (error) {
+        if (error instanceof ApiError && error.status === 0) {
+            return <ErrorPage message={NETWORK_ERROR_MESSAGE} />;
+        }
+        return <ErrorPage message="Something went wrong loading your trees." />;
+    }
 
     return (
         <div className="app-shell">
