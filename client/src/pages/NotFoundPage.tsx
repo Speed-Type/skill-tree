@@ -17,7 +17,7 @@ function NotFoundPage({
                 <p className="status-page__message">{message}</p>
 
                 {/* NOTE: To change where the 404 page redirects, modify the 'to' prop in the Link component here */}
-                <Link to="/" className="status-page__action">
+                <Link to="/trees" className="status-page__action">
                     Back to your trees
                 </Link>
             </main>
