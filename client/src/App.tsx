@@ -14,6 +14,9 @@ function App() {
             <Route element={<ProtectedRoute />}>
                 <Route path="/trees" element={<TreeListPage />} />
             </Route>
+
+            {/* The catch all 404 not found route */}
+            <Route path="*" element={<NotFoundPage message="This page doesn't exist, or is private."/>} />
         </Routes>
     );
 }
