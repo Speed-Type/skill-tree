@@ -1,3 +1,4 @@
+import './StatusPage.css';
 import { Link } from 'react-router';
 
 interface NotFoundPageProps {

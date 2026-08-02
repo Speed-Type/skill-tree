@@ -1,0 +1,36 @@
+/* ===================================== Tree list ===================================== */
+
+.tree-list {
+  list-style: none;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.tree-card {
+  display: block;
+  padding: 1rem 1.1rem;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-left: 3px solid var(--violet);
+  border-radius: var(--radius);
+  color: var(--text-h);
+  text-decoration: none;
+  font-family: var(--heading);
+  font-weight: 500;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.tree-card:hover {
+  border-color: var(--line);
+  box-shadow: 0 0 16px var(--violet-soft);
+  transform: translateX(2px);
+}
+
+.tree-list-empty {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  padding: 1rem 0;
+}

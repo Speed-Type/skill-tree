@@ -1,0 +1,60 @@
+/* ===================================== Toggle switch ===================================== */
+
+.toggle-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+.toggle-label {
+    font-family: var(--heading);
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-dim);
+}
+
+.toggle-label.is-on {
+    color: var(--gold);
+}
+
+.toggle {
+    appearance: none;
+    -webkit-appearance: none;
+    position: relative;
+    width: 38px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--locked);
+    border: 1px solid var(--panel-border);
+    cursor: pointer;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+    flex-shrink: 0;
+}
+
+.toggle::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--text-h);
+    transition: transform 0.15s ease;
+}
+
+.toggle:checked {
+    background: var(--gold-soft);
+    border-color: var(--gold-line);
+    box-shadow: 0 0 10px var(--gold-soft);
+}
+
+.toggle:checked::before {
+    background: var(--gold);
+    transform: translateX(16px);
+}
+
+.toggle:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+}
