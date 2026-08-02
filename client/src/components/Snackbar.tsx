@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { snackbar, useSnackbars, SnackbarItem } from '../lib/snackbar';
 
 const ICONS: Record<SnackbarItem['variant'], string> = {
@@ -8,21 +8,32 @@ const ICONS: Record<SnackbarItem['variant'], string> = {
     info: 'i',
 };
 
+const EXIT_DURATION = 160; // ms; must match the .snackbar--leaving animation length in CSS
+
 function SnackbarRow({ item }: { item: SnackbarItem }) {
+    const [isLeaving, setIsLeaving] = useState(false);
+
+    useEffect(() => {
+        if (!isLeaving) return;
+        const timer = setTimeout(() => snackbar.dismiss(item.id), EXIT_DURATION);
+        return () => clearTimeout(timer);
+    }, [isLeaving, item.id]);
+
+    // Auto-dismiss timer now triggers the exit animation instead of removing the item outright
     useEffect(() => {
         if (item.duration <= 0) return;
-        const timer = setTimeout(() => snackbar.dismiss(item.id), item.duration);
+        const timer = setTimeout(() => setIsLeaving(true), item.duration);
         return () => clearTimeout(timer);
     }, [item.id, item.duration]);
 
     return (
-        <div className={`snackbar snackbar--${item.variant}`} role="status">
+        <div className={`snackbar snackbar--${item.variant}${isLeaving ? ' snackbar--leaving' : ''}`} role="status">
             <span className="snackbar__icon" aria-hidden="true">{ICONS[item.variant]}</span>
             <span className="snackbar__message">{item.message}</span>
             <button
                 type="button"
                 className="snackbar__close"
-                onClick={() => snackbar.dismiss(item.id)}
+                onClick={() => setIsLeaving(true)}
                 aria-label="Dismiss notification"
             >
                 &times;
