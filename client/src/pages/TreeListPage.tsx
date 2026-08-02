@@ -1,3 +1,4 @@
+import './TreeListPage.css';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { SkillTree } from '../../../shared/types';

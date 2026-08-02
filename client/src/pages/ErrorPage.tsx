@@ -1,3 +1,5 @@
+import './StatusPage.css';
+
 interface ErrorPageProps {
     title?: string;
     message?: string;

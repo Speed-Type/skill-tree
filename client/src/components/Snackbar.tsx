@@ -1,3 +1,4 @@
+import './Snackbar.css';
 import { useEffect, useState } from 'react';
 import { snackbar, useSnackbars, SnackbarItem } from '../lib/snackbar';
 

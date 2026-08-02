@@ -1,3 +1,4 @@
+import './AuthGate.css';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { MAX_LENGTHS } from '../../../shared/constants';

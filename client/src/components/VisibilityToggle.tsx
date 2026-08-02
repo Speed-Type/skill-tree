@@ -1,3 +1,4 @@
+import './VisibilityToggle.css';
 import { useState, useEffect } from 'react';
 import { SkillTree } from '../../../shared/types';
 import { apiFetch } from '../lib/api';
