@@ -596,6 +596,11 @@ select.input {
   outline-offset: 2px;
 }
  
+.snackbar--leaving {
+  animation: snackbar-out 0.16s ease-in forwards;
+  pointer-events: none;
+}
+ 
 @keyframes snackbar-in {
   from {
     opacity: 0;
@@ -607,8 +612,20 @@ select.input {
   }
 }
  
+@keyframes snackbar-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(0.4rem);
+  }
+}
+ 
 @media (prefers-reduced-motion: reduce) {
-  .snackbar {
+  .snackbar,
+  .snackbar--leaving {
     animation: none;
   }
 }
