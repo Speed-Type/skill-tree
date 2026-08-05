@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Handle, Position, NodeProps, Node } from '@xyflow/react';
+import { Handle, Position, NodeProps, Node, NodeToolbar } from '@xyflow/react';
 import StatusSelect from '../../StatusSelect';
 import PopupButton from '../../PopupButton';
 
@@ -8,7 +8,7 @@ import { apiFetch } from '../../../lib/api';
 import { snackbar } from '../../../lib/snackbar';
 import { MAX_LENGTHS } from '../../../../../shared/constants';
 
-// Deterministic hue from a status label, so any user-defined status gets a  distinct,
+// Deterministic hue from a status label, so any user-defined status gets a distinct,
 // stable ring color without needing a color field in the schema
 function hueFromLabel(label: string): number {
     let hash = 0;
@@ -38,11 +38,17 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
     const [label, setLabel] = useState(skill.label);
     const [description, setDescription] = useState(skill.description ?? '');
 
+    // Tracks whether the mouse is currently over this node, to drive the quick-glance tooltip
+    const [isHovered, setIsHovered] = useState(false);
+
     // Determine the current status and its associated ring style (just visuals)
     const currentStatus = statuses.find(s => s.id === skill.status_id);
     const ringStyle = currentStatus
         ? ({ '--status-hue': hueFromLabel(currentStatus.label), '--status-glow': 0.35 } as React.CSSProperties)
         : undefined;
+
+    const currentStatusLabel = currentStatus?.label ?? 'No status';
+    const hasDescription = !!skill.description?.trim();
 
     // Function to handle edits of this node
     async function handleEdit()
@@ -73,10 +79,21 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
         }
     }
 
-    const currentStatusLabel = statuses.find(s => s.id === skill.status_id)?.label ?? 'No status';
-
     return(
-        <div className={`skill-node${currentStatus ? '' : ' is-unset'}`} >
+        <div 
+            className={`skill-node${currentStatus ? '' : ' is-unset'}`} 
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+            {/* Quick-glance tooltip — only pops up if there's actually a description to preview */}
+            <NodeToolbar
+                isVisible={isHovered && hasDescription}
+                position={Position.Top}
+                className="skill-tooltip"
+                offset={10}
+            >
+                {skill.description}
+            </NodeToolbar>
             
             {/* Handles to cover node borders */}
             <Handle type="source" position={Position.Top} id="top" className="skill-node-edge-handle skill-node-edge-top" isConnectable={isOwner} />
