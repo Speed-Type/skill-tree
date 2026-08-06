@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Handle, Position, NodeProps, Node, NodeToolbar } from '@xyflow/react';
 import StatusSelect from '../../StatusSelect';
 import PopupButton from '../../PopupButton';
@@ -38,21 +38,9 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
     const [label, setLabel] = useState(skill.label);
     const [description, setDescription] = useState(skill.description ?? '');
 
-    // Tracks whether the mouse is currently over this node, to drive the quick-glance tooltip.
-    // Debounced on the "leave" side because interacting with the native <select> inside the node
-    // (opening its dropdown, etc.) can fire spurious mouseleave/mouseenter pairs on the wrapper.
+    // Tracks whether the mouse is currently over this node, to drive the quick-glance tooltip
     const [isHovered, setIsHovered] = useState(false);
-    const hoverTimeoutRef = useRef<number | undefined>(undefined);
  
-    function handleMouseEnter() {
-        window.clearTimeout(hoverTimeoutRef.current);
-        setIsHovered(true);
-    }
- 
-    function handleMouseLeave() {
-        hoverTimeoutRef.current = window.setTimeout(() => setIsHovered(false), 80);
-    }
-
     // Determine the current status and its associated ring style (just visuals)
     const currentStatus = statuses.find(s => s.id === skill.status_id);
     const ringStyle = currentStatus
@@ -95,8 +83,8 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
         <div 
             className={`skill-node${currentStatus ? '' : ' is-unset'}`} 
             style={ringStyle}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
         >
             {/* Quick-glance tooltip — only pops up if there's actually a description to preview */}
             <NodeToolbar
