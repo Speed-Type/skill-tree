@@ -375,7 +375,21 @@
   stroke-width: 2;
   stroke-dasharray: 5 4;
   filter: drop-shadow(0 0 5px var(--gold-line));
-  animation: skill-edge-flow 0.5s linear infinite;
+  animation: skill-connection-flow 0.9s linear infinite;
+}
+
+/*
+  Separate keyframes from skill-edge-flow on purpose: stroke-dashoffset has to travel a distance
+  that's an exact multiple of the dash pattern's total length (dash + gap) for the loop to tile
+  seamlessly. This pattern is "5 4" (length 9), so the offset here is -18 (2x9). Reusing
+  skill-edge-flow's -24 here (that one's tuned for the selected edge's "7 5" / length-12 pattern,
+  where 24 is a clean multiple of 12) is what caused the visible snap-back once a second — 24
+  isn't a multiple of 9, so each loop ended out of phase with where it started.
+*/
+@keyframes skill-connection-flow {
+  to {
+    stroke-dashoffset: -18;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
