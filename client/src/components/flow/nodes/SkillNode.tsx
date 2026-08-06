@@ -104,40 +104,65 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
             {/* Actual body of the node */}
             <div className="skill-node-body" style={ringStyle}>
 
-                <strong className="skill-node-label">{skill.label}</strong>
+                <div className="skill-node-top-row">
+                    <strong className="skill-node-label">{skill.label}</strong>
+                    <span className="skill-node-status-chip" style={ringStyle}>{currentStatusLabel}</span>
+                </div>
 
                 <div className="nodrag skill-node-controls">
-                    {isOwner ? (
+                    {isOwner && (
                         <StatusSelect skill={skill} statuses={statuses} onSkillChanged={onSkillChanged} onStatusUsed={onStatusUsed} />
-                    ) : (
-                        <span>{currentStatusLabel}</span>
                     )}
 
-                    {isOwner && (
-                        <PopupButton label="..." className="btn btn-icon" resetValues={() => { 
-                            setLabel(skill.label); 
+                    {/* Click-through detail card — available to everyone, editable only for the owner */}
+                    <PopupButton
+                        label="..."
+                        className="btn btn-icon skill-node-inspect-btn"
+                        resetValues={() => {
+                            setLabel(skill.label);
                             setDescription(skill.description ?? '');
-                        }}>
-                            {({ onClose }) => (
-                                <div className="status-edit-fields">
-                                    {/* Contents of skill edit popup */}
-                                    <input
-                                        className="input"
-                                        value={label}
-                                        onChange={(e) => setLabel(e.target.value)}
-                                        maxLength={MAX_LENGTHS.skillLabel}
-                                    />
-                                    
-                                    <input className="input" value={description} onChange={(e) => setDescription(e.target.value)} />
-                                    
-                                    <div className="btn-row">
-                                        <button className="btn btn-primary" onClick={() => { handleEdit(); onClose(); }}>Save Changes</button>
-                                        <button className="btn btn-danger" onClick={handleDelete}>Delete</button>
-                                    </div>
+                        }}
+                    >
+                        {({ onClose }) => (
+                            <div className="skill-card">
+                                <div className="skill-card-header">
+                                    <span className="eyebrow">Skill</span>
+                                    <span className="skill-card-badge" style={ringStyle}>{currentStatusLabel}</span>
                                 </div>
-                            )}
-                        </PopupButton>
-                    )}
+ 
+                                {/* Contents of skill edit popup */}
+                                {isOwner ? (
+                                    <>
+                                        <input
+                                            className="input skill-card-title-input"
+                                            value={label}
+                                            onChange={(e) => setLabel(e.target.value)}
+                                            maxLength={MAX_LENGTHS.skillLabel}
+                                        />
+                                        <textarea
+                                            className="input skill-card-desc-input"
+                                            value={description}
+                                            onChange={(e) => setDescription(e.target.value)}
+                                            placeholder="Add a description..."
+                                            maxLength={MAX_LENGTHS.skillDescription}
+                                            rows={4}
+                                        />
+                                        <div className="btn-row">
+                                            <button className="btn btn-primary" onClick={() => { handleEdit(); onClose(); }}>Save Changes</button>
+                                            <button className="btn btn-danger" onClick={handleDelete}>Delete</button>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <h3 className="skill-card-title">{skill.label}</h3>
+                                        <p className="skill-card-desc">
+                                            {skill.description?.trim() || 'No description provided.'}
+                                        </p>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </PopupButton>
                 </div>
             </div>
         </div>

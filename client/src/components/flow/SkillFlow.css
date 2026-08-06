@@ -11,29 +11,29 @@
     radial-gradient(rgba(139, 124, 246, 0.14) 1px, transparent 1px) 0 0 / 26px 26px,
     var(--void);
 }
- 
+
 .flow-canvas .react-flow__background {
   opacity: 0.6;
 }
- 
+
 .flow-canvas .react-flow__controls {
   border-radius: var(--radius-sm);
   overflow: hidden;
   box-shadow: none;
   border: 1px solid var(--panel-border);
 }
- 
+
 .flow-canvas .react-flow__controls button {
   background: var(--panel-raised);
   border-bottom: 1px solid var(--panel-border);
   color: var(--text);
   fill: var(--text);
 }
- 
+
 .flow-canvas .react-flow__controls button:hover {
   background: #202333;
 }
- 
+
 .flow-canvas .react-flow__attribution {
   background: transparent;
   color: var(--text-dim);
@@ -43,60 +43,128 @@
 
 .skill-node {
   position: relative;
-  min-width: 160px;
+  min-width: 180px;
+  max-width: 220px;
   border-radius: var(--radius);
   background: var(--panel-raised);
 }
- 
+
 .skill-node-body {
   position: relative;
   z-index: 1;
   pointer-events: none; /* let hover/drop pass through to the handle beneath */
-  padding: 0.7rem 0.85rem;
+  padding: 0.7rem 0.85rem 0.6rem;
   border: 1px solid var(--panel-border);
   border-radius: var(--radius);
-  background: var(--panel-raised);
- 
+  background: linear-gradient(160deg, var(--panel-raised), var(--panel) 130%);
+
   /* Status ring, driven by --status-hue set inline per node; falls back to locked grey */
   box-shadow:
     0 0 0 1px hsl(var(--status-hue, 220) 0% 30% / 0.5),
     0 0 18px hsl(var(--status-hue, 220) 70% 55% / var(--status-glow, 0));
   border-left: 3px solid hsl(var(--status-hue, 220) 70% 55%);
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
 }
- 
+
 .skill-node.is-unset .skill-node-body {
   border-left-color: var(--locked);
+
+  border-left-style: dashed;
+  opacity: 0.72;
 }
- 
+
+.skill-node.is-unset:hover .skill-node-body {
+  opacity: 0.95;
+}
+
 .skill-node-body:hover {
+  transform: translateY(-1px) scale(1.025);
   box-shadow:
     0 0 0 1px hsl(var(--status-hue, 220) 0% 30% / 0.5),
-    0 0 22px hsl(var(--status-hue, 220) 70% 55% / 0.5);
+    0 0 24px hsl(var(--status-hue, 220) 70% 55% / 0.55);
 }
- 
+
+/* Subtle ambient pulse for skills that have an active status, so the graph doesn't sit dead-still */
+.skill-node:not(.is-unset) .skill-node-body {
+  animation: skill-node-idle-glow 3.6s ease-in-out infinite;
+}
+
+@keyframes skill-node-idle-glow {
+
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px hsl(var(--status-hue, 220) 0% 30% / 0.5),
+      0 0 16px hsl(var(--status-hue, 220) 70% 55% / var(--status-glow, 0));
+  }
+
+  50% {
+    box-shadow:
+      0 0 0 1px hsl(var(--status-hue, 220) 0% 30% / 0.5),
+      0 0 22px hsl(var(--status-hue, 220) 70% 55% / calc(var(--status-glow, 0) * 1.6));
+  }
+}
+
+.skill-node-top-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
 .skill-node-label {
-  display: block;
   font-family: var(--heading);
   font-weight: 500;
   font-size: 0.92rem;
   color: var(--text-h);
-  margin-bottom: 0.45rem;
   pointer-events: auto;
+  overflow-wrap: anywhere;
 }
- 
+
+.skill-node-status-chip {
+  flex-shrink: 0;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: hsl(var(--status-hue, 220) 60% 78%);
+  background: hsl(var(--status-hue, 220) 70% 55% / 0.14);
+  border: 1px solid hsl(var(--status-hue, 220) 70% 55% / 0.4);
+  border-radius: 999px;
+  padding: 0.15rem 0.5rem;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.skill-node.is-unset .skill-node-status-chip {
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--panel-border);
+}
+
 .skill-node-controls {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.4rem;
   pointer-events: auto;
 }
- 
+
 .skill-node-controls .input {
   padding: 0.3rem 1.5rem 0.3rem 0.5rem;
   font-size: 0.78rem;
 }
- 
+
+.skill-node-inspect-btn {
+  margin-left: auto;
+  color: var(--text-dim);
+}
+
+.skill-node-inspect-btn:hover {
+  color: var(--gold);
+}
+
 /* Explicitly re-enable interaction for anything the user needs to click */
 .skill-node-body .nodrag,
 .skill-node-body strong {
@@ -104,7 +172,7 @@
 }
 
 /* =========================== Hover tooltip (NodeToolbar) =========================== */
- 
+
 .skill-tooltip {
   max-width: 220px;
   font-family: var(--sans);
@@ -119,6 +187,62 @@
   pointer-events: none;
 }
 
+/* =========================== Skill detail card (click popup contents) =========================== */
+
+.skill-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 260px;
+  max-width: 320px;
+}
+
+.skill-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.skill-card-badge {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: hsl(var(--status-hue, 220) 60% 78%);
+  background: hsl(var(--status-hue, 220) 70% 55% / 0.16);
+  border: 1px solid hsl(var(--status-hue, 220) 70% 55% / 0.45);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+}
+
+.skill-card-title {
+  font-family: var(--heading);
+  font-size: 1.05rem;
+  color: var(--text-h);
+  margin: 0;
+}
+
+.skill-card-desc {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.5;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.skill-card-title-input {
+  font-family: var(--heading);
+  font-size: 1rem;
+}
+
+.skill-card-desc-input {
+  resize: vertical;
+  min-height: 5rem;
+  font-family: var(--sans);
+  line-height: 1.4;
+}
+
 /* =========================== Connection Handles =========================== */
 
 .react-flow__handle.skill-node-edge-handle {
@@ -130,7 +254,7 @@
   z-index: 2;
   transform: none; /* cancel React Flow's default translate(-50%, -50%) */
 }
- 
+
 .react-flow__handle.skill-node-edge-top {
   top: -4px;
   left: 0;
@@ -138,7 +262,7 @@
   width: 100%;
   height: 8px;
 }
- 
+
 .react-flow__handle.skill-node-edge-bottom {
   bottom: -4px;
   left: 0;
@@ -146,7 +270,7 @@
   width: 100%;
   height: 8px;
 }
- 
+
 .react-flow__handle.skill-node-edge-left {
   left: -4px;
   top: 0;
@@ -154,7 +278,7 @@
   width: 8px;
   height: 100%;
 }
- 
+
 .react-flow__handle.skill-node-edge-right {
   right: -4px;
   top: 0;
@@ -162,11 +286,11 @@
   width: 8px;
   height: 100%;
 }
- 
+
 .skill-node-edge-handle:hover {
   cursor: crosshair;
 }
- 
+
 /* Soft glow ring that appears around the whole node on hover, hinting it's connectable */
 .skill-node::before {
   content: '';
@@ -177,7 +301,7 @@
   transition: border-color 0.15s ease;
   pointer-events: none;
 }
- 
+
 .skill-node:hover::before {
   border-color: var(--violet-soft);
 }
@@ -189,12 +313,12 @@
   stroke-width: 1.5;
   transition: stroke 0.15s ease, filter 0.15s ease;
 }
- 
+
 .skill-edge-path.is-selected {
   stroke: var(--gold);
   filter: drop-shadow(0 0 4px var(--gold-line));
 }
- 
+
 .react-flow__edge:hover .skill-edge-path:not(.is-selected) {
   stroke: var(--violet);
 }
@@ -206,7 +330,7 @@
   padding: 0.2rem;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
- 
+
 .edge-delete-popup button {
   display: flex;
   align-items: center;
@@ -223,7 +347,7 @@
   cursor: pointer;
   border-radius: var(--radius-sm);
 }
- 
+
 .edge-delete-popup button:hover {
   background: var(--danger-soft);
 }
