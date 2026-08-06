@@ -316,11 +316,21 @@
 
 .skill-edge-path.is-selected {
   stroke: var(--gold);
-  filter: drop-shadow(0 0 4px var(--gold-line));
+  stroke-width: 2;
+  stroke-dasharray: 7 5;
+  filter: drop-shadow(0 0 5px var(--gold-line));
+  animation: skill-edge-flow 0.7s linear infinite;
 }
 
+@keyframes skill-edge-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+ 
 .react-flow__edge:hover .skill-edge-path:not(.is-selected) {
   stroke: var(--violet);
+  filter: drop-shadow(0 0 4px var(--violet-soft));
 }
 
 .edge-delete-popup {
@@ -356,7 +366,16 @@
 
 .connection-line-path {
   stroke: var(--gold);
-  stroke-width: 1.5;
-  stroke-dasharray: 4 3;
-  filter: drop-shadow(0 0 4px var(--gold-line));
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+  filter: drop-shadow(0 0 5px var(--gold-line));
+  animation: skill-edge-flow 0.5s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skill-node:not(.is-unset) .skill-node-body,
+  .skill-edge-path.is-selected,
+  .connection-line-path {
+    animation: none;
+  }
 }
