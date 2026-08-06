@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Handle, Position, NodeProps, Node, NodeToolbar } from '@xyflow/react';
 import StatusSelect from '../../StatusSelect';
 import PopupButton from '../../PopupButton';
@@ -38,8 +38,20 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
     const [label, setLabel] = useState(skill.label);
     const [description, setDescription] = useState(skill.description ?? '');
 
-    // Tracks whether the mouse is currently over this node, to drive the quick-glance tooltip
+    // Tracks whether the mouse is currently over this node, to drive the quick-glance tooltip.
+    // Debounced on the "leave" side because interacting with the native <select> inside the node
+    // (opening its dropdown, etc.) can fire spurious mouseleave/mouseenter pairs on the wrapper.
     const [isHovered, setIsHovered] = useState(false);
+    const hoverTimeoutRef = useRef<number | undefined>(undefined);
+ 
+    function handleMouseEnter() {
+        window.clearTimeout(hoverTimeoutRef.current);
+        setIsHovered(true);
+    }
+ 
+    function handleMouseLeave() {
+        hoverTimeoutRef.current = window.setTimeout(() => setIsHovered(false), 80);
+    }
 
     // Determine the current status and its associated ring style (just visuals)
     const currentStatus = statuses.find(s => s.id === skill.status_id);
@@ -82,8 +94,9 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
     return(
         <div 
             className={`skill-node${currentStatus ? '' : ' is-unset'}`} 
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+            style={ringStyle}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
         >
             {/* Quick-glance tooltip — only pops up if there's actually a description to preview */}
             <NodeToolbar
@@ -101,12 +114,12 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
             <Handle type="source" position={Position.Bottom} id="bottom" className="skill-node-edge-handle skill-node-edge-bottom" isConnectable={isOwner} />
             <Handle type="source" position={Position.Left} id="left" className="skill-node-edge-handle skill-node-edge-left" isConnectable={isOwner} />
 
-            {/* Actual body of the node */}
-            <div className="skill-node-body" style={ringStyle}>
+            {/* Actual body of the node — inherits --status-hue/--status-glow from the wrapper above */}
+            <div className="skill-node-body">
 
                 <div className="skill-node-top-row">
                     <strong className="skill-node-label">{skill.label}</strong>
-                    <span className="skill-node-status-chip" style={ringStyle}>{currentStatusLabel}</span>
+                    <span className="skill-node-status-chip">{currentStatusLabel}</span>
                 </div>
 
                 <div className="nodrag skill-node-controls">

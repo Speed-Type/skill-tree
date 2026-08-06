@@ -84,25 +84,31 @@
     0 0 24px hsl(var(--status-hue, 220) 70% 55% / 0.55);
 }
 
-/* Subtle ambient pulse for skills that have an active status, so the graph doesn't sit dead-still */
-.skill-node:not(.is-unset) .skill-node-body {
-  animation: skill-node-idle-glow 3.6s ease-in-out infinite;
+/*
+  Ambient idle pulse for skills that have an active status, so the graph doesn't sit dead-still.
+ 
+  IMPORTANT: this animates on a separate ::after layer, and only animates `opacity` (a plain
+  number, no var() inside the keyframes). Custom properties referenced *inside* @keyframes get
+  snapshotted by the browser when the animation starts and don't reliably update afterwards —
+  that was causing the ring to only "activate" after a hover forced a style recalc, and caused
+  a visible glitch when a hover-driven transition and this animation fought over the same
+  box-shadow property. Keeping the color (which depends on --status-hue/--status-glow) as a
+  static, non-animated declaration and only pulsing opacity sidesteps both bugs.
+*/
+.skill-node:not(.is-unset)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  box-shadow: 0 0 20px hsl(var(--status-hue, 220) 70% 55% / var(--status-glow, 0.35));
+  pointer-events: none;
+  z-index: 0;
+  animation: skill-node-idle-pulse 3.6s ease-in-out infinite;
 }
-
-@keyframes skill-node-idle-glow {
-
-  0%,
-  100% {
-    box-shadow:
-      0 0 0 1px hsl(var(--status-hue, 220) 0% 30% / 0.5),
-      0 0 16px hsl(var(--status-hue, 220) 70% 55% / var(--status-glow, 0));
-  }
-
-  50% {
-    box-shadow:
-      0 0 0 1px hsl(var(--status-hue, 220) 0% 30% / 0.5),
-      0 0 22px hsl(var(--status-hue, 220) 70% 55% / calc(var(--status-glow, 0) * 1.6));
-  }
+ 
+@keyframes skill-node-idle-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
 }
 
 .skill-node-top-row {
