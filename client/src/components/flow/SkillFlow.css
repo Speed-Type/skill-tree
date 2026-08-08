@@ -52,7 +52,15 @@
 .skill-node-body {
   position: relative;
   z-index: 1;
-  pointer-events: none; /* let hover/drop pass through to the handle beneath */
+    /*
+    Intentionally NOT pointer-events:none here (it used to be, to let drag/connect events pass
+    through to the edge Handles underneath). The Handles already have z-index:2, higher than
+    this element's z-index:1, so they win hit-testing in their own thin edge strips regardless
+    of this element's pointer-events value — the blanket "none" wasn't actually protecting
+    anything, it was just silently killing :hover over the card's own background/padding, which
+    is why the grow-on-hover effect only fired when the cursor was over the label or controls
+    (the specific children that had pointer-events re-enabled).
+  */
   padding: 0.7rem 0.85rem 0.6rem;
   border: 1px solid var(--panel-border);
   border-radius: var(--radius);
@@ -169,12 +177,6 @@
 
 .skill-node-inspect-btn:hover {
   color: var(--gold);
-}
-
-/* Explicitly re-enable interaction for anything the user needs to click */
-.skill-node-body .nodrag,
-.skill-node-body strong {
-  pointer-events: auto;
 }
 
 /* =========================== Hover tooltip (NodeToolbar) =========================== */
