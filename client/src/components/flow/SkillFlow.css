@@ -52,7 +52,7 @@
 .skill-node-body {
   position: relative;
   z-index: 1;
-    /*
+  /*
     Intentionally NOT pointer-events:none here (it used to be, to let drag/connect events pass
     through to the edge Handles underneath). The Handles already have z-index:2, higher than
     this element's z-index:1, so they win hit-testing in their own thin edge strips regardless
@@ -212,6 +212,32 @@
   padding: 0.5rem 0.65rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 14px var(--gold-soft);
   pointer-events: none;
+
+  /* Hidden by default; .is-visible (toggled after the hover delay) fades/slides it in */
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.skill-tooltip.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/*
+  Long descriptions get clamped to a few lines with an ellipsis rather than growing the tooltip
+  to an awkward height — the full text is always one click away in the detail card.
+
+  This lives on an inner span, not .skill-tooltip itself: NodeToolbar applies its own inline
+  positioning styles to the element it's given, which silently wins over a stylesheet's
+  `display` value — so setting display:-webkit-box directly on .skill-tooltip had no effect
+*/
+.skill-tooltip-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
 }
 
 /* =========================== Skill detail card (click popup contents) =========================== */
@@ -418,5 +444,9 @@
   .skill-edge-path.is-selected,
   .connection-line-path {
     animation: none;
+  }
+
+  .skill-tooltip {
+    transition: none;
   }
 }

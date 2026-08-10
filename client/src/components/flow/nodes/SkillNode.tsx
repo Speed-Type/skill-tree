@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Handle, Position, NodeProps, Node, NodeToolbar } from '@xyflow/react';
 import StatusSelect from '../../StatusSelect';
 import PopupButton from '../../PopupButton';
@@ -38,8 +38,19 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
     const [label, setLabel] = useState(skill.label);
     const [description, setDescription] = useState(skill.description ?? '');
 
-    // Tracks whether the mouse is currently over this node, to drive the quick-glance tooltip
-    const [isHovered, setIsHovered] = useState(false);
+    // Drives the quick-glance tooltip. Shown after a short delay on hover (so it doesn't pop in
+    // instantly while just passing the cursor over the graph) and hidden immediately on leave
+    const [showTooltip, setShowTooltip] = useState(false);
+    const tooltipTimeoutRef = useRef<number | undefined>(undefined);
+
+    function handleMouseEnter() {
+        tooltipTimeoutRef.current = window.setTimeout(() => setShowTooltip(true), 400);
+    }
+
+    function handleMouseLeave() {
+        window.clearTimeout(tooltipTimeoutRef.current);
+        setShowTooltip(false);
+    }
  
     // Determine the current status and its associated ring style (just visuals)
     const currentStatus = statuses.find(s => s.id === skill.status_id);
@@ -83,17 +94,22 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
         <div 
             className={`skill-node${currentStatus ? '' : ' is-unset'}`} 
             style={ringStyle}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
         >
-            {/* Quick-glance tooltip — only pops up if there's actually a description to preview */}
+            {/*
+              Quick-glance tooltip. isVisible stays tied to hasDescription (so it mounts once,
+              rather than mounting/unmounting on every hover — unmounting can't be animated),
+              and the actual show/hide is a CSS class driven by showTooltip, so the fade/slide
+              transition in SkillFlow.css has something to animate
+            */}
             <NodeToolbar
-                isVisible={isHovered && hasDescription}
+                isVisible={hasDescription}
                 position={Position.Top}
-                className="skill-tooltip"
+                className={`skill-tooltip${showTooltip ? ' is-visible' : ''}`}
                 offset={10}
             >
-                {skill.description}
+                <span className="skill-tooltip-text">{skill.description}</span>
             </NodeToolbar>
             
             {/* Handles to cover node borders */}
