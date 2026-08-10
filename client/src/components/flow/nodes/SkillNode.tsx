@@ -47,7 +47,9 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
         tooltipTimeoutRef.current = window.setTimeout(() => setShowTooltip(true), 400);
     }
 
-    function handleMouseLeave() {
+    // This function is also used in PopupButton's resetValues below, so that the popup immediately disappears when
+    // the popup is closed (fixes a bug where it would remain open because mouseLeave never fires)
+    function hideTooltip() {
         window.clearTimeout(tooltipTimeoutRef.current);
         setShowTooltip(false);
     }
@@ -95,7 +97,7 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
             className={`skill-node${currentStatus ? '' : ' is-unset'}`} 
             style={ringStyle}
             onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
+            onMouseLeave={hideTooltip}
         >
             {/*
               Quick-glance tooltip. isVisible stays tied to hasDescription (so it mounts once,
@@ -143,6 +145,7 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
                         resetValues={() => {
                             setLabel(skill.label);
                             setDescription(skill.description ?? '');
+                            hideTooltip();
                         }}
                     >
                         {({ onClose }) => (
