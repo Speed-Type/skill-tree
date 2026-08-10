@@ -105,14 +105,19 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
             {/* Actual body of the node — inherits --status-hue/--status-glow from the wrapper above */}
             <div className="skill-node-body">
 
-                <div className="skill-node-top-row">
-                    <strong className="skill-node-label">{skill.label}</strong>
-                    <span className="skill-node-status-chip">{currentStatusLabel}</span>
-                </div>
+                <strong className="skill-node-label">{skill.label}</strong>
 
                 <div className="nodrag skill-node-controls">
-                    {isOwner && (
-                        <StatusSelect skill={skill} statuses={statuses} onSkillChanged={onSkillChanged} onStatusUsed={onStatusUsed} />
+                    {isOwner ? (
+                        <StatusSelect
+                            skill={skill}
+                            statuses={statuses}
+                            onSkillChanged={onSkillChanged}
+                            onStatusUsed={onStatusUsed}
+                            className="skill-node-status-select"
+                        />
+                    ) : (
+                        <span className="skill-node-status-chip" title={currentStatusLabel}>{currentStatusLabel}</span>
                     )}
 
                     {/* Click-through detail card — available to everyone, editable only for the owner */}

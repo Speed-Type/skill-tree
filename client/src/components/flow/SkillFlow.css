@@ -119,42 +119,66 @@
   50% { opacity: 1; }
 }
 
-.skill-node-top-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
 .skill-node-label {
+  display: block;
   font-family: var(--heading);
   font-weight: 500;
   font-size: 0.92rem;
   color: var(--text-h);
+  margin-bottom: 0.5rem;
   pointer-events: auto;
   overflow-wrap: anywhere;
 }
 
-.skill-node-status-chip {
-  flex-shrink: 0;
+/*
+  Shared pill look for both the read-only status chip (viewers) and the status dropdown
+  (owner) — same visual, same spot in the controls row. A capped max-width + ellipsis means a
+  long status name truncates on its own pill instead of ever eating into the label's space again.
+*/
+.skill-node-status-chip,
+.skill-node-status-select {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 9.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-family: var(--mono);
   font-size: 0.62rem;
   letter-spacing: 0.03em;
   text-transform: uppercase;
   color: hsl(var(--status-hue, 220) 60% 78%);
-  background: hsl(var(--status-hue, 220) 70% 55% / 0.14);
+  background-color: hsl(var(--status-hue, 220) 70% 55% / 0.14);
   border: 1px solid hsl(var(--status-hue, 220) 70% 55% / 0.4);
   border-radius: 999px;
-  padding: 0.15rem 0.5rem;
-  white-space: nowrap;
-  pointer-events: none;
+  padding: 0.2rem 0.6rem;
+}
+ 
+.skill-node.is-unset .skill-node-status-chip,
+.skill-node.is-unset .skill-node-status-select {
+  color: var(--text-dim);
+  background-color: rgba(255, 255, 255, 0.03);
+  border-color: var(--panel-border);
 }
 
-.skill-node.is-unset .skill-node-status-chip {
-  color: var(--text-dim);
-  background: rgba(255, 255, 255, 0.03);
-  border-color: var(--panel-border);
+/* Extra affordances only the interactive (owner) variant needs */
+.skill-node-status-select {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 1.3rem;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 10px) center, calc(100% - 6px) center;
+  background-size: 4px 4px, 4px 4px;
+  background-repeat: no-repeat;
+}
+
+.skill-node-status-select:hover,
+.skill-node-status-select:focus-visible {
+  border-color: hsl(var(--status-hue, 220) 70% 55% / 0.7);
+  background-color: hsl(var(--status-hue, 220) 70% 55% / 0.22);
 }
 
 .skill-node-controls {
@@ -165,13 +189,8 @@
   pointer-events: auto;
 }
 
-.skill-node-controls .input {
-  padding: 0.3rem 1.5rem 0.3rem 0.5rem;
-  font-size: 0.78rem;
-}
-
 .skill-node-inspect-btn {
-  margin-left: auto;
+  flex-shrink: 0;
   color: var(--text-dim);
 }
 
