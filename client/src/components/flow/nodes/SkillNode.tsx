@@ -148,6 +148,10 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
                             setDescription(skill.description ?? '');
                             hideTooltip();
                         }}
+
+                        // Only owners can actually edit these fields, so this is always false
+                        // for viewers — nothing to guard there
+                        isDirty={() => isOwner && (label !== skill.label || description !== (skill.description ?? ''))}
                     >
                         {({ onClose }) => (
                             <div className="skill-card">
@@ -175,7 +179,7 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
                                             rows={4}
                                         />
                                         <CharCounter value={description} max={MAX_LENGTHS.skillDescription} />
-                                        
+
                                         <div className="btn-row">
                                             <button className="btn btn-primary" onClick={() => { handleEdit(); onClose(); }}>Save Changes</button>
                                             <button className="btn btn-danger" onClick={handleDelete}>Delete</button>

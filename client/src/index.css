@@ -327,6 +327,14 @@ select.input {
   margin-top: 1.25rem;
 }
 
+/* Shown inside a PopupButton's modal when a guarded close is intercepted because of unsaved edits;
+  see PopupButton's isDirty prop */
+.popup-discard-warning {
+  margin: 0.85rem 0 0;
+  font-size: 0.8rem;
+  color: var(--danger);
+}
+
 /* ===================================== Status & skill lists ===================================== */
  
 .status-list,
