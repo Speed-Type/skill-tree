@@ -290,14 +290,51 @@ select.input {
 
 /* ===================================== Character Counter ===================================== */
 
+.input-wrap {
+  position: relative;
+  display: inline-flex;
+  flex: 1;
+}
+
+.input-wrap .input {
+  width: 100%;
+  padding-right: 3.25rem; /* room for the counter so typed text doesn't run under it */
+}
+
+.textarea-wrap {
+  position: relative;
+  display: flex;
+}
+
+.textarea-wrap .input {
+  width: 100%;
+  min-height: 5.5rem;
+  resize: vertical;
+  padding-bottom: 1.6rem; /* leave room so typed text doesn't run under the counter */
+  font-family: var(--sans);
+}
+
+.textarea-wrap .char-count {
+  top: auto;
+  bottom: 0.5rem;
+  transform: none;
+}
+
 .char-count {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    color: var(--text-dim);
+  position: absolute;
+  right: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  pointer-events: none;
+  padding-left: 1.25rem;
+  background: linear-gradient(to right, transparent, var(--void) 1.1rem);
 }
 
 .char-count.is-near {
-    color: var(--warning);
+  color: var(--warning);
 }
 
 /* ===================================== Popup / Modal ===================================== */

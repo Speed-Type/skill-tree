@@ -34,15 +34,17 @@ function AddStatusForm({ onStatusCreated, currentCount }: AddStatusFormProps) {
 
     return (
         <form className="form-row" onSubmit={handleSubmit}>
-            <input
-                className="input"
-                value={label}
-                onChange={e => setLabel(e.target.value)}
-                placeholder="New status"
-                required
-                maxLength={MAX_LENGTHS.statusLabel}
-            />
-            <CharCounter value={label} max={MAX_LENGTHS.statusLabel} />
+            <div className="input-wrap">
+                <input
+                    className="input"
+                    value={label}
+                    onChange={e => setLabel(e.target.value)}
+                    placeholder="New status"
+                    required
+                    maxLength={MAX_LENGTHS.statusLabel}
+                />
+                <CharCounter value={label} max={MAX_LENGTHS.statusLabel} />
+            </div>
             
             <button className="btn btn-primary" type="submit">Add Status</button>
         </form>

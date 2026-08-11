@@ -163,22 +163,27 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
                                 {/* Contents of skill edit popup */}
                                 {isOwner ? (
                                     <>
-                                        <input
-                                            className="input skill-card-title-input"
-                                            value={label}
-                                            onChange={(e) => setLabel(e.target.value)}
-                                            maxLength={MAX_LENGTHS.skillLabel}
-                                        />
-                                        <CharCounter value={label} max={MAX_LENGTHS.skillLabel} />
-                                        <textarea
-                                            className="input skill-card-desc-input"
-                                            value={description}
-                                            onChange={(e) => setDescription(e.target.value)}
-                                            placeholder="Add a description..."
-                                            maxLength={MAX_LENGTHS.skillDescription}
-                                            rows={4}
-                                        />
-                                        <CharCounter value={description} max={MAX_LENGTHS.skillDescription} />
+                                        <div className="input-wrap">
+                                            <input
+                                                className="input skill-card-title-input"
+                                                value={label}
+                                                onChange={(e) => setLabel(e.target.value)}
+                                                maxLength={MAX_LENGTHS.skillLabel}
+                                            />
+                                            <CharCounter value={label} max={MAX_LENGTHS.skillLabel} />
+                                        </div>
+                                        
+                                        <div className="textarea-wrap">
+                                            <textarea
+                                                className="input skill-card-desc-input"
+                                                value={description}
+                                                onChange={(e) => setDescription(e.target.value)}
+                                                placeholder="Add a description..."
+                                                maxLength={MAX_LENGTHS.skillDescription}
+                                                rows={4}
+                                            />
+                                            <CharCounter value={description} max={MAX_LENGTHS.skillDescription} />
+                                        </div>
 
                                         <div className="btn-row">
                                             <button className="btn btn-primary" onClick={() => { handleEdit(); onClose(); }}>Save Changes</button>

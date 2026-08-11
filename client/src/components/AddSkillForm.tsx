@@ -35,16 +35,18 @@ function AddSkillForm({ treeId, onCreated }: AddSkillFormProps) {
 
     return (
         <form className="panel form-row" onSubmit={handleSubmit}>
-            <input
-                className="input"
-                value={label}
-                onChange={e => setLabel(e.target.value)}
-                placeholder="New skill"
-                required
-                maxLength={MAX_LENGTHS.skillLabel}
-            />
-            
-            <CharCounter value={label} max={MAX_LENGTHS.skillLabel} />
+            <div className="input-wrap">
+                <input
+                    className="input"
+                    value={label}
+                    onChange={e => setLabel(e.target.value)}
+                    placeholder="New skill"
+                    required
+                    maxLength={MAX_LENGTHS.skillLabel}
+                />
+                <CharCounter value={label} max={MAX_LENGTHS.skillLabel} />
+            </div>
+
             <button className="btn btn-primary" type="submit">Add</button>
         </form>
     );
