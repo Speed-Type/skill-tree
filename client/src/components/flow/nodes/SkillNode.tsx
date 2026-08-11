@@ -7,6 +7,7 @@ import { Skill, Status, SkillChangedHandler, SkillDeletedHandler } from '../../.
 import { apiFetch } from '../../../lib/api';
 import { snackbar } from '../../../lib/snackbar';
 import { MAX_LENGTHS } from '../../../../../shared/constants';
+import CharCounter from '../../CharCounter';
 
 // Deterministic hue from a status label, so any user-defined status gets a distinct,
 // stable ring color without needing a color field in the schema
@@ -164,6 +165,7 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
                                             onChange={(e) => setLabel(e.target.value)}
                                             maxLength={MAX_LENGTHS.skillLabel}
                                         />
+                                        <CharCounter value={label} max={MAX_LENGTHS.skillLabel} />
                                         <textarea
                                             className="input skill-card-desc-input"
                                             value={description}
@@ -172,6 +174,8 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
                                             maxLength={MAX_LENGTHS.skillDescription}
                                             rows={4}
                                         />
+                                        <CharCounter value={description} max={MAX_LENGTHS.skillDescription} />
+                                        
                                         <div className="btn-row">
                                             <button className="btn btn-primary" onClick={() => { handleEdit(); onClose(); }}>Save Changes</button>
                                             <button className="btn btn-danger" onClick={handleDelete}>Delete</button>

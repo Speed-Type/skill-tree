@@ -288,6 +288,18 @@ select.input {
   border-color: var(--gold);
 }
 
+/* ===================================== Character Counter ===================================== */
+
+.char-count {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--text-dim);
+}
+
+.char-count.is-near {
+    color: var(--warning);
+}
+
 /* ===================================== Popup / Modal ===================================== */
  
 .overlay {
