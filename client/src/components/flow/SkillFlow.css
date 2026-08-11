@@ -246,8 +246,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
-  min-width: 260px;
-  max-width: 320px;
+  min-width: 320px;
+  max-width: 450px;
 }
 
 .skill-card-header {
@@ -290,7 +290,7 @@
 }
 
 .skill-card-desc-input {
-  resize: vertical;
+  resize: none;
   min-height: 5rem;
   font-family: var(--sans);
   line-height: 1.4;

@@ -309,7 +309,6 @@ select.input {
 .textarea-wrap .input {
   width: 100%;
   min-height: 5.5rem;
-  resize: vertical;
   padding-bottom: 1.6rem; /* leave room so typed text doesn't run under the counter */
   font-family: var(--sans);
 }

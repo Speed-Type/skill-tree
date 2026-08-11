@@ -180,7 +180,7 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
                                                 onChange={(e) => setDescription(e.target.value)}
                                                 placeholder="Add a description..."
                                                 maxLength={MAX_LENGTHS.skillDescription}
-                                                rows={4}
+                                                rows={9}
                                             />
                                             <CharCounter value={description} max={MAX_LENGTHS.skillDescription} />
                                         </div>
