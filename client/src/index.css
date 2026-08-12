@@ -224,6 +224,12 @@ p { margin: 0; }
   background: var(--danger-soft);
   border-color: var(--danger);
 }
+
+/* Armed-but-unconfirmed state for a double-confirm delete button (see useDoubleConfirm) */
+.btn-danger.is-confirming {
+  background: var(--danger-soft);
+  border-color: var(--danger);
+}
  
 .btn-icon {
   background: transparent;

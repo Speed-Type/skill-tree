@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Handle, Position, NodeProps, Node, NodeToolbar } from '@xyflow/react';
 import StatusSelect from '../../StatusSelect';
 import PopupButton from '../../PopupButton';
+import { useDoubleConfirm } from '../../../hooks/useDoubleConfirm';
 
 import { Skill, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../../shared/types';
 import { apiFetch } from '../../../lib/api';
@@ -48,7 +49,7 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
         // If the node is being dragged quickly, this can trigger because the cursor leaves the node and then comes back
         // Here, we check that we're dragging so that this can't trigger again
         if (dragging) return;
-        
+
         tooltipTimeoutRef.current = window.setTimeout(() => setShowTooltip(true), 400);
     }
 
@@ -101,6 +102,9 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
             console.error('Failed to delete skill data: ', err);
         }
     }
+
+    // Requires a second confirming click before actually calling handleDelete
+    const deleteConfirm = useDoubleConfirm(handleDelete);
 
     return(
         <div 
@@ -156,6 +160,7 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
                             setLabel(skill.label);
                             setDescription(skill.description ?? '');
                             hideTooltip();
+                            deleteConfirm.reset();
                         }}
 
                         // Only owners can actually edit these fields, so this is always false
@@ -196,7 +201,13 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
 
                                         <div className="btn-row">
                                             <button className="btn btn-primary" onClick={() => { handleEdit(); onClose(); }}>Save Changes</button>
-                                            <button className="btn btn-danger" onClick={handleDelete}>Delete</button>
+                                            
+                                            <button
+                                                className={`btn btn-danger${deleteConfirm.pending ? ' is-confirming' : ''}`}
+                                                onClick={deleteConfirm.trigger}
+                                            >
+                                                {deleteConfirm.pending ? 'Click again to delete' : 'Delete'}
+                                            </button>
                                         </div>
                                     </>
                                 ) : (
