@@ -132,14 +132,13 @@
 
 /*
   Shared pill look for both the read-only status chip (viewers) and the status dropdown
-  (owner) — same visual, same spot in the controls row. A capped max-width + ellipsis means a
+  (owner) — same visual, same spot in the controls row. A capped width + ellipsis means a
   long status name truncates on its own pill instead of ever eating into the label's space again.
 */
 .skill-node-status-chip,
 .skill-node-status-select {
   flex: 0 1 auto;
-  min-width: 0;
-  max-width: 9.5rem;
+  width: 8.5rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
