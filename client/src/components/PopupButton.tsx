@@ -112,12 +112,30 @@ function PopupButton({label, className = 'btn btn-icon', children, resetValues, 
         handleClose();
     };
 
+    // A click's target is wherever the cursor is on mouseup, not where the drag/click started —
+    // so selecting text (or dragging anything) that begins inside the modal but is released over
+    // the backdrop would otherwise register as a click directly on the overlay and incorrectly
+    // dismiss it, without .modal's onClick/stopPropagation ever getting a chance to run (the
+    // event never actually passes through .modal in that case). Tracking where the mousedown
+    // itself started fixes this: only treat it as a backdrop dismiss if it started there too.
+    const overlayMouseDownRef = useRef(false);
+
+    function handleOverlayMouseDown(e: React.MouseEvent<HTMLDivElement>) {
+        overlayMouseDownRef.current = e.target === e.currentTarget;
+    }
+
+    function handleOverlayClick(e: React.MouseEvent<HTMLDivElement>) {
+        if (overlayMouseDownRef.current && e.target === e.currentTarget) {
+            requestClose();
+        }
+    }
+
     return(
         <>
             <button className={className} onClick={handleOpen}>{label}</button>
 
             {open && createPortal(
-                <div className="overlay" onClick={() => requestClose()}>
+                <div className="overlay" onClick={handleOverlayClick} onMouseDown={handleOverlayMouseDown}>
                     <div className="modal" onClick={e => e.stopPropagation()}>
                         {children({ onClose: handleClose })}
 
