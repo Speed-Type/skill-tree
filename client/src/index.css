@@ -224,6 +224,12 @@ p { margin: 0; }
   background: var(--danger-soft);
   border-color: var(--danger);
 }
+
+/* Armed-but-unconfirmed state for a double-confirm delete button (see useDoubleConfirm) */
+.btn-danger.is-confirming {
+  background: var(--danger-soft);
+  border-color: var(--danger);
+}
  
 .btn-icon {
   background: transparent;
@@ -288,6 +294,54 @@ select.input {
   border-color: var(--gold);
 }
 
+/* ===================================== Character Counter ===================================== */
+
+.input-wrap {
+  position: relative;
+  display: inline-flex;
+  flex: 1;
+}
+
+.input-wrap .input {
+  width: 100%;
+  padding-right: 3.25rem; /* room for the counter so typed text doesn't run under it */
+}
+
+.textarea-wrap {
+  position: relative;
+  display: flex;
+}
+
+.textarea-wrap .input {
+  width: 100%;
+  min-height: 5.5rem;
+  padding-bottom: 1.6rem; /* leave room so typed text doesn't run under the counter */
+  font-family: var(--sans);
+}
+
+.textarea-wrap .char-count {
+  top: auto;
+  bottom: 0.5rem;
+  transform: none;
+}
+
+.char-count {
+  position: absolute;
+  right: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  pointer-events: none;
+  padding-left: 1.25rem;
+  background: linear-gradient(to right, transparent, var(--void) 1.1rem);
+}
+
+.char-count.is-near {
+  color: var(--warning);
+}
+
 /* ===================================== Popup / Modal ===================================== */
  
 .overlay {
@@ -313,6 +367,14 @@ select.input {
  
 .modal > .btn {
   margin-top: 1.25rem;
+}
+
+/* Shown inside a PopupButton's modal when a guarded close is intercepted because of unsaved edits;
+  see PopupButton's isDirty prop */
+.popup-discard-warning {
+  margin: 0.85rem 0 0;
+  font-size: 0.8rem;
+  color: var(--danger);
 }
 
 /* ===================================== Status & skill lists ===================================== */

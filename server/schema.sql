@@ -26,7 +26,7 @@ CREATE TABLE skills (
   id SERIAL PRIMARY KEY,
   tree_id INTEGER REFERENCES skill_trees(id) ON DELETE CASCADE,
   label VARCHAR(60) NOT NULL,
-  description VARCHAR(280),
+  description VARCHAR(500),
   status_id INTEGER REFERENCES statuses(id) ON DELETE SET NULL,
   x_position FLOAT DEFAULT 0,
   y_position FLOAT DEFAULT 0,

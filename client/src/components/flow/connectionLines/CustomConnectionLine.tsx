@@ -22,7 +22,20 @@ function CustomConnectionLine() {
             return;
         }
 
-        function handlePointerMove(event: PointerEvent) {
+        // Raw 'pointermove' events can fire far more often than the screen actually repaints
+        // (especially with high-poll-rate mice/trackpads). Reacting to every single one causes
+        // more re-renders (and more path recalculations) than frames available to draw them,
+        // which is what made the animated connection line look jittery. Throttling to one
+        // update per animation frame keeps state changes in sync with what can actually be
+        // painted, so the line — and its dash animation — track the cursor smoothly.
+        let rafId: number | null = null;
+        let latestEvent: PointerEvent | null = null;
+
+        function processLatestMove() {
+            rafId = null;
+            if (!latestEvent) return;
+            const event = latestEvent;
+
             const el = document.elementFromPoint(event.clientX, event.clientY);
             const nodeEl = el?.closest('.react-flow__node');
             setHoveredNodeId(nodeEl?.getAttribute('data-id') ?? null);
@@ -33,8 +46,19 @@ function CustomConnectionLine() {
             setPointerPos(screenToFlowPosition({ x: event.clientX, y: event.clientY }));
         }
 
+        function handlePointerMove(event: PointerEvent) {
+            latestEvent = event;
+            if (rafId === null) {
+                rafId = requestAnimationFrame(processLatestMove);
+            }
+        }
+
         window.addEventListener('pointermove', handlePointerMove);
-        return () => window.removeEventListener('pointermove', handlePointerMove);
+        
+        return () => {
+            window.removeEventListener('pointermove', handlePointerMove);
+            if (rafId !== null) cancelAnimationFrame(rafId);
+        };
     }, [connection.inProgress, screenToFlowPosition]);
 
     // Get the node that the mouse is hovered over, if there is one

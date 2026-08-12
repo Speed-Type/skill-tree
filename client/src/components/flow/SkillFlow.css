@@ -11,29 +11,29 @@
     radial-gradient(rgba(139, 124, 246, 0.14) 1px, transparent 1px) 0 0 / 26px 26px,
     var(--void);
 }
- 
+
 .flow-canvas .react-flow__background {
   opacity: 0.6;
 }
- 
+
 .flow-canvas .react-flow__controls {
   border-radius: var(--radius-sm);
   overflow: hidden;
   box-shadow: none;
   border: 1px solid var(--panel-border);
 }
- 
+
 .flow-canvas .react-flow__controls button {
   background: var(--panel-raised);
   border-bottom: 1px solid var(--panel-border);
   color: var(--text);
   fill: var(--text);
 }
- 
+
 .flow-canvas .react-flow__controls button:hover {
   background: #202333;
 }
- 
+
 .flow-canvas .react-flow__attribution {
   background: transparent;
   color: var(--text-dim);
@@ -43,64 +43,256 @@
 
 .skill-node {
   position: relative;
-  min-width: 160px;
+  min-width: 180px;
+  max-width: 220px;
   border-radius: var(--radius);
   background: var(--panel-raised);
 }
- 
+
 .skill-node-body {
   position: relative;
   z-index: 1;
-  pointer-events: none; /* let hover/drop pass through to the handle beneath */
-  padding: 0.7rem 0.85rem;
+  /*
+    Intentionally NOT pointer-events:none here (it used to be, to let drag/connect events pass
+    through to the edge Handles underneath). The Handles already have z-index:2, higher than
+    this element's z-index:1, so they win hit-testing in their own thin edge strips regardless
+    of this element's pointer-events value — the blanket "none" wasn't actually protecting
+    anything, it was just silently killing :hover over the card's own background/padding, which
+    is why the grow-on-hover effect only fired when the cursor was over the label or controls
+    (the specific children that had pointer-events re-enabled).
+  */
+  padding: 0.7rem 0.85rem 0.6rem;
   border: 1px solid var(--panel-border);
   border-radius: var(--radius);
-  background: var(--panel-raised);
- 
+  background: linear-gradient(160deg, var(--panel-raised), var(--panel) 130%);
+
   /* Status ring, driven by --status-hue set inline per node; falls back to locked grey */
   box-shadow:
     0 0 0 1px hsl(var(--status-hue, 220) 0% 30% / 0.5),
     0 0 18px hsl(var(--status-hue, 220) 70% 55% / var(--status-glow, 0));
   border-left: 3px solid hsl(var(--status-hue, 220) 70% 55%);
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
 }
- 
+
 .skill-node.is-unset .skill-node-body {
   border-left-color: var(--locked);
+
+  border-left-style: dashed;
+  opacity: 0.72;
 }
- 
+
+.skill-node.is-unset:hover .skill-node-body {
+  opacity: 0.95;
+}
+
 .skill-node-body:hover {
+  transform: translateY(-1px) scale(1.025);
   box-shadow:
     0 0 0 1px hsl(var(--status-hue, 220) 0% 30% / 0.5),
-    0 0 22px hsl(var(--status-hue, 220) 70% 55% / 0.5);
+    0 0 24px hsl(var(--status-hue, 220) 70% 55% / 0.55);
+}
+
+/*
+  Ambient idle pulse for skills that have an active status, so the graph doesn't sit dead-still.
+ 
+  IMPORTANT: this animates on a separate ::after layer, and only animates `opacity` (a plain
+  number, no var() inside the keyframes). Custom properties referenced *inside* @keyframes get
+  snapshotted by the browser when the animation starts and don't reliably update afterwards —
+  that was causing the ring to only "activate" after a hover forced a style recalc, and caused
+  a visible glitch when a hover-driven transition and this animation fought over the same
+  box-shadow property. Keeping the color (which depends on --status-hue/--status-glow) as a
+  static, non-animated declaration and only pulsing opacity sidesteps both bugs.
+*/
+.skill-node:not(.is-unset)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius);
+  box-shadow: 0 0 20px hsl(var(--status-hue, 220) 70% 55% / var(--status-glow, 0.35));
+  pointer-events: none;
+  z-index: 0;
+  animation: skill-node-idle-pulse 3.6s ease-in-out infinite;
 }
  
+@keyframes skill-node-idle-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
 .skill-node-label {
   display: block;
   font-family: var(--heading);
   font-weight: 500;
   font-size: 0.92rem;
   color: var(--text-h);
-  margin-bottom: 0.45rem;
+  margin-bottom: 0.5rem;
   pointer-events: auto;
+  overflow-wrap: anywhere;
+}
+
+/*
+  Shared pill look for both the read-only status chip (viewers) and the status dropdown
+  (owner) — same visual, same spot in the controls row. A capped width + ellipsis means a
+  long status name truncates on its own pill instead of ever eating into the label's space again.
+*/
+.skill-node-status-chip,
+.skill-node-status-select {
+  flex: 0 1 auto;
+  width: 8.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: hsl(var(--status-hue, 220) 60% 78%);
+  background-color: hsl(var(--status-hue, 220) 70% 55% / 0.14);
+  border: 1px solid hsl(var(--status-hue, 220) 70% 55% / 0.4);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
 }
  
+.skill-node.is-unset .skill-node-status-chip,
+.skill-node.is-unset .skill-node-status-select {
+  color: var(--text-dim);
+  background-color: rgba(255, 255, 255, 0.03);
+  border-color: var(--panel-border);
+}
+
+/* Extra affordances only the interactive (owner) variant needs */
+.skill-node-status-select {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 1.3rem;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 10px) center, calc(100% - 6px) center;
+  background-size: 4px 4px, 4px 4px;
+  background-repeat: no-repeat;
+}
+
+.skill-node-status-select:hover,
+.skill-node-status-select:focus-visible {
+  border-color: hsl(var(--status-hue, 220) 70% 55% / 0.7);
+  background-color: hsl(var(--status-hue, 220) 70% 55% / 0.22);
+}
+
 .skill-node-controls {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.4rem;
   pointer-events: auto;
 }
- 
-.skill-node-controls .input {
-  padding: 0.3rem 1.5rem 0.3rem 0.5rem;
-  font-size: 0.78rem;
+
+.skill-node-inspect-btn {
+  flex-shrink: 0;
+  color: var(--text-dim);
 }
- 
-/* Explicitly re-enable interaction for anything the user needs to click */
-.skill-node-body .nodrag,
-.skill-node-body strong {
-  pointer-events: auto;
+
+.skill-node-inspect-btn:hover {
+  color: var(--gold);
+}
+
+/* =========================== Hover tooltip (NodeToolbar) =========================== */
+
+.skill-tooltip {
+  max-width: 220px;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--text);
+  background: var(--panel-raised);
+  border: 1px solid var(--gold-line);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.65rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 14px var(--gold-soft);
+  pointer-events: none;
+
+  /* Hidden by default; .is-visible (toggled after the hover delay) fades/slides it in */
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.skill-tooltip.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/*
+  Long descriptions get clamped to a few lines with an ellipsis rather than growing the tooltip
+  to an awkward height — the full text is always one click away in the detail card.
+
+  This lives on an inner span, not .skill-tooltip itself: NodeToolbar applies its own inline
+  positioning styles to the element it's given, which silently wins over a stylesheet's
+  `display` value — so setting display:-webkit-box directly on .skill-tooltip had no effect
+*/
+.skill-tooltip-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
+}
+
+/* =========================== Skill detail card (click popup contents) =========================== */
+
+.skill-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 320px;
+  max-width: 450px;
+}
+
+.skill-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.skill-card-badge {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: hsl(var(--status-hue, 220) 60% 78%);
+  background: hsl(var(--status-hue, 220) 70% 55% / 0.16);
+  border: 1px solid hsl(var(--status-hue, 220) 70% 55% / 0.45);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+}
+
+.skill-card-title {
+  font-family: var(--heading);
+  font-size: 1.05rem;
+  color: var(--text-h);
+  margin: 0;
+}
+
+.skill-card-desc {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.5;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.skill-card-title-input {
+  font-family: var(--heading);
+  font-size: 1rem;
+}
+
+.skill-card-desc-input {
+  resize: none;
+  min-height: 5rem;
+  font-family: var(--sans);
+  line-height: 1.4;
 }
 
 /* =========================== Connection Handles =========================== */
@@ -114,7 +306,7 @@
   z-index: 2;
   transform: none; /* cancel React Flow's default translate(-50%, -50%) */
 }
- 
+
 .react-flow__handle.skill-node-edge-top {
   top: -4px;
   left: 0;
@@ -122,7 +314,7 @@
   width: 100%;
   height: 8px;
 }
- 
+
 .react-flow__handle.skill-node-edge-bottom {
   bottom: -4px;
   left: 0;
@@ -130,7 +322,7 @@
   width: 100%;
   height: 8px;
 }
- 
+
 .react-flow__handle.skill-node-edge-left {
   left: -4px;
   top: 0;
@@ -138,7 +330,7 @@
   width: 8px;
   height: 100%;
 }
- 
+
 .react-flow__handle.skill-node-edge-right {
   right: -4px;
   top: 0;
@@ -146,11 +338,11 @@
   width: 8px;
   height: 100%;
 }
- 
+
 .skill-node-edge-handle:hover {
   cursor: crosshair;
 }
- 
+
 /* Soft glow ring that appears around the whole node on hover, hinting it's connectable */
 .skill-node::before {
   content: '';
@@ -161,7 +353,7 @@
   transition: border-color 0.15s ease;
   pointer-events: none;
 }
- 
+
 .skill-node:hover::before {
   border-color: var(--violet-soft);
 }
@@ -173,14 +365,24 @@
   stroke-width: 1.5;
   transition: stroke 0.15s ease, filter 0.15s ease;
 }
- 
+
 .skill-edge-path.is-selected {
   stroke: var(--gold);
-  filter: drop-shadow(0 0 4px var(--gold-line));
+  stroke-width: 2;
+  stroke-dasharray: 7 5;
+  filter: drop-shadow(0 0 5px var(--gold-line));
+  animation: skill-edge-flow 0.7s linear infinite;
+}
+
+@keyframes skill-edge-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
 }
  
 .react-flow__edge:hover .skill-edge-path:not(.is-selected) {
   stroke: var(--violet);
+  filter: drop-shadow(0 0 4px var(--violet-soft));
 }
 
 .edge-delete-popup {
@@ -190,7 +392,7 @@
   padding: 0.2rem;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
 }
- 
+
 .edge-delete-popup button {
   display: flex;
   align-items: center;
@@ -207,7 +409,7 @@
   cursor: pointer;
   border-radius: var(--radius-sm);
 }
- 
+
 .edge-delete-popup button:hover {
   background: var(--danger-soft);
 }
@@ -216,7 +418,34 @@
 
 .connection-line-path {
   stroke: var(--gold);
-  stroke-width: 1.5;
-  stroke-dasharray: 4 3;
-  filter: drop-shadow(0 0 4px var(--gold-line));
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+  filter: drop-shadow(0 0 5px var(--gold-line));
+  animation: skill-connection-flow 0.9s linear infinite;
+}
+
+/*
+  Separate keyframes from skill-edge-flow on purpose: stroke-dashoffset has to travel a distance
+  that's an exact multiple of the dash pattern's total length (dash + gap) for the loop to tile
+  seamlessly. This pattern is "5 4" (length 9), so the offset here is -18 (2x9). Reusing
+  skill-edge-flow's -24 here (that one's tuned for the selected edge's "7 5" / length-12 pattern,
+  where 24 is a clean multiple of 12) is what caused the visible snap-back once a second — 24
+  isn't a multiple of 9, so each loop ended out of phase with where it started.
+*/
+@keyframes skill-connection-flow {
+  to {
+    stroke-dashoffset: -18;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skill-node:not(.is-unset) .skill-node-body,
+  .skill-edge-path.is-selected,
+  .connection-line-path {
+    animation: none;
+  }
+
+  .skill-tooltip {
+    transition: none;
+  }
 }

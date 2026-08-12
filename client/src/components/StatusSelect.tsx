@@ -10,9 +10,13 @@ interface StatusSelectProps {
     // Called after a status (not "None") is successfully applied to a skill,
     // so the parent can bump it to the front of the MRU order
     onStatusUsed: (statusId: number) => void;
+    // Lets callers restyle the control itself (e.g. as a status-colored pill in SkillNode)
+    // without needing a second, near-duplicate component
+    className?: string;
 }
 
-function StatusSelect({ skill, statuses, onSkillChanged, onStatusUsed }: StatusSelectProps) {
+function StatusSelect({ skill, statuses, onSkillChanged, onStatusUsed, className = 'input' }: StatusSelectProps) {
+    const currentLabel = statuses.find(s => s.id === skill.status_id)?.label ?? 'No status';
     
     // Function to handle a change in status for a specific skill
     async function handleChange(e: React.ChangeEvent<HTMLSelectElement>)
@@ -42,10 +46,16 @@ function StatusSelect({ skill, statuses, onSkillChanged, onStatusUsed }: StatusS
     }
 
     return(
-        <select className="input" value = {skill.status_id ?? ''} onChange = {handleChange}>
+        <select
+            className={className}
+            value={skill.status_id ?? ''}
+            onChange={handleChange}
+            // Surfaces the full status name on hover, useful when the control itself truncates it
+            title={currentLabel}
+        >
             <option value="">None</option>
             {statuses.map(status => (
-                <option key = {status.id} value = {status.id}>{status.label}</option>
+                <option key={status.id} value={status.id}>{status.label}</option>
             ))}
         </select>
     )

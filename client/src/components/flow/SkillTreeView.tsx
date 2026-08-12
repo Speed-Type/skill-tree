@@ -23,6 +23,7 @@ import { TreeWithDetails, Skill, SkillEdge, Status, SkillChangedHandler, SkillDe
 import { apiFetch } from '../../lib/api';
 import { snackbar } from '../../lib/snackbar';
 import { MAX_LENGTHS } from '../../../../shared/constants';
+import CharCounter from '../CharCounter';
 
 interface SkillTreeViewProps {
     tree: TreeWithDetails;
@@ -277,13 +278,16 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
                     >
                         {({ onClose }) => (
                             <div className="status-edit-fields">
-                                <input
-                                    className="input"
-                                    value={newTreeName}
-                                    onChange={e => setNewTreeName(e.target.value)}
-                                    maxLength={MAX_LENGTHS.treeTitle}
-                                />
-                                
+                                <div className="input-wrap">
+                                    <input
+                                        className="input"
+                                        value={newTreeName}
+                                        onChange={e => setNewTreeName(e.target.value)}
+                                        maxLength={MAX_LENGTHS.treeTitle}
+                                    />
+                                    <CharCounter value={newTreeName} max={MAX_LENGTHS.treeTitle} />
+                                </div>
+
                                 <div className="btn-row">
                                     <button className="btn btn-primary" onClick={() => { handleNameChange(); onClose(); }}>Save Changes</button>
                                 </div>

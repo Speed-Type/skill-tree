@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import PopupButton from './PopupButton';
+import { useDoubleConfirm } from '../hooks/useDoubleConfirm';
 
 import { Status, StatusChangedHandler, StatusDeletedHandler } from '../../../shared/types';
 import { apiFetch } from '../lib/api';
@@ -56,6 +57,9 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
         }
     }
 
+    // Requires a second confirming click before actually calling handleDelete
+    const deleteConfirm = useDoubleConfirm(handleDelete);
+
     return(
         <li className="status-row">
             <span
@@ -64,7 +68,13 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
             />
             <strong>{status.label} </strong>
 
-            <PopupButton label = "..." resetValues={() => setLabel(status.label)}>
+            <PopupButton
+                label = "..."
+                resetValues={() => {
+                    setLabel(status.label);
+                    deleteConfirm.reset();
+                }}
+            >
                 {({ onClose }) => (
                     <div className="status-edit-fields">
                         <input
@@ -76,7 +86,13 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
 
                         <div className="btn-row">
                             <button className="btn btn-primary" onClick={() => {handleEdit(); onClose();}}>Save Changes</button>
-                            <button className="btn btn-danger" onClick={handleDelete}>Delete</button>      
+                            
+                            <button
+                                className={`btn btn-danger${deleteConfirm.pending ? ' is-confirming' : ''}`}
+                                onClick={deleteConfirm.trigger}
+                            >
+                                {deleteConfirm.pending ? 'Click again to delete' : 'Delete'}
+                            </button>
                         </div>
                                       
                     </div>

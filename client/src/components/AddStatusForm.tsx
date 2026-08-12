@@ -2,6 +2,7 @@ import {useState} from 'react'
 import { Status, StatusChangedHandler } from '../../../shared/types';
 import { apiFetch } from '../lib/api';
 import { MAX_LENGTHS } from '../../../shared/constants';
+import CharCounter from './CharCounter';
 
 interface AddStatusFormProps {
     onStatusCreated: StatusChangedHandler;
@@ -33,14 +34,18 @@ function AddStatusForm({ onStatusCreated, currentCount }: AddStatusFormProps) {
 
     return (
         <form className="form-row" onSubmit={handleSubmit}>
-            <input
-                className="input"
-                value={label}
-                onChange={e => setLabel(e.target.value)}
-                placeholder="New status"
-                required
-                maxLength={MAX_LENGTHS.statusLabel}
-            />
+            <div className="input-wrap">
+                <input
+                    className="input"
+                    value={label}
+                    onChange={e => setLabel(e.target.value)}
+                    placeholder="New status"
+                    required
+                    maxLength={MAX_LENGTHS.statusLabel}
+                />
+                <CharCounter value={label} max={MAX_LENGTHS.statusLabel} />
+            </div>
+            
             <button className="btn btn-primary" type="submit">Add Status</button>
         </form>
     );

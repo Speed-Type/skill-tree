@@ -2,6 +2,7 @@ import './AuthGate.css';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { MAX_LENGTHS } from '../../../shared/constants';
+import CharCounter from './CharCounter';
 
 function AuthGate() {
     const { login, signup } = useAuth();
@@ -39,6 +40,8 @@ function AuthGate() {
                         required
                         maxLength={MAX_LENGTHS.userEmail}
                     />
+                    {/* Purposefully no character limit display: <CharCounter value={email} max={MAX_LENGTHS.userEmail} /> */}
+                    
                     <input
                         className="input"
                         type="password"
