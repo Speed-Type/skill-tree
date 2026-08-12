@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Handle, Position, NodeProps, Node, NodeToolbar } from '@xyflow/react';
 import StatusSelect from '../../StatusSelect';
 import PopupButton from '../../PopupButton';
@@ -30,7 +30,7 @@ export interface SkillNodeData extends Record<string, unknown> {
 
 export type SkillFlowNode = Node<SkillNodeData>;
 
-function SkillNode({ data }: NodeProps<SkillFlowNode>) {
+function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
 
     // Unpack data (needs to be done because of how data is passed into react flow's nodes)
     const { skill, statuses, isOwner, onSkillChanged, onSkillDeleted, onStatusUsed } = data;
@@ -45,6 +45,10 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
     const tooltipTimeoutRef = useRef<number | undefined>(undefined);
 
     function handleMouseEnter() {
+        // If the node is being dragged quickly, this can trigger because the cursor leaves the node and then comes back
+        // Here, we check that we're dragging so that this can't trigger again
+        if (dragging) return;
+        
         tooltipTimeoutRef.current = window.setTimeout(() => setShowTooltip(true), 400);
     }
 
@@ -54,6 +58,11 @@ function SkillNode({ data }: NodeProps<SkillFlowNode>) {
         window.clearTimeout(tooltipTimeoutRef.current);
         setShowTooltip(false);
     }
+
+    // Hide tooltip once the node starts dragging
+    useEffect(() => {
+        if (dragging) hideTooltip();
+    }, [dragging]);
  
     // Determine the current status and its associated ring style (just visuals)
     const currentStatus = statuses.find(s => s.id === skill.status_id);
