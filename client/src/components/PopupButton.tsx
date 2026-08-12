@@ -58,6 +58,7 @@
 */
 
 import { useState, useRef, ReactNode } from 'react';
+import { useDoubleConfirm } from '../hooks/useDoubleConfirm';
 import { createPortal } from 'react-dom'
 
 interface PopupButtonProps {
@@ -76,37 +77,29 @@ interface PopupButtonProps {
     isDirty?: () => boolean;
 }
 
-const DISCARD_CONFIRM_WINDOW_MS = 5000;
-
 function PopupButton({label, className = 'btn btn-icon', children, resetValues, isDirty}: PopupButtonProps) {
     const [open, setOpen] = useState(false);
 
-    // Whether we've already intercepted one dismiss attempt and are now waiting on a second,
-    // confirming click before actually discarding and closing
-    const [pendingDiscard, setPendingDiscard] = useState(false);
-    const discardTimeoutRef = useRef<number | undefined>(undefined);
-
     const handleOpen = () => {
         setOpen(true);
-        setPendingDiscard(false);
+        closeConfirm.reset();
         resetValues?.();
     };
 
     // The real close, which happens immediately, without guard
     const handleClose = () => {
-        window.clearTimeout(discardTimeoutRef.current);
         setOpen(false);
-        setPendingDiscard(false);
+        closeConfirm.reset();
         resetValues?.();
     };
 
+    // Requires a second confirming click before actually calling handleClose
+    const closeConfirm = useDoubleConfirm(handleClose);
+
     // Guarded close, used for the overlay click and the built-in Close button
     const requestClose = () => {
-        if (isDirty?.() && !pendingDiscard) {
-            setPendingDiscard(true);
-            // If they don't confirm within a few seconds, un-arm the warning so a later,
-            // unrelated click doesn't unexpectedly discard their edits
-            discardTimeoutRef.current = window.setTimeout(() => setPendingDiscard(false), DISCARD_CONFIRM_WINDOW_MS);
+        if (isDirty?.()) {
+            closeConfirm.trigger();
             return;
         }
         handleClose();
@@ -139,15 +132,15 @@ function PopupButton({label, className = 'btn btn-icon', children, resetValues, 
                     <div className="modal" onClick={e => e.stopPropagation()}>
                         {children({ onClose: handleClose })}
 
-                        {pendingDiscard && (
+                        {closeConfirm.pending && (
                             <p className="popup-discard-warning">Warning: You have unsaved changes.</p>
                         )}
 
                         <button
-                            className={`btn${pendingDiscard ? ' btn-danger' : ''}`}
+                            className={`btn${closeConfirm.pending ? ' btn-danger' : ''}`}
                             onClick={() => requestClose()}
                         >
-                            {pendingDiscard ? 'Discard changes' : 'Close'}
+                            {closeConfirm.pending ? 'Discard changes' : 'Close'}
                         </button>
                     </div>
                 </div>,
