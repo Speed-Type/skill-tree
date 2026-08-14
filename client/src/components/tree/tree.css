@@ -1,5 +1,5 @@
 /* ===================================== Status & skill lists ===================================== */
- 
+
 .status-list,
 .skill-list {
   list-style: none;
@@ -9,7 +9,7 @@
   flex-direction: column;
   gap: 0.4rem;
 }
- 
+
 .status-row,
 .skill-row {
   display: flex;
@@ -20,7 +20,7 @@
   border-radius: var(--radius-sm);
   padding: 0.5rem 0.6rem 0.5rem 0.8rem;
 }
- 
+
 .status-row strong,
 .skill-row strong {
   flex: 1;
@@ -29,7 +29,7 @@
   font-size: 0.9rem;
   color: var(--text-h);
 }
- 
+
 .status-dot {
   width: 9px;
   height: 9px;
@@ -38,20 +38,20 @@
   background: hsl(var(--status-hue, 220) 70% 60%);
   box-shadow: 0 0 6px hsl(var(--status-hue, 220) 70% 60% / 0.7);
 }
- 
+
 .status-edit-fields {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
   min-width: 220px;
 }
- 
+
 .status-edit-fields .btn-row {
   display: flex;
   gap: 0.5rem;
   margin-top: 0.25rem;
 }
- 
+
 /* Native select used for status assignment on a skill */
 select.input {
   appearance: none;

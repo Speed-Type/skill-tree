@@ -1,10 +1,14 @@
 /* ===================================== Fonts ===================================== */
- 
+
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
 /* ===================================== Reset/Base ===================================== */
 
-*, *::before, *::after { box-sizing: border-box; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 :root {
   /* Palette — "skill constellation": a dark field with a warm gold spark and a violet secondary */
@@ -13,34 +17,34 @@
   --panel-raised: #191b28;
   --panel-border: #262838;
   --line: #323548;
- 
+
   --text-dim: #8b8fa3;
   --text: #c7cbe0;
   --text-h: #f2f0ff;
- 
+
   --gold: #e3a94a;
   --gold-soft: rgba(227, 169, 74, 0.16);
   --gold-line: rgba(227, 169, 74, 0.55);
- 
+
   --violet: #8b7cf6;
   --violet-soft: rgba(139, 124, 246, 0.16);
- 
+
   --locked: #454a5c;
- 
+
   --danger: #e2607a;
   --danger-soft: rgba(226, 96, 122, 0.14);
 
   --warning: #e0a52f;
   --warning-soft: rgba(224, 165, 47, 0.14);
- 
+
   --radius-sm: 6px;
   --radius: 10px;
   --radius-lg: 18px;
- 
+
   --sans: 'Inter', system-ui, sans-serif;
   --heading: 'Space Grotesk', system-ui, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
- 
+
   font: 16px/1.5 var(--sans);
   color-scheme: dark;
   color: var(--text);
@@ -50,7 +54,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
- 
+
 body {
   margin: 0;
   background:
@@ -58,12 +62,12 @@ body {
     var(--void);
   min-height: 100svh;
 }
- 
+
 ::selection {
   background: var(--gold-soft);
   color: var(--text-h);
 }
- 
+
 :focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
@@ -77,7 +81,7 @@ body {
   margin: 0 auto;
   padding: 2.5rem 1.5rem 4rem;
 }
- 
+
 .app-header {
   display: flex;
   align-items: flex-start;
@@ -88,13 +92,13 @@ body {
   padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--panel-border);
 }
- 
+
 .app-header .brand {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
 }
- 
+
 .app-header .tagline {
   font-size: 0.9rem;
   color: var(--text-dim);
@@ -121,20 +125,20 @@ body {
 .tree-title-row .btn-icon svg {
   display: block;
 }
- 
+
 .app-main {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
- 
+
 .panel {
   background: var(--panel);
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
 }
- 
+
 .toolbar {
   display: flex;
   align-items: center;
@@ -142,7 +146,7 @@ body {
   gap: 1rem;
   flex-wrap: wrap;
 }
- 
+
 .state-message {
   font-family: var(--heading);
   color: var(--text-dim);
@@ -151,26 +155,30 @@ body {
 }
 
 /* ===================================== Typography ===================================== */
- 
-h1, h2, h3 {
+
+h1,
+h2,
+h3 {
   font-family: var(--heading);
   font-weight: 600;
   color: var(--text-h);
   margin: 0;
   letter-spacing: -0.01em;
 }
- 
+
 h1 {
   font-size: 1.75rem;
 }
- 
+
 h2 {
   font-size: 1.15rem;
   margin-bottom: 0.75rem;
 }
- 
-p { margin: 0; }
- 
+
+p {
+  margin: 0;
+}
+
 .eyebrow {
   font-family: var(--mono);
   font-size: 0.7rem;

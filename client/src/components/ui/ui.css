@@ -1,5 +1,5 @@
 /* ===================================== Buttons ===================================== */
- 
+
 .btn {
   font-family: var(--heading);
   font-weight: 600;
@@ -13,32 +13,32 @@
   cursor: pointer;
   transition: border-color 0.15s ease, transform 0.1s ease, background 0.15s ease;
 }
- 
+
 .btn:hover {
   border-color: var(--line);
   background: #202333;
 }
- 
+
 .btn:active {
   transform: translateY(1px);
 }
- 
+
 .btn-primary {
   background: var(--gold-soft);
   border-color: var(--gold-line);
   color: var(--gold);
 }
- 
+
 .btn-primary:hover {
   background: rgba(227, 169, 74, 0.25);
 }
- 
+
 .btn-danger {
   background: transparent;
   border-color: transparent;
   color: var(--danger);
 }
- 
+
 .btn-danger:hover {
   background: var(--danger-soft);
   border-color: var(--danger);
@@ -49,7 +49,7 @@
   background: var(--danger-soft);
   border-color: var(--danger);
 }
- 
+
 .btn-icon {
   background: transparent;
   border-color: transparent;
@@ -58,7 +58,7 @@
   font-size: 1rem;
   line-height: 1;
 }
- 
+
 .btn-icon:hover {
   color: var(--text-h);
   background: var(--panel-raised);
@@ -75,20 +75,20 @@
   cursor: pointer;
   padding: 0.25rem;
 }
- 
+
 .btn-link:hover {
   color: var(--gold);
 }
 
 /* ===================================== Forms ===================================== */
- 
+
 .form-row {
   display: flex;
   gap: 0.6rem;
   align-items: center;
   flex-wrap: wrap;
 }
- 
+
 .input,
 select.input {
   font-family: var(--sans);
@@ -100,15 +100,15 @@ select.input {
   padding: 0.55rem 0.75rem;
   transition: border-color 0.15s ease;
 }
- 
+
 .input::placeholder {
   color: var(--text-dim);
 }
- 
+
 .input:hover {
   border-color: var(--line);
 }
- 
+
 .input:focus-visible {
   border-color: var(--gold);
 }
@@ -116,49 +116,49 @@ select.input {
 /* ===================================== Character Counter ===================================== */
 
 .input-wrap {
-    position: relative;
-    display: inline-flex;
-    flex: 1;
+  position: relative;
+  display: inline-flex;
+  flex: 1;
 }
 
 .input-wrap .input {
-    width: 100%;
-    padding-right: 3.25rem; /* room for the counter so typed text doesn't run under it */
+  width: 100%;
+  padding-right: 3.25rem; /* room for the counter so typed text doesn't run under it */
 }
 
 .textarea-wrap {
-    position: relative;
-    display: flex;
+  position: relative;
+  display: flex;
 }
 
 .textarea-wrap .input {
-    width: 100%;
-    min-height: 5.5rem;
-    padding-bottom: 1.6rem; /* leave room so typed text doesn't run under the counter */
-    font-family: var(--sans);
+  width: 100%;
+  min-height: 5.5rem;
+  padding-bottom: 1.6rem; /* leave room so typed text doesn't run under the counter */
+  font-family: var(--sans);
 }
 
 .textarea-wrap .char-count {
-    top: auto;
-    bottom: 0.5rem;
-    transform: none;
+  top: auto;
+  bottom: 0.5rem;
+  transform: none;
 }
 
 .char-count {
-    position: absolute;
-    right: 0.65rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    color: var(--text-dim);
-    pointer-events: none;
-    padding-left: 1.25rem;
-    background: linear-gradient(to right, transparent, var(--void) 1.1rem);
+  position: absolute;
+  right: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  pointer-events: none;
+  padding-left: 1.25rem;
+  background: linear-gradient(to right, transparent, var(--void) 1.1rem);
 }
 
 .char-count.is-near {
-    color: var(--warning);
+  color: var(--warning);
 }
 
 /* ===================================== Popup / Modal ===================================== */
@@ -184,7 +184,7 @@ select.input {
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
 }
 
-.modal > .btn {
+.modal>.btn {
   margin-top: 1.25rem;
 }
 

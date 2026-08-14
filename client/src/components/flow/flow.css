@@ -113,10 +113,17 @@
   z-index: 0;
   animation: skill-node-idle-pulse 3.6s ease-in-out infinite;
 }
- 
+
 @keyframes skill-node-idle-pulse {
-  0%, 100% { opacity: 0.55; }
-  50% { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 .skill-node-label {
@@ -152,7 +159,7 @@
   border-radius: 999px;
   padding: 0.2rem 0.6rem;
 }
- 
+
 .skill-node.is-unset .skill-node-status-chip,
 .skill-node.is-unset .skill-node-status-select {
   color: var(--text-dim);
@@ -379,7 +386,7 @@
     stroke-dashoffset: -24;
   }
 }
- 
+
 .react-flow__edge:hover .skill-edge-path:not(.is-selected) {
   stroke: var(--violet);
   filter: drop-shadow(0 0 4px var(--violet-soft));
@@ -439,6 +446,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .skill-node:not(.is-unset) .skill-node-body,
   .skill-edge-path.is-selected,
   .connection-line-path {
