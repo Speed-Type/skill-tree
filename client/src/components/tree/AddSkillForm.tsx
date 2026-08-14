@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Skill, SkillChangedHandler } from '../../../shared/types';
-import { apiFetch } from '../lib/api';
-import { MAX_LENGTHS } from '../../../shared/constants';
-import CharCounter from './CharCounter';
+import { Skill, SkillChangedHandler } from '../../../../shared/types';
+import { apiFetch } from '../../lib/api';
+import { MAX_LENGTHS } from '../../../../shared/constants';
+import CharCounter from '../ui/CharCounter';
 
 interface AddSkillFormProps {
     treeId: number;
@@ -12,8 +12,6 @@ interface AddSkillFormProps {
 function AddSkillForm({ treeId, onCreated }: AddSkillFormProps) {
     const [label, setLabel] = useState('')
 
-    // Function to handle submitting a new skill
-    // POSTs the skill data to the database
     async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
         e.preventDefault();
 

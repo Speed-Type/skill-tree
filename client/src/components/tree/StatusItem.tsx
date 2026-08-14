@@ -1,15 +1,13 @@
 import { useState } from 'react';
 
-import PopupButton from './PopupButton';
-import { useDoubleConfirm } from '../hooks/useDoubleConfirm';
+import PopupButton from '../ui/PopupButton';
+import { useDoubleConfirm } from '../../hooks/useDoubleConfirm';
 
-import { Status, StatusChangedHandler, StatusDeletedHandler } from '../../../shared/types';
-import { apiFetch } from '../lib/api';
-import { snackbar } from '../lib/snackbar';
-import { MAX_LENGTHS } from '../../../shared/constants';
+import { Status, StatusChangedHandler, StatusDeletedHandler } from '../../../../shared/types';
+import { apiFetch } from '../../lib/api';
+import { snackbar } from '../../lib/snackbar';
+import { MAX_LENGTHS } from '../../../../shared/constants';
 
-// Deterministic hue from a status label, so any user-defined status gets a distinct,
-// stable color without needing a color field in the schema
 function hueFromLabel(label: string): number {
     let hash = 0;
     for (let i = 0; i < label.length; i++) {
@@ -28,7 +26,6 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
 {
     const [label, setLabel] = useState(status.label);
 
-    // Function to handle editing a status
     async function handleEdit()
     {
         try {
@@ -44,7 +41,6 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
         }
     }
 
-    // Function to handle deleting a status
     async function handleDelete()
     {
         try {
@@ -57,7 +53,6 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
         }
     }
 
-    // Requires a second confirming click before actually calling handleDelete
     const deleteConfirm = useDoubleConfirm(handleDelete);
 
     return(

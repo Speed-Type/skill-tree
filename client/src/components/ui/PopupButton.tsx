@@ -1,64 +1,5 @@
-// Generic popup element
-
-// Example usage (no preservation of popup values):
-
-/*
-
-<PopupButton label="...">
-    {({ onClose }) => (
-        <>
-            <!--Contents of skill edit popup here-->
-
-            <input value={label} onChange={(e) => setLabel(e.target.value)} />
-            <input value={description} onChange={(e) => setDescription(e.target.value)} />
-            
-            <button onClick={() => { handleEdit(); onClose(); }}>Save Changes</button>
-            <button onClick={handleDelete}>Delete</button>
-        </>
-    )}
-</PopupButton>
-
-*/
-
-// Example usage (with preservation of popup values):
-
-/*
-
-<PopupButton label = "Edit Name" resetValues={() => setNewTreeName(treeName)}>
-    {({ onClose }) => (
-        <div className="status-edit-fields">
-            <input className="input" value={newTreeName} onChange={e => setNewTreeName(e.target.value)} />
-            
-            <div className="btn-row">
-                <button className="btn btn-primary" onClick={() => { handleNameChange(); onClose(); }}>Save Changes</button>
-            </div>
-        </div>
-    )}
-</PopupButton>
-
-*/
-
-// Example usage (with an unsaved-changes guard on Close/click-outside):
-
-/*
-
-<PopupButton
-    label="Edit"
-    resetValues={() => setDraft(value)}
-    isDirty={() => draft !== value}
->
-    {({ onClose }) => (
-        <>
-            <input value={draft} onChange={e => setDraft(e.target.value)} />
-            <button onClick={() => { handleSave(); onClose(); }}>Save Changes</button>
-        </>
-    )}
-</PopupButton>
-
-*/
-
 import { useState, useRef, ReactNode } from 'react';
-import { useDoubleConfirm } from '../hooks/useDoubleConfirm';
+import { useDoubleConfirm } from '../../hooks/useDoubleConfirm';
 import { createPortal } from 'react-dom'
 
 interface PopupButtonProps {
@@ -105,12 +46,6 @@ function PopupButton({label, className = 'btn btn-icon', children, resetValues, 
         handleClose();
     };
 
-    // A click's target is wherever the cursor is on mouseup, not where the drag/click started —
-    // so selecting text (or dragging anything) that begins inside the modal but is released over
-    // the backdrop would otherwise register as a click directly on the overlay and incorrectly
-    // dismiss it, without .modal's onClick/stopPropagation ever getting a chance to run (the
-    // event never actually passes through .modal in that case). Tracking where the mousedown
-    // itself started fixes this: only treat it as a backdrop dismiss if it started there too.
     const overlayMouseDownRef = useRef(false);
 
     function handleOverlayMouseDown(e: React.MouseEvent<HTMLDivElement>) {

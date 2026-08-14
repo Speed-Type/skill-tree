@@ -1,18 +1,20 @@
+import '../components/tree/tree.css';
+
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
 
 import SkillTreeView from "../components/flow/SkillTreeView";
-import AddSkillForm from "../components/AddSkillForm";
+import AddSkillForm from "../components/tree/AddSkillForm";
 import { useSkillTree } from '../hooks/useSkillTree';
-import StatusView from '../components/StatusView';
-import AddStatusForm from "../components/AddStatusForm";
-import PopupButton from '../components/PopupButton';
-import VisibilityToggle from '../components/VisibilityToggle';
+import StatusView from '../components/tree/StatusView';
+import AddStatusForm from "../components/tree/AddStatusForm";
+import PopupButton from '../components/ui/PopupButton';
+import VisibilityToggle from '../components/tree/VisibilityToggle';
 import LoadingPage from '../pages/LoadingPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import ErrorPage from '../pages/ErrorPage';
 import { MAX_LENGTHS } from '../../../shared/constants';
-import CharCounter from '../components/CharCounter';
+import CharCounter from '../components/ui/CharCounter';
 import { useAuth } from '../context/AuthContext';
 
 import { apiFetch, ApiError, NETWORK_ERROR_MESSAGE } from '../lib/api';

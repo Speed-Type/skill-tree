@@ -1,0 +1,68 @@
+/* ===================================== Status & skill lists ===================================== */
+ 
+.status-list,
+.skill-list {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+ 
+.status-row,
+.skill-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.6rem 0.5rem 0.8rem;
+}
+ 
+.status-row strong,
+.skill-row strong {
+  flex: 1;
+  font-family: var(--heading);
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--text-h);
+}
+ 
+.status-dot {
+  width: 9px;
+  height: 9px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: hsl(var(--status-hue, 220) 70% 60%);
+  box-shadow: 0 0 6px hsl(var(--status-hue, 220) 70% 60% / 0.7);
+}
+ 
+.status-edit-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 220px;
+}
+ 
+.status-edit-fields .btn-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+ 
+/* Native select used for status assignment on a skill */
+select.input {
+  appearance: none;
+  padding-right: 1.75rem;
+  background-image: linear-gradient(45deg, transparent 50%, var(--text-dim) 50%),
+    linear-gradient(135deg, var(--text-dim) 50%, transparent 50%);
+  background-position: calc(100% - 14px) center, calc(100% - 9px) center;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  max-width: 15ch;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}

@@ -1,8 +1,8 @@
 import './VisibilityToggle.css';
 import { useState, useEffect } from 'react';
-import { SkillTree } from '../../../shared/types';
-import { apiFetch } from '../lib/api';
-import { snackbar } from '../lib/snackbar';
+import { SkillTree } from '../../../../shared/types';
+import { apiFetch } from '../../lib/api';
+import { snackbar } from '../../lib/snackbar';
 
 interface VisibilityToggleProps {
     tree: SkillTree;
@@ -15,7 +15,6 @@ function VisibilityToggle({ tree }: VisibilityToggleProps) {
         setIsPublic(tree.is_public);
     }, [tree.id, tree.is_public]);
 
-    // Function to handle changing tree visibility
     async function handleVisibilityChange(checked: boolean) {
         try
         {

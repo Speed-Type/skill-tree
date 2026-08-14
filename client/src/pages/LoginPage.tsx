@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router';
-import AuthGate from '../components/AuthGate';
+import AuthGate from '../components/auth/AuthGate';
 import { useAuth } from '../context/AuthContext';
 import LoadingPage from './LoadingPage';
 

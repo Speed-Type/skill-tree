@@ -1,6 +1,6 @@
 import './Snackbar.css';
 import { useEffect, useState } from 'react';
-import { snackbar, useSnackbars, SnackbarItem } from '../lib/snackbar';
+import { snackbar, useSnackbars, SnackbarItem } from '../../lib/snackbar';
 
 const ICONS: Record<SnackbarItem['variant'], string> = {
     success: '✓',
@@ -20,7 +20,6 @@ function SnackbarRow({ item }: { item: SnackbarItem }) {
         return () => clearTimeout(timer);
     }, [isLeaving, item.id]);
 
-    // Auto-dismiss timer now triggers the exit animation instead of removing the item outright
     useEffect(() => {
         if (item.duration <= 0) return;
         const timer = setTimeout(() => setIsLeaving(true), item.duration);
@@ -43,8 +42,6 @@ function SnackbarRow({ item }: { item: SnackbarItem }) {
     );
 }
 
-// Has no props
-// Every part of the app triggers this by calling snackbar.success(...) / snackbar.error(...) etc.
 function SnackbarContainer() {
     const items = useSnackbars();
 

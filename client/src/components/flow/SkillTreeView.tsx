@@ -1,5 +1,5 @@
 import '@xyflow/react/dist/style.css';
-import './SkillFlow.css';
+import './flow.css';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { 

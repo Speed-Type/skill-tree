@@ -1,8 +1,8 @@
 import './AuthGate.css';
 import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { MAX_LENGTHS } from '../../../shared/constants';
-import CharCounter from './CharCounter';
+import { useAuth } from '../../context/AuthContext';
+import { MAX_LENGTHS } from '../../../../shared/constants';
+import CharCounter from '../ui/CharCounter';
 
 function AuthGate() {
     const { login, signup } = useAuth();
@@ -49,7 +49,6 @@ function AuthGate() {
                         onChange={e => setPassword(e.target.value)}
                         placeholder="Password"
                         required
-                        // Note that password has no max length limit
                     />
                     <button className="btn btn-primary" type="submit">{mode === 'login' ? 'Log in' : 'Sign up'}</button>
                 </form>

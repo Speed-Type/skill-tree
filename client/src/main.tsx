@@ -1,9 +1,11 @@
+import './index.css';
+import './components/ui/ui.css';
+
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router';
-import './index.css';
 import App from './App';
-import SnackbarContainer from './components/Snackbar';
+import SnackbarContainer from './components/ui/Snackbar';
 import { AuthProvider } from './context/AuthContext';
 
 const rootElement = document.getElementById('root');

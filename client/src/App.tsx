@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import TreeListPage from './pages/TreeListPage';
 import TreePage from './pages/TreePage';

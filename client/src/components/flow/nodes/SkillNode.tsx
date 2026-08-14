@@ -1,14 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { Handle, Position, NodeProps, Node, NodeToolbar } from '@xyflow/react';
-import StatusSelect from '../../StatusSelect';
-import PopupButton from '../../PopupButton';
+import StatusSelect from '../../tree/StatusSelect';
+import PopupButton from '../../ui/PopupButton';
 import { useDoubleConfirm } from '../../../hooks/useDoubleConfirm';
 
 import { Skill, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../../shared/types';
 import { apiFetch } from '../../../lib/api';
 import { snackbar } from '../../../lib/snackbar';
 import { MAX_LENGTHS } from '../../../../../shared/constants';
-import CharCounter from '../../CharCounter';
+import CharCounter from '../../ui/CharCounter';
 
 // Deterministic hue from a status label, so any user-defined status gets a distinct,
 // stable ring color without needing a color field in the schema
@@ -117,7 +117,7 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
               Quick-glance tooltip. isVisible stays tied to hasDescription (so it mounts once,
               rather than mounting/unmounting on every hover — unmounting can't be animated),
               and the actual show/hide is a CSS class driven by showTooltip, so the fade/slide
-              transition in SkillFlow.css has something to animate
+              transition in flow.css has something to animate
             */}
             <NodeToolbar
                 isVisible={hasDescription}
