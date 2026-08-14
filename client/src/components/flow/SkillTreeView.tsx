@@ -16,17 +16,13 @@ import { nodeTypes } from './nodeTypes';
 import { edgeTypes } from './edgeTypes';
 import { SkillFlowNode } from './nodes/SkillNode'; // Exported as types
 import { FloatingSkillEdge } from './edges/FloatingEdge'; // Exported as types
-import PopupButton from './../PopupButton';
 import CustomConnectionLine from './connectionLines/CustomConnectionLine';
 
-import { TreeWithDetails, Skill, SkillEdge, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../shared/types';
+import { Skill, SkillEdge, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../shared/types';
 import { apiFetch } from '../../lib/api';
 import { snackbar } from '../../lib/snackbar';
-import { MAX_LENGTHS } from '../../../../shared/constants';
-import CharCounter from '../CharCounter';
 
 interface SkillTreeViewProps {
-    tree: TreeWithDetails;
     skills: Skill[];
     edges: SkillEdge[];
     statuses: Status[];
@@ -38,7 +34,7 @@ interface SkillTreeViewProps {
     onStatusUsed: (statusId: number) => void;
 }
 
-function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged, onSkillDeleted, onEdgeCreated, onEdgeDeleted, onStatusUsed }: SkillTreeViewProps) {
+function SkillTreeView({ skills, edges, statuses, isOwner, onSkillChanged, onSkillDeleted, onEdgeCreated, onEdgeDeleted, onStatusUsed }: SkillTreeViewProps) {
     
     // ======================= Tracking Delete Popups for Edges ==========================
 
@@ -232,25 +228,6 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
         }
     }
 
-    // ======================= Tree Name Handling ==========================
-
-    const [treeName, setTreeName] = useState(tree.title);
-    const [newTreeName, setNewTreeName] = useState(tree.title);
-
-    // Function to handle the actual change to the tree name in the database
-    async function handleNameChange() {
-        try {
-            await apiFetch(`/trees/${tree.id}`, {
-                method: 'PUT',
-                body: JSON.stringify({ title: newTreeName }),
-            });
-            setTreeName(newTreeName);
-            snackbar.success('Tree name updated successfully');
-        } catch (err) {
-            console.error('Failed to update tree name: ', err);
-        }
-    }
-
     // ========================================= Other ReactFlow Props =============================================
 
     // Prop for ReactFlow component that prevents self-connections, duplicate edges, and reverse-direction links
@@ -261,75 +238,38 @@ function SkillTreeView({ tree, skills, edges, statuses, isOwner, onSkillChanged,
     // ========================================= Component HTML =============================================
  
     return (
-        <div className="panel">
-            <div className="tree-title-row">
-                <h2>{treeName}</h2>
+        <div className="flow-canvas" ref={reactFlowWrapperRef}>
+            <ReactFlow
+                // Node and edge data
+                nodes={nodes}
+                edges={edgesState}
 
-                {/* Tree name edit popup */}
-                {isOwner && (
-                    <PopupButton 
-                        label = {(
-                            <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M13.5 3.5l3 3L6 17H3v-3L13.5 3.5z" />
-                            </svg>
-                        )}
-                        className="btn btn-icon"
-                        resetValues={() => setNewTreeName(treeName)}
-                    >
-                        {({ onClose }) => (
-                            <div className="status-edit-fields">
-                                <div className="input-wrap">
-                                    <input
-                                        className="input"
-                                        value={newTreeName}
-                                        onChange={e => setNewTreeName(e.target.value)}
-                                        maxLength={MAX_LENGTHS.treeTitle}
-                                    />
-                                    <CharCounter value={newTreeName} max={MAX_LENGTHS.treeTitle} />
-                                </div>
+                // Custom node and edge objects to display the data
+                nodeTypes={nodeTypes}
+                edgeTypes={edgeTypes}
 
-                                <div className="btn-row">
-                                    <button className="btn btn-primary" onClick={() => { handleNameChange(); onClose(); }}>Save Changes</button>
-                                </div>
-                            </div>
-                        )}
-                    </PopupButton>
-                )}
-            </div>
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onNodeDragStop={handleNodeDragStop} // Callback for node movement
+                onConnect={handleConnect} // Callback for connection on node border
+                onConnectEnd={onConnectEnd} // Callback used to check for connection on node body
 
-            <div className="flow-canvas" ref={reactFlowWrapperRef}>
-                <ReactFlow
-                    // Node and edge data
-                    nodes={nodes}
-                    edges={edgesState}
+                // Connection settings
+                connectionLineComponent={CustomConnectionLine} // Custom line for while connection is being dragged
+                isValidConnection={isValidConnection} // Custom criteria for valid connections
 
-                    // Custom node and edge objects to display the data
-                    nodeTypes={nodeTypes}
-                    edgeTypes={edgeTypes}
+                // Lock out certain interactions for non-owner viewing
+                nodesDraggable={isOwner}
 
-                    onNodesChange={onNodesChange}
-                    onEdgesChange={onEdgesChange}
-                    onNodeDragStop={handleNodeDragStop} // Callback for node movement
-                    onConnect={handleConnect} // Callback for connection on node border
-                    onConnectEnd={onConnectEnd} // Callback used to check for connection on node body
+                // Other settings
+                connectionMode={ConnectionMode.Loose}
+                fitView
 
-                    // Connection settings
-                    connectionLineComponent={CustomConnectionLine} // Custom line for while connection is being dragged
-                    isValidConnection={isValidConnection} // Custom criteria for valid connections
-
-                    // Lock out certain interactions for non-owner viewing
-                    nodesDraggable={isOwner}
-
-                    // Other settings
-                    connectionMode={ConnectionMode.Loose}
-                    fitView
-
-                    // Possibly temporary
-                    connectOnClick={false} // At least for now, we don't want to have another way to create edges
-                    deleteKeyCode={null} // Currently, node deletion this way isn't synced to backend
-                    multiSelectionKeyCode={null} // Multi-selection and bulk dragging doesn't sync correctly right now
-                />
-            </div>
+                // Possibly temporary
+                connectOnClick={false} // At least for now, we don't want to have another way to create edges
+                deleteKeyCode={null} // Currently, node deletion this way isn't synced to backend
+                multiSelectionKeyCode={null} // Multi-selection and bulk dragging doesn't sync correctly right now
+            />
         </div>
     );
 }

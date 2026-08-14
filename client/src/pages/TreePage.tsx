@@ -11,10 +11,14 @@ import VisibilityToggle from '../components/VisibilityToggle';
 import LoadingPage from '../pages/LoadingPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import ErrorPage from '../pages/ErrorPage';
+import { MAX_LENGTHS } from '../../../shared/constants';
+import CharCounter from '../components/CharCounter';
 import { useAuth } from '../context/AuthContext';
-import { apiFetch, ApiError, NETWORK_ERROR_MESSAGE } from '../lib/api';
 
+import { apiFetch, ApiError, NETWORK_ERROR_MESSAGE } from '../lib/api';
 import { Skill, SkillEdge, Status } from '../../../shared/types';
+import { snackbar } from '../lib/snackbar';
+
 
 function TreePage() {
     const { treeId } = useParams<{ treeId: string }>();
@@ -129,6 +133,35 @@ function TreePage() {
         // Note that these id's need to be cast because deletedEdgeId is a String from buildEdges() in SkillTreeView
     }
 
+    // ======================= Tree Name Handling ==========================
+
+    const [treeName, setTreeName] = useState('');
+    const [newTreeName, setNewTreeName] = useState('');
+
+    // Seed local tree name state once the tree data arrives
+    useEffect(() => {
+        if (tree) {
+            setTreeName(tree.title);
+            setNewTreeName(tree.title);
+        }
+    }, [tree]);
+
+    // Function to handle the actual change to the tree name in the database
+    async function handleNameChange() {
+        if(!tree) return; // Guard for typescript that tree is not null beyond this point
+
+        try {
+            await apiFetch(`/trees/${tree.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ title: newTreeName }),
+            });
+            setTreeName(newTreeName);
+            snackbar.success('Tree name updated successfully');
+        } catch (err) {
+            console.error('Failed to update tree name: ', err);
+        }
+    }
+
     // ===========================================================================================
 
     if (loading) return <LoadingPage message="Loading skill tree..." />;
@@ -176,19 +209,56 @@ function TreePage() {
                 )}
             </header>
             
+            {/* Main content area */}
             <main className="app-main">
-                <SkillTreeView
-                    tree={tree}
-                    skills={skills}
-                    edges={edges}
-                    statuses={displayStatuses}
-                    isOwner={isOwner}
-                    onSkillChanged={handleSkillChanged}
-                    onSkillDeleted={handleSkillDeleted}
-                    onEdgeCreated={handleEdgeCreated}
-                    onEdgeDeleted={handleEdgeDeleted}
-                    onStatusUsed={bumpStatusUsage}
-                />
+                <div className="panel">
+                    <div className="tree-title-row">
+                        <h2>{treeName}</h2>
+
+                        {/* Tree name edit popup */}
+                        {isOwner && (
+                            <PopupButton 
+                                label = {(
+                                    <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M13.5 3.5l3 3L6 17H3v-3L13.5 3.5z" />
+                                    </svg>
+                                )}
+                                className="btn btn-icon"
+                                resetValues={() => setNewTreeName(treeName)}
+                            >
+                                {({ onClose }) => (
+                                    <div className="status-edit-fields">
+                                        <div className="input-wrap">
+                                            <input
+                                                className="input"
+                                                value={newTreeName}
+                                                onChange={e => setNewTreeName(e.target.value)}
+                                                maxLength={MAX_LENGTHS.treeTitle}
+                                            />
+                                            <CharCounter value={newTreeName} max={MAX_LENGTHS.treeTitle} />
+                                        </div>
+
+                                        <div className="btn-row">
+                                            <button className="btn btn-primary" onClick={() => { handleNameChange(); onClose(); }}>Save Changes</button>
+                                        </div>
+                                    </div>
+                                )}
+                            </PopupButton>
+                        )}
+                    </div>
+
+                    <SkillTreeView
+                        skills={skills}
+                        edges={edges}
+                        statuses={displayStatuses}
+                        isOwner={isOwner}
+                        onSkillChanged={handleSkillChanged}
+                        onSkillDeleted={handleSkillDeleted}
+                        onEdgeCreated={handleEdgeCreated}
+                        onEdgeDeleted={handleEdgeDeleted}
+                        onStatusUsed={bumpStatusUsage}
+                    />
+                </div>
 
                 {isOwner && ( <AddSkillForm treeId={tree.id} onCreated={handleSkillCreated} /> )}
             </main>
