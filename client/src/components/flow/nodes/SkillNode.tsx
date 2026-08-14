@@ -3,6 +3,7 @@ import { Handle, Position, NodeProps, Node, NodeToolbar } from '@xyflow/react';
 import StatusSelect from '../../tree/StatusSelect';
 import PopupButton from '../../ui/PopupButton';
 import { useDoubleConfirm } from '../../../hooks/useDoubleConfirm';
+import { useDelayedHover } from '../../../hooks/useDelayedHover';
 
 import { Skill, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../../shared/types';
 import { apiFetch } from '../../../lib/api';
@@ -39,31 +40,6 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
     // States for label and description
     const [label, setLabel] = useState(skill.label);
     const [description, setDescription] = useState(skill.description ?? '');
-
-    // Drives the quick-glance tooltip. Shown after a short delay on hover (so it doesn't pop in
-    // instantly while just passing the cursor over the graph) and hidden immediately on leave
-    const [showTooltip, setShowTooltip] = useState(false);
-    const tooltipTimeoutRef = useRef<number | undefined>(undefined);
-
-    function handleMouseEnter() {
-        // If the node is being dragged quickly, this can trigger because the cursor leaves the node and then comes back
-        // Here, we check that we're dragging so that this can't trigger again
-        if (dragging) return;
-
-        tooltipTimeoutRef.current = window.setTimeout(() => setShowTooltip(true), 400);
-    }
-
-    // This function is also used in PopupButton's resetValues below, so that the popup immediately disappears when
-    // the popup is closed (fixes a bug where it would remain open because mouseLeave never fires)
-    function hideTooltip() {
-        window.clearTimeout(tooltipTimeoutRef.current);
-        setShowTooltip(false);
-    }
-
-    // Hide tooltip once the node starts dragging
-    useEffect(() => {
-        if (dragging) hideTooltip();
-    }, [dragging]);
  
     // Determine the current status and its associated ring style (just visuals)
     const currentStatus = statuses.find(s => s.id === skill.status_id);
@@ -73,6 +49,25 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
 
     const currentStatusLabel = currentStatus?.label ?? 'No status';
     const hasDescription = !!skill.description?.trim();
+
+    // ======================= Hover Tooltip ==========================
+
+    const tooltip = useDelayedHover(400, dragging);
+
+    function handleMouseEnter() {
+        // If the node is being dragged quickly, this can trigger because the cursor leaves the node and then comes back
+        // Here, we check that we're dragging so that this can't trigger again
+        if (dragging) return;
+
+        tooltip.show();
+    }
+
+    // Hide tooltip once the node starts dragging
+    useEffect(() => {
+        if (dragging) tooltip.hide();
+    }, [dragging]);
+
+    // ======================= Handlers ==========================
 
     // Function to handle edits of this node
     async function handleEdit()
@@ -111,7 +106,7 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
             className={`skill-node${currentStatus ? '' : ' is-unset'}`} 
             style={ringStyle}
             onMouseEnter={handleMouseEnter}
-            onMouseLeave={hideTooltip}
+            onMouseLeave={tooltip.hide}
         >
             {/*
               Quick-glance tooltip. isVisible stays tied to hasDescription (so it mounts once,
@@ -122,7 +117,7 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
             <NodeToolbar
                 isVisible={hasDescription}
                 position={Position.Top}
-                className={`skill-tooltip${showTooltip ? ' is-visible' : ''}`}
+                className={`skill-tooltip${tooltip.isVisible ? ' is-visible' : ''}`}
                 offset={10}
             >
                 <span className="skill-tooltip-text">{skill.description}</span>
@@ -159,7 +154,7 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
                         resetValues={() => {
                             setLabel(skill.label);
                             setDescription(skill.description ?? '');
-                            hideTooltip();
+                            tooltip.hide();
                             deleteConfirm.reset();
                         }}
 
