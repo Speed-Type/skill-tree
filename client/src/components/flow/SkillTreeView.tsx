@@ -1,7 +1,8 @@
 import '@xyflow/react/dist/style.css';
 import './flow.css';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback } from 'react';
+import { useEdgeSelection } from '../../hooks/useEdgeSelection';
 import { 
     ReactFlow,
     useNodesState,
@@ -38,37 +39,7 @@ function SkillTreeView({ skills, edges, statuses, isOwner, onSkillChanged, onSki
     
     // ======================= Tracking Delete Popups for Edges ==========================
 
-    const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
-    const reactFlowWrapperRef = useRef<HTMLDivElement>(null);
-
-    // Handle keypress deletes
-    useEffect(() => {
-        if (!selectedEdgeId || !isOwner) return;
-
-        function handleKeyDown(event: KeyboardEvent) {
-            if (event.key === 'Backspace' || event.key === 'Delete') {
-                handleEdgeDelete(selectedEdgeId!);
-            }
-        }
-
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [selectedEdgeId]);
-
-    // Auto-close edge delete popups
-    useEffect(() => {
-        if (!selectedEdgeId) return;
-
-        function handleOutsideClick(event: MouseEvent) {
-            // If the click is on the edge's own popup button, let that handler run instead
-            const target = event.target as HTMLElement;
-            if (target.closest('.edge-delete-popup')) return;
-            setSelectedEdgeId(null);
-        }
-
-        document.addEventListener('mousedown', handleOutsideClick, true); // true = capture phase
-        return () => document.removeEventListener('mousedown', handleOutsideClick, true);
-    }, [selectedEdgeId]);
+    const { selectedEdgeId, setSelectedEdgeId } = useEdgeSelection(isOwner, handleEdgeDelete);
 
     // ====================== Convert/maintain props to states for React Flow component =========================
 
@@ -238,7 +209,7 @@ function SkillTreeView({ skills, edges, statuses, isOwner, onSkillChanged, onSki
     // ========================================= Component HTML =============================================
  
     return (
-        <div className="flow-canvas" ref={reactFlowWrapperRef}>
+        <div className="flow-canvas">
             <ReactFlow
                 // Node and edge data
                 nodes={nodes}
