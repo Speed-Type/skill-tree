@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { TreeWithDetails, Status } from '../../../shared/types';
+import { TreeWithDetails } from '../../../shared/types';
 import { apiFetch } from '../lib/api';
 
 interface UseSkillTreeResult {

@@ -19,7 +19,7 @@ import CharCounter from '../components/ui/CharCounter';
 import { useAuth } from '../context/AuthContext';
 
 import { apiFetch, ApiError, NETWORK_ERROR_MESSAGE } from '../lib/api';
-import { Skill, SkillEdge, Status } from '../../../shared/types';
+import { Skill, SkillEdge } from '../../../shared/types';
 import { snackbar } from '../lib/snackbar';
 
 

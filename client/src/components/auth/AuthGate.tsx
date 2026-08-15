@@ -2,7 +2,6 @@ import './AuthGate.css';
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { MAX_LENGTHS } from '../../../../shared/constants';
-import CharCounter from '../ui/CharCounter';
 
 function AuthGate() {
     const { login, signup } = useAuth();
