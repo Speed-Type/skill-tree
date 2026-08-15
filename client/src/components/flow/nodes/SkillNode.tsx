@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Handle, Position, NodeProps, Node, NodeToolbar } from '@xyflow/react';
 import StatusSelect from '../../tree/StatusSelect';
 import PopupButton from '../../ui/PopupButton';
 import { useDoubleConfirm } from '../../../hooks/useDoubleConfirm';
 import { useDelayedHover } from '../../../hooks/useDelayedHover';
+import { useDraft } from '../../../hooks/useDraft';
 
 import { Skill, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../../shared/types';
 import { apiFetch } from '../../../lib/api';
@@ -38,8 +39,11 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
     const { skill, statuses, isOwner, onSkillChanged, onSkillDeleted, onStatusUsed } = data;
 
     // States for label and description
-    const [label, setLabel] = useState(skill.label);
-    const [description, setDescription] = useState(skill.description ?? '');
+    // Editable draft of label/description, synced from the skill prop, reset on popup close
+    const { draft, updateDraft, resetDraft, draftIsDirty } = useDraft({
+        label: skill.label,
+        description: skill.description ?? '',
+    });
  
     // Determine the current status and its associated ring style (just visuals)
     const currentStatus = statuses.find(s => s.id === skill.status_id);
@@ -75,7 +79,7 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
         try {
             const updatedSkill = await apiFetch<Skill>(`/skills/${skill.id}`, {
                 method: 'PUT',
-                body: JSON.stringify({ label, description })
+                body: JSON.stringify({ label: draft.label, description: draft.description })
             });
 
             onSkillChanged(updatedSkill);
@@ -152,15 +156,14 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
                         label="..."
                         className="btn btn-icon skill-node-inspect-btn"
                         resetValues={() => {
-                            setLabel(skill.label);
-                            setDescription(skill.description ?? '');
+                            resetDraft();
                             tooltip.hide();
                             deleteConfirm.reset();
                         }}
 
                         // Only owners can actually edit these fields, so this is always false
                         // for viewers — nothing to guard there
-                        isDirty={() => isOwner && (label !== skill.label || description !== (skill.description ?? ''))}
+                        isDirty={() => isOwner && draftIsDirty()}
                     >
                         {({ onClose }) => (
                             <div className="skill-card">
@@ -175,23 +178,23 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
                                         <div className="input-wrap">
                                             <input
                                                 className="input skill-card-title-input"
-                                                value={label}
-                                                onChange={(e) => setLabel(e.target.value)}
+                                                value={draft.label}
+                                                onChange={(e) => updateDraft('label', e.target.value)}
                                                 maxLength={MAX_LENGTHS.skillLabel}
                                             />
-                                            <CharCounter value={label} max={MAX_LENGTHS.skillLabel} />
+                                            <CharCounter value={draft.label} max={MAX_LENGTHS.skillLabel} />
                                         </div>
                                         
                                         <div className="textarea-wrap">
                                             <textarea
                                                 className="input skill-card-desc-input"
-                                                value={description}
-                                                onChange={(e) => setDescription(e.target.value)}
+                                                value={draft.description}
+                                                onChange={(e) => updateDraft('description', e.target.value)}
                                                 placeholder="Add a description..."
                                                 maxLength={MAX_LENGTHS.skillDescription}
                                                 rows={9}
                                             />
-                                            <CharCounter value={description} max={MAX_LENGTHS.skillDescription} />
+                                            <CharCounter value={draft.description} max={MAX_LENGTHS.skillDescription} />
                                         </div>
 
                                         <div className="btn-row">
