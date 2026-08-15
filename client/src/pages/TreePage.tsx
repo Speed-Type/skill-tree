@@ -7,6 +7,7 @@ import SkillTreeView from "../components/flow/SkillTreeView";
 import AddSkillForm from "../components/tree/AddSkillForm";
 import { useSkillTree } from '../hooks/useSkillTree';
 import { useStatuses } from '../hooks/useStatuses';
+import { useDraft } from '../hooks/useDraft';
 import StatusView from '../components/tree/StatusView';
 import AddStatusForm from "../components/tree/AddStatusForm";
 import PopupButton from '../components/ui/PopupButton';
@@ -88,15 +89,15 @@ function TreePage() {
 
     // ======================= Tree Name Handling ==========================
 
+    // treeName is the committed value shown in the header; synced from tree once it loads
     const [treeName, setTreeName] = useState('');
-    const [newTreeName, setNewTreeName] = useState('');
+
+    // draft.title is the editable value inside the rename popup
+    const { draft, updateDraft, resetDraft, draftIsDirty } = useDraft({ title: treeName });
 
     // Seed local tree name state once the tree data arrives
     useEffect(() => {
-        if (tree) {
-            setTreeName(tree.title);
-            setNewTreeName(tree.title);
-        }
+        if (tree) setTreeName(tree.title);
     }, [tree]);
 
     // Function to handle the actual change to the tree name in the database
@@ -106,9 +107,9 @@ function TreePage() {
         try {
             await apiFetch(`/trees/${tree.id}`, {
                 method: 'PUT',
-                body: JSON.stringify({ title: newTreeName }),
+                body: JSON.stringify({ title: draft.title }),
             });
-            setTreeName(newTreeName);
+            setTreeName(draft.title);
             snackbar.success('Tree name updated successfully');
         } catch (err) {
             console.error('Failed to update tree name: ', err);
@@ -152,7 +153,7 @@ function TreePage() {
                                     <AddStatusForm
                                         currentCount={myStatuses.length}
                                         onStatusCreated={handleStatusCreated}
-                                    />               
+                                    />
                                 </>
                             )}
                         </PopupButton>
@@ -177,18 +178,19 @@ function TreePage() {
                                     </svg>
                                 )}
                                 className="btn btn-icon"
-                                resetValues={() => setNewTreeName(treeName)}
+                                resetValues={resetDraft}
+                                isDirty={draftIsDirty}
                             >
                                 {({ onClose }) => (
                                     <div className="status-edit-fields">
                                         <div className="input-wrap">
                                             <input
                                                 className="input"
-                                                value={newTreeName}
-                                                onChange={e => setNewTreeName(e.target.value)}
+                                                value={draft.title}
+                                                onChange={e => updateDraft('title', e.target.value)}
                                                 maxLength={MAX_LENGTHS.treeTitle}
                                             />
-                                            <CharCounter value={newTreeName} max={MAX_LENGTHS.treeTitle} />
+                                            <CharCounter value={draft.title} max={MAX_LENGTHS.treeTitle} />
                                         </div>
 
                                         <div className="btn-row">

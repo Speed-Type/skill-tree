@@ -1,3 +1,35 @@
+/*
+
+Component used to reset previously inputted values when a popup closes
+
+Example use:
+
+    const { draft, updateDraft, resetDraft, draftIsDirty } = useDraft({ label: status.label });
+
+    <PopupButton
+        label = "..."
+        resetValues={() => {
+            resetDraft();
+            deleteConfirm.reset();
+        }}
+        isDirty={draftIsDirty}
+    >
+        {({ onClose }) => (
+            <div className="status-edit-fields">
+                <input
+                    className="input"
+                    value={draft.label}
+                    onChange={e => updateDraft('label', e.target.value)}
+                    maxLength={MAX_LENGTHS.statusLabel}
+                />
+
+                {...rest of code here...}
+            </div>
+        )}
+    </PopupButton>
+
+*/
+
 import { useState } from 'react';
 
 export function useDraft<T extends Record<string, unknown>>(source: T) {
