@@ -2,7 +2,7 @@
 
 import StatusItem from './StatusItem';
 
-import { Status, StatusChangedHandler, StatusDeletedHandler } from '../../../shared/types';
+import { Status, StatusChangedHandler, StatusDeletedHandler } from '../../../../shared/types';
 
 interface StatusViewProps {
     statuses: Status[];

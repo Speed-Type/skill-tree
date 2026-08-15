@@ -1,15 +1,14 @@
 import { useState } from 'react';
 
-import PopupButton from './PopupButton';
-import { useDoubleConfirm } from '../hooks/useDoubleConfirm';
+import PopupButton from '../ui/PopupButton';
+import { useDoubleConfirm } from '../../hooks/useDoubleConfirm';
+import { useDraft } from '../../hooks/useDraft';
 
-import { Status, StatusChangedHandler, StatusDeletedHandler } from '../../../shared/types';
-import { apiFetch } from '../lib/api';
-import { snackbar } from '../lib/snackbar';
-import { MAX_LENGTHS } from '../../../shared/constants';
+import { Status, StatusChangedHandler, StatusDeletedHandler } from '../../../../shared/types';
+import { apiFetch } from '../../lib/api';
+import { snackbar } from '../../lib/snackbar';
+import { MAX_LENGTHS } from '../../../../shared/constants';
 
-// Deterministic hue from a status label, so any user-defined status gets a distinct,
-// stable color without needing a color field in the schema
 function hueFromLabel(label: string): number {
     let hash = 0;
     for (let i = 0; i < label.length; i++) {
@@ -26,15 +25,14 @@ interface StatusItemProps {
 
 function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProps)
 {
-    const [label, setLabel] = useState(status.label);
+    const { draft, updateDraft, resetDraft, draftIsDirty } = useDraft({ label: status.label });
 
-    // Function to handle editing a status
     async function handleEdit()
     {
         try {
             const updatedStatus = await apiFetch<Status>(`/statuses/${status.id}`, {
                 method: 'PUT',
-                body: JSON.stringify({ label })
+                body: JSON.stringify({ label: draft.label })
             });
 
             onStatusChanged(updatedStatus);
@@ -44,7 +42,6 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
         }
     }
 
-    // Function to handle deleting a status
     async function handleDelete()
     {
         try {
@@ -57,7 +54,6 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
         }
     }
 
-    // Requires a second confirming click before actually calling handleDelete
     const deleteConfirm = useDoubleConfirm(handleDelete);
 
     return(
@@ -71,16 +67,17 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
             <PopupButton
                 label = "..."
                 resetValues={() => {
-                    setLabel(status.label);
+                    resetDraft();
                     deleteConfirm.reset();
                 }}
+                isDirty={draftIsDirty}
             >
                 {({ onClose }) => (
                     <div className="status-edit-fields">
                         <input
                             className="input"
-                            value={label}
-                            onChange={e => setLabel(e.target.value)}
+                            value={draft.label}
+                            onChange={e => updateDraft('label', e.target.value)}
                             maxLength={MAX_LENGTHS.statusLabel}
                         />
 

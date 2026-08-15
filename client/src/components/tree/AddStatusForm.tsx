@@ -1,8 +1,8 @@
 import {useState} from 'react'
-import { Status, StatusChangedHandler } from '../../../shared/types';
-import { apiFetch } from '../lib/api';
-import { MAX_LENGTHS } from '../../../shared/constants';
-import CharCounter from './CharCounter';
+import { Status, StatusChangedHandler } from '../../../../shared/types';
+import { apiFetch } from '../../lib/api';
+import { MAX_LENGTHS } from '../../../../shared/constants';
+import CharCounter from '../ui/CharCounter';
 
 interface AddStatusFormProps {
     onStatusCreated: StatusChangedHandler;
@@ -12,8 +12,6 @@ interface AddStatusFormProps {
 function AddStatusForm({ onStatusCreated, currentCount }: AddStatusFormProps) {
     const [label, setLabel] = useState('');
 
-    // Function to handle submitting a new status
-    // POSTs the status data to the database
     async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
         try {
             e.preventDefault();

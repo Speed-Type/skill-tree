@@ -1,14 +1,16 @@
-import { useState, useRef, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Handle, Position, NodeProps, Node, NodeToolbar } from '@xyflow/react';
-import StatusSelect from '../../StatusSelect';
-import PopupButton from '../../PopupButton';
+import StatusSelect from '../../tree/StatusSelect';
+import PopupButton from '../../ui/PopupButton';
 import { useDoubleConfirm } from '../../../hooks/useDoubleConfirm';
+import { useDelayedHover } from '../../../hooks/useDelayedHover';
+import { useDraft } from '../../../hooks/useDraft';
 
 import { Skill, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../../shared/types';
 import { apiFetch } from '../../../lib/api';
 import { snackbar } from '../../../lib/snackbar';
 import { MAX_LENGTHS } from '../../../../../shared/constants';
-import CharCounter from '../../CharCounter';
+import CharCounter from '../../ui/CharCounter';
 
 // Deterministic hue from a status label, so any user-defined status gets a distinct,
 // stable ring color without needing a color field in the schema
@@ -37,33 +39,11 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
     const { skill, statuses, isOwner, onSkillChanged, onSkillDeleted, onStatusUsed } = data;
 
     // States for label and description
-    const [label, setLabel] = useState(skill.label);
-    const [description, setDescription] = useState(skill.description ?? '');
-
-    // Drives the quick-glance tooltip. Shown after a short delay on hover (so it doesn't pop in
-    // instantly while just passing the cursor over the graph) and hidden immediately on leave
-    const [showTooltip, setShowTooltip] = useState(false);
-    const tooltipTimeoutRef = useRef<number | undefined>(undefined);
-
-    function handleMouseEnter() {
-        // If the node is being dragged quickly, this can trigger because the cursor leaves the node and then comes back
-        // Here, we check that we're dragging so that this can't trigger again
-        if (dragging) return;
-
-        tooltipTimeoutRef.current = window.setTimeout(() => setShowTooltip(true), 400);
-    }
-
-    // This function is also used in PopupButton's resetValues below, so that the popup immediately disappears when
-    // the popup is closed (fixes a bug where it would remain open because mouseLeave never fires)
-    function hideTooltip() {
-        window.clearTimeout(tooltipTimeoutRef.current);
-        setShowTooltip(false);
-    }
-
-    // Hide tooltip once the node starts dragging
-    useEffect(() => {
-        if (dragging) hideTooltip();
-    }, [dragging]);
+    // Editable draft of label/description, synced from the skill prop, reset on popup close
+    const { draft, updateDraft, resetDraft, draftIsDirty } = useDraft({
+        label: skill.label,
+        description: skill.description ?? '',
+    });
  
     // Determine the current status and its associated ring style (just visuals)
     const currentStatus = statuses.find(s => s.id === skill.status_id);
@@ -74,13 +54,32 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
     const currentStatusLabel = currentStatus?.label ?? 'No status';
     const hasDescription = !!skill.description?.trim();
 
+    // ======================= Hover Tooltip ==========================
+
+    const tooltip = useDelayedHover(400, dragging);
+
+    function handleMouseEnter() {
+        // If the node is being dragged quickly, this can trigger because the cursor leaves the node and then comes back
+        // Here, we check that we're dragging so that this can't trigger again
+        if (dragging) return;
+
+        tooltip.show();
+    }
+
+    // Hide tooltip once the node starts dragging
+    useEffect(() => {
+        if (dragging) tooltip.hide();
+    }, [dragging]);
+
+    // ======================= Handlers ==========================
+
     // Function to handle edits of this node
     async function handleEdit()
     {
         try {
             const updatedSkill = await apiFetch<Skill>(`/skills/${skill.id}`, {
                 method: 'PUT',
-                body: JSON.stringify({ label, description })
+                body: JSON.stringify({ label: draft.label, description: draft.description })
             });
 
             onSkillChanged(updatedSkill);
@@ -111,18 +110,18 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
             className={`skill-node${currentStatus ? '' : ' is-unset'}`} 
             style={ringStyle}
             onMouseEnter={handleMouseEnter}
-            onMouseLeave={hideTooltip}
+            onMouseLeave={tooltip.hide}
         >
             {/*
               Quick-glance tooltip. isVisible stays tied to hasDescription (so it mounts once,
               rather than mounting/unmounting on every hover — unmounting can't be animated),
               and the actual show/hide is a CSS class driven by showTooltip, so the fade/slide
-              transition in SkillFlow.css has something to animate
+              transition in flow.css has something to animate
             */}
             <NodeToolbar
                 isVisible={hasDescription}
                 position={Position.Top}
-                className={`skill-tooltip${showTooltip ? ' is-visible' : ''}`}
+                className={`skill-tooltip${tooltip.isVisible ? ' is-visible' : ''}`}
                 offset={10}
             >
                 <span className="skill-tooltip-text">{skill.description}</span>
@@ -157,15 +156,14 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
                         label="..."
                         className="btn btn-icon skill-node-inspect-btn"
                         resetValues={() => {
-                            setLabel(skill.label);
-                            setDescription(skill.description ?? '');
-                            hideTooltip();
+                            resetDraft();
+                            tooltip.hide();
                             deleteConfirm.reset();
                         }}
 
                         // Only owners can actually edit these fields, so this is always false
                         // for viewers — nothing to guard there
-                        isDirty={() => isOwner && (label !== skill.label || description !== (skill.description ?? ''))}
+                        isDirty={() => isOwner && draftIsDirty()}
                     >
                         {({ onClose }) => (
                             <div className="skill-card">
@@ -180,23 +178,23 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
                                         <div className="input-wrap">
                                             <input
                                                 className="input skill-card-title-input"
-                                                value={label}
-                                                onChange={(e) => setLabel(e.target.value)}
+                                                value={draft.label}
+                                                onChange={(e) => updateDraft('label', e.target.value)}
                                                 maxLength={MAX_LENGTHS.skillLabel}
                                             />
-                                            <CharCounter value={label} max={MAX_LENGTHS.skillLabel} />
+                                            <CharCounter value={draft.label} max={MAX_LENGTHS.skillLabel} />
                                         </div>
                                         
                                         <div className="textarea-wrap">
                                             <textarea
                                                 className="input skill-card-desc-input"
-                                                value={description}
-                                                onChange={(e) => setDescription(e.target.value)}
+                                                value={draft.description}
+                                                onChange={(e) => updateDraft('description', e.target.value)}
                                                 placeholder="Add a description..."
                                                 maxLength={MAX_LENGTHS.skillDescription}
                                                 rows={9}
                                             />
-                                            <CharCounter value={description} max={MAX_LENGTHS.skillDescription} />
+                                            <CharCounter value={draft.description} max={MAX_LENGTHS.skillDescription} />
                                         </div>
 
                                         <div className="btn-row">

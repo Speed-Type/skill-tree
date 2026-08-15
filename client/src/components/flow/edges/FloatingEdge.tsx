@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useStore, getStraightPath, EdgeLabelRenderer, EdgeProps, Edge } from '@xyflow/react';
 import { getBorderPoint } from '../geometry';
 

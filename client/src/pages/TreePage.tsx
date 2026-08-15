@@ -1,20 +1,28 @@
+import '../components/tree/tree.css';
+
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
 
 import SkillTreeView from "../components/flow/SkillTreeView";
-import AddSkillForm from "../components/AddSkillForm";
+import AddSkillForm from "../components/tree/AddSkillForm";
 import { useSkillTree } from '../hooks/useSkillTree';
-import StatusView from '../components/StatusView';
-import AddStatusForm from "../components/AddStatusForm";
-import PopupButton from '../components/PopupButton';
-import VisibilityToggle from '../components/VisibilityToggle';
+import { useStatuses } from '../hooks/useStatuses';
+import { useDraft } from '../hooks/useDraft';
+import StatusView from '../components/tree/StatusView';
+import AddStatusForm from "../components/tree/AddStatusForm";
+import PopupButton from '../components/ui/PopupButton';
+import VisibilityToggle from '../components/tree/VisibilityToggle';
 import LoadingPage from '../pages/LoadingPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import ErrorPage from '../pages/ErrorPage';
+import { MAX_LENGTHS } from '../../../shared/constants';
+import CharCounter from '../components/ui/CharCounter';
 import { useAuth } from '../context/AuthContext';
-import { apiFetch, ApiError, NETWORK_ERROR_MESSAGE } from '../lib/api';
 
-import { Skill, SkillEdge, Status } from '../../../shared/types';
+import { apiFetch, ApiError, NETWORK_ERROR_MESSAGE } from '../lib/api';
+import { Skill, SkillEdge } from '../../../shared/types';
+import { snackbar } from '../lib/snackbar';
+
 
 function TreePage() {
     const { treeId } = useParams<{ treeId: string }>();
@@ -55,57 +63,7 @@ function TreePage() {
     // This is separately (and only for the owner) since it's a different scope than "statuses
     // currently used in this tree," which is what tree.statuses gives non-owners for display
 
-    const [myStatuses, setMyStatuses] = useState<Status[]>([]);
-
-    useEffect(() => {
-        if (!isOwner) return;
-
-        apiFetch<Status[]>('/statuses')
-            .then(data => setMyStatuses(data.sort((a, b) => a.sort_order - b.sort_order)))
-            .catch(() => setMyStatuses([]));
-    }, [isOwner]);
-
-    function handleStatusCreated(newStatus: Status) {
-        setMyStatuses(prev => [...prev, newStatus]);
-    }
-
-    function handleStatusChanged(updatedStatus: Status) {
-        setMyStatuses(prev =>
-            prev.map(status => status.id === updatedStatus.id ? updatedStatus : status)
-        );
-    }
-
-    function handleStatusDeleted(deletedStatusID: number) {
-        setMyStatuses(prev => prev.filter(status => status.id !== deletedStatusID));
-    }
-    
-    // Function that rearranges the status list according to most recently used scheme
-    async function bumpStatusUsage(statusId: number) {
-
-        // already at the front — nothing to do
-        if (myStatuses[0]?.id === statusId) return;
-
-        const status = myStatuses.find(s => s.id === statusId);
-        if (!status) return;
-
-        const newSortOrder = (myStatuses[0]?.sort_order ?? 0) - 1;
-
-        // optimistic local reorder
-        setMyStatuses(prev =>
-            prev
-                .map(s => s.id === statusId ? { ...s, sort_order: newSortOrder } : s)
-                .sort((a, b) => a.sort_order - b.sort_order)
-        );
-
-        try {
-            await apiFetch<Status>(`/statuses/${statusId}`, {
-                method: 'PUT',
-                body: JSON.stringify({ label: status.label, sort_order: newSortOrder }),
-            });
-        } catch (err) {
-            console.error('Failed to persist status usage order: ', err);
-        }
-    }
+    const { statuses: myStatuses, handleStatusCreated, handleStatusChanged, handleStatusDeleted, bumpStatusUsage } = useStatuses(isOwner);
 
     // The list of statuses to display in the UI
     // (if owner, all the owner's statuses; if not, just those present in the tree)
@@ -127,6 +85,35 @@ function TreePage() {
     function handleEdgeDeleted(deletedEdgeId: string) {
         setEdges(prev => prev.filter(e => String(e.id) !== deletedEdgeId));
         // Note that these id's need to be cast because deletedEdgeId is a String from buildEdges() in SkillTreeView
+    }
+
+    // ======================= Tree Name Handling ==========================
+
+    // treeName is the committed value shown in the header; synced from tree once it loads
+    const [treeName, setTreeName] = useState('');
+
+    // draft.title is the editable value inside the rename popup
+    const { draft, updateDraft, resetDraft, draftIsDirty } = useDraft({ title: treeName });
+
+    // Seed local tree name state once the tree data arrives
+    useEffect(() => {
+        if (tree) setTreeName(tree.title);
+    }, [tree]);
+
+    // Function to handle the actual change to the tree name in the database
+    async function handleNameChange() {
+        if(!tree) return; // Guard for typescript that tree is not null beyond this point
+
+        try {
+            await apiFetch(`/trees/${tree.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ title: draft.title }),
+            });
+            setTreeName(draft.title);
+            snackbar.success('Tree name updated successfully');
+        } catch (err) {
+            console.error('Failed to update tree name: ', err);
+        }
     }
 
     // ===========================================================================================
@@ -166,7 +153,7 @@ function TreePage() {
                                     <AddStatusForm
                                         currentCount={myStatuses.length}
                                         onStatusCreated={handleStatusCreated}
-                                    />               
+                                    />
                                 </>
                             )}
                         </PopupButton>
@@ -176,19 +163,57 @@ function TreePage() {
                 )}
             </header>
             
+            {/* Main content area */}
             <main className="app-main">
-                <SkillTreeView
-                    tree={tree}
-                    skills={skills}
-                    edges={edges}
-                    statuses={displayStatuses}
-                    isOwner={isOwner}
-                    onSkillChanged={handleSkillChanged}
-                    onSkillDeleted={handleSkillDeleted}
-                    onEdgeCreated={handleEdgeCreated}
-                    onEdgeDeleted={handleEdgeDeleted}
-                    onStatusUsed={bumpStatusUsage}
-                />
+                <div className="panel">
+                    <div className="tree-title-row">
+                        <h2>{treeName}</h2>
+
+                        {/* Tree name edit popup */}
+                        {isOwner && (
+                            <PopupButton 
+                                label = {(
+                                    <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M13.5 3.5l3 3L6 17H3v-3L13.5 3.5z" />
+                                    </svg>
+                                )}
+                                className="btn btn-icon"
+                                resetValues={resetDraft}
+                                isDirty={draftIsDirty}
+                            >
+                                {({ onClose }) => (
+                                    <div className="status-edit-fields">
+                                        <div className="input-wrap">
+                                            <input
+                                                className="input"
+                                                value={draft.title}
+                                                onChange={e => updateDraft('title', e.target.value)}
+                                                maxLength={MAX_LENGTHS.treeTitle}
+                                            />
+                                            <CharCounter value={draft.title} max={MAX_LENGTHS.treeTitle} />
+                                        </div>
+
+                                        <div className="btn-row">
+                                            <button className="btn btn-primary" onClick={() => { handleNameChange(); onClose(); }}>Save Changes</button>
+                                        </div>
+                                    </div>
+                                )}
+                            </PopupButton>
+                        )}
+                    </div>
+
+                    <SkillTreeView
+                        skills={skills}
+                        edges={edges}
+                        statuses={displayStatuses}
+                        isOwner={isOwner}
+                        onSkillChanged={handleSkillChanged}
+                        onSkillDeleted={handleSkillDeleted}
+                        onEdgeCreated={handleEdgeCreated}
+                        onEdgeDeleted={handleEdgeDeleted}
+                        onStatusUsed={bumpStatusUsage}
+                    />
+                </div>
 
                 {isOwner && ( <AddSkillForm treeId={tree.id} onCreated={handleSkillCreated} /> )}
             </main>
