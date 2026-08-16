@@ -20,7 +20,7 @@ router.post('/login', async (req: Request<{}, {}, LoginBody>, res: Response<Publ
         if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
 
         const result = await pool.query(
-            'SELECT id, email, password_hash, created_at FROM users WHERE email = $1',
+            'SELECT id, email, display_name, password_hash, created_at FROM users WHERE email = $1',
             [email]
         );
         const user = result.rows[0];
