@@ -10,7 +10,7 @@ const router = Router();
 
 router.get('/', requireAuth, async(req: Request, res: Response<SkillTree[] | ErrorResponse>) => {
     try {
-        const result = await pool.query('SELECT * FROM skill_trees WHERE user_id = $1 ', [req.userId])
+        const result = await pool.query('SELECT * FROM skill_trees WHERE user_id = $1', [req.userId]);
         res.json(result.rows);
     }
     catch (err) {
@@ -21,7 +21,13 @@ router.get('/', requireAuth, async(req: Request, res: Response<SkillTree[] | Err
 
 router.get('/:id', optionalAuth, async(req: Request<{ id: string }>, res: Response<TreeWithDetails | ErrorResponse>) => {
     try {
-        const treeResult = await pool.query('SELECT * FROM skill_trees WHERE id = $1', [req.params.id]);
+        const treeResult = await pool.query(`
+            SELECT skill_trees.*, users.display_name AS owner_display_name
+            FROM skill_trees
+            JOIN users ON users.id = skill_trees.user_id
+            WHERE skill_trees.id = $1`,
+            [req.params.id]
+        );
 
         // Make sure the tree exists to begin with
         if(treeResult.rows.length === 0) return res.status(404).json({ error: 'Not found' });
@@ -47,7 +53,7 @@ router.get('/:id', optionalAuth, async(req: Request<{ id: string }>, res: Respon
         ? await pool.query('SELECT * FROM statuses WHERE id = ANY($1)', [statusIDs])
         : { rows: [] };
 
-        res.json({... tree, skills: skillsResult.rows, edges: edgesResult.rows, statuses: statusesResult.rows });
+        res.json({... tree, skills: skillsResult.rows, edges: edgesResult.rows, statuses: statusesResult.rows});
     }
     catch (err) {
         console.error(err); // Log what actually broke
