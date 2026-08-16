@@ -40,7 +40,7 @@ router.post('/login', async (req: Request<{}, {}, LoginBody>, res: Response<Publ
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days, in ms — should match the JWT's expiresIn
         });
 
-        res.status(200).json({ id: user.id, email: user.email, created_at: user.created_at });
+        res.status(200).json({ id: user.id, email: user.email, display_name: user.display_name, created_at: user.created_at });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Database error' });
