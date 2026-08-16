@@ -21,22 +21,6 @@ router.get('/me', requireAuth, async (req: Request, res: Response<PublicUser | E
     }
 });
 
-router.get('/:id', requireAuth, async (req: Request<{ id: string }>, res: Response<PublicUser | ErrorResponse>) => {
-    try {
-        const result = await pool.query('SELECT id, email, created_at FROM users WHERE id = $1', [req.params.id]);
-        if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
-        res.json(result.rows[0]);
-    }
-    catch (err) {
-        console.error(err); // Log what actually broke
-
-        // Check for invalid id parameter
-        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid input' });
-
-        res.status(500).json({ error: 'Database error' });
-    }
-});
-
 interface CreateUserBody {
     email: string;
     password: string;

@@ -24,7 +24,6 @@ Server runs on `http://localhost:3000` by default.
 | Method | Endpoint | Description | Body |
 |--------|----------|-------------|------|
 | GET | `/users/me` | Get your own user record (auth required) | — |
-| GET | `/users/:id` | Get a specific user by id (auth required) | — |
 | POST | `/users` | Create a new user | `{ email, password }` |
 | PUT | `/users/:id` | Update your own user — must match logged-in user (auth required) | `{ email, password }` |
 | DELETE | `/users/:id` | Delete your own user — must match logged-in user, cascades (auth required) | — |
