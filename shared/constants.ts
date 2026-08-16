@@ -8,4 +8,5 @@ export const MAX_LENGTHS = {
     statusLabel: 30,
     skillLabel: 60,
     skillDescription: 500,
+    displayName: 50
 } as const;

@@ -5,6 +5,7 @@ export interface ErrorResponse {
 export interface User {
   id: number;
   email: string;
+  display_name: string;
   password_hash: string;
   created_at: string;
 }
@@ -24,6 +25,7 @@ export interface TreeWithDetails extends SkillTree {
   skills: Skill[];
   edges: SkillEdge[];
   statuses: Status[];
+  owner_display_name: string;
 }
 
 export interface Status {
