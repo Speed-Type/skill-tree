@@ -1,5 +1,5 @@
 import { Router, Request, Response} from 'express';
-import { User, PublicUser, ErrorResponse } from '../../shared/types';
+import { PublicUser, ErrorResponse } from '../../shared/types';
 import { isPgError } from '../utils/utils';
 import { requireAuth } from '../middleware/auth';
 import { MAX_LENGTHS } from '../../shared/constants';
@@ -11,7 +11,7 @@ const router = Router();
 
 router.get('/me', requireAuth, async (req: Request, res: Response<PublicUser | ErrorResponse>) => {
     try {
-        const result = await pool.query('SELECT id, email, created_at FROM users WHERE id = $1', [req.userId]);
+        const result = await pool.query('SELECT id, email, display_name, created_at FROM users WHERE id = $1', [req.userId]);
         if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
         res.json(result.rows[0]);
     }
