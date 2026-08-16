@@ -23,13 +23,14 @@ router.get('/me', requireAuth, async (req: Request, res: Response<PublicUser | E
 
 interface CreateUserBody {
     email: string;
+    display_name?: string; // Is optional here, but if it is passed as null then in POST / it will be given a default value
     password: string;
 }
 
 router.post('/', async (req: Request<{}, {}, CreateUserBody>, res: Response<PublicUser | ErrorResponse>) => {
     try {
         
-        const { email, password } = req.body;
+        const { email, display_name, password } = req.body;
 
         // Make sure required parameters (email and password) are passed
         if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
@@ -37,12 +38,15 @@ router.post('/', async (req: Request<{}, {}, CreateUserBody>, res: Response<Publ
         // email has a character limit; catch it before it hits the DB
         if (email.length > MAX_LENGTHS.userEmail) return res.status(400).json({ error: `Email must be ${MAX_LENGTHS.userEmail} characters or fewer`  });
 
+        // if display_name exists, it has a character limit; catch it before it hits the DB
+        if (display_name && display_name.length > MAX_LENGTHS.displayName) return res.status(400).json({ error: `Display name must be ${MAX_LENGTHS.displayName} characters or fewer`  });
+
         // Encryption
         const password_hash = await bcrypt.hash(password, 10);
 
         const result = await pool.query(
-            'INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email, created_at',
-            [email, password_hash]
+            'INSERT INTO users (email, display_name, password_hash) VALUES ($1, $2, $3) RETURNING id, email, display_name, created_at',
+            [email, display_name || 'Anonymous User', password_hash] // Default display name here
         );
         res.status(201).json(result.rows[0]);
     }
@@ -60,23 +64,33 @@ router.post('/', async (req: Request<{}, {}, CreateUserBody>, res: Response<Publ
 
 interface UpdateUserBody {
     email?: string;
+    display_name?: string;
     password?: string;
 }
 
 router.put('/me', requireAuth, async(req: Request<{ id: string }, {}, UpdateUserBody>, res: Response<PublicUser | ErrorResponse>) => {
     try {
-        const { email, password } = req.body;
+        const { email, display_name, password } = req.body;
 
         // email has a character limit; catch it before it hits the DB
         if (email && email.length > MAX_LENGTHS.userEmail) return res.status(400).json({ error: `Email must be ${MAX_LENGTHS.userEmail} characters or fewer` });
+
+        // display_name has a character limit; catch it before it hits the DB
+        if (display_name && display_name.length > MAX_LENGTHS.displayName) return res.status(400).json({ error: `Display name must be ${MAX_LENGTHS.displayName} characters or fewer`  });
 
         // Encryption
         let password_hash = undefined;
         if(password) password_hash = await bcrypt.hash(password, 10); //bcrypt.hash won't work with a null password, so only encrypt when password was passed
 
         const result = await pool.query(
-            'UPDATE users SET email = COALESCE($1, email), password_hash = COALESCE($2, password_hash) WHERE id = $3 RETURNING id, email, created_at',
-            [email, password_hash, req.userId]
+            `UPDATE users SET email = COALESCE($1, email), 
+            display_name = COALESCE($2, display_name), 
+            password_hash = COALESCE($3, password_hash) 
+            WHERE id = $4 
+            RETURNING id, email, display_name, created_at`,
+            [email, display_name || null, password_hash, req.userId]
+            // Note that display_name || null is used to prevent display_name from being the empty string ''
+            // If it is the empty string '', then display_name will be passed as null, and COALESCE will make sure it has no effect
         );
 
         // Check that the PUT was successful
@@ -97,7 +111,6 @@ router.put('/me', requireAuth, async(req: Request<{ id: string }, {}, UpdateUser
 });
 
 // NOTE: The delete endpoint currently cascade deletes ALL of the user data; that might be something to change later
-
 router.delete('/me', requireAuth, async(req: Request<{ id: string }>, res: Response<ErrorResponse>) => {
     try {
         const result = await pool.query('DELETE FROM users WHERE id = $1 RETURNING id', [req.userId]);
