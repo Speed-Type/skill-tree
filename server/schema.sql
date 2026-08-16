@@ -37,7 +37,7 @@ CREATE TABLE skills (
 CREATE TABLE skill_edges (
   id SERIAL PRIMARY KEY,
   from_skill_id INTEGER REFERENCES skills(id) ON DELETE CASCADE,
-  to_skill_id INTEGER REFERENCES skills(id) ON DELETE CASCADE,
+  to_skill_id INTEGER REFERENCES skills(id) ON DELETE CASCADE
 );
 
 CREATE UNIQUE INDEX unique_skill_edge_undirected
