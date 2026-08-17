@@ -1,0 +1,83 @@
+/* ===================================== Tree page (full-screen canvas layout) ===================================== */
+
+.tree-page {
+    display: flex;
+    flex-direction: column;
+    height: 100svh;
+    overflow: hidden;
+}
+
+.tree-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 1.25rem 1.75rem;
+    border-bottom: 1px solid var(--panel-border);
+    background: var(--panel);
+    flex-shrink: 0;
+}
+
+.tree-page-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0; /* lets long titles/descriptions actually wrap instead of overflowing the flex item */
+}
+
+.tree-page-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tree-page-title {
+    font-size: 1.4rem;
+    overflow-wrap: anywhere;
+}
+
+.tree-page-description {
+    color: var(--text-dim);
+    font-size: 0.88rem;
+    max-width: 60ch;
+    white-space: pre-wrap;
+}
+
+.tree-page-canvas-wrap {
+    position: relative;
+    flex: 1;
+    min-height: 0; /* without this, a flex child with content can refuse to shrink below its content size */
+}
+
+/* Overrides the fixed 560px panel-style canvas from flow.css so it fills the remaining viewport edge-to-edge */
+.tree-page-canvas-wrap .flow-canvas {
+    height: 100%;
+    width: 100%;
+    border: none;
+    border-radius: 0;
+}
+
+.tree-add-skill-fab {
+    position: absolute;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--gold-soft);
+    border: 1px solid var(--gold-line);
+    color: var(--gold);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 16px var(--gold-soft);
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.tree-add-skill-fab:hover {
+    background: rgba(227, 169, 74, 0.25);
+    transform: translateY(-2px) scale(1.04);
+}
