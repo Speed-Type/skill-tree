@@ -32,7 +32,7 @@ function AddSkillForm({ treeId, onCreated }: AddSkillFormProps) {
     }
 
     return (
-        <form className="panel form-row" onSubmit={handleSubmit}>
+        <form className="form-row" onSubmit={handleSubmit}>
             <div className="input-wrap">
                 <input
                     className="input"

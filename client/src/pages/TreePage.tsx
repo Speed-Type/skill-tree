@@ -1,4 +1,5 @@
 import '../components/tree/tree.css';
+import './TreePage.css';
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
@@ -87,32 +88,42 @@ function TreePage() {
         // Note that these id's need to be cast because deletedEdgeId is a String from buildEdges() in SkillTreeView
     }
 
-    // ======================= Tree Name Handling ==========================
+    // ======================= Tree Title/Description Handling ==========================
 
-    // treeName is the committed value shown in the header; synced from tree once it loads
+    // Committed values shown in the header; synced from tree once it loads
     const [treeName, setTreeName] = useState('');
+    const [treeDescription, setTreeDescription] = useState('');
 
-    // draft.title is the editable value inside the rename popup
-    const { draft, updateDraft, resetDraft, draftIsDirty } = useDraft({ title: treeName });
+    // Editable draft inside the rename/edit popup
+    const { draft, updateDraft, resetDraft, draftIsDirty } = useDraft({
+        title: treeName,
+        description: treeDescription,
+    });
 
     // Seed local tree name state once the tree data arrives
     useEffect(() => {
-        if (tree) setTreeName(tree.title);
+        if (tree)
+        {
+            setTreeName(tree.title);
+            setTreeDescription(tree.description || '');
+        }
     }, [tree]);
 
-    // Function to handle the actual change to the tree name in the database
-    async function handleNameChange() {
-        if(!tree) return; // Guard for typescript that tree is not null beyond this point
+    // Function to handle the actual change to the tree title/description in the database
+    async function handleTreeDetailsChange() {
+        if (!tree) return; // Guard for typescript that tree is not null beyond this point
 
         try {
             await apiFetch(`/trees/${tree.id}`, {
                 method: 'PUT',
-                body: JSON.stringify({ title: draft.title }),
+                body: JSON.stringify({ title: draft.title, description: draft.description }),
             });
             setTreeName(draft.title);
-            snackbar.success('Tree name updated successfully');
+            setTreeDescription(draft.description);
+
+            snackbar.success('Tree details updated successfully');
         } catch (err) {
-            console.error('Failed to update tree name: ', err);
+            console.error('Failed to update tree details: ', err);
         }
     }
 
@@ -132,44 +143,14 @@ function TreePage() {
     if (!tree) return <ErrorPage message="Something went wrong loading this tree." />;
 
     return (
-        <div className="app-shell">
-            <header className="app-header">
-                <div className="brand">
-                    <span className="eyebrow">Skill tree</span>
-                    <h1>Map what you know</h1>
-                    <p className="tagline">A skill portfolio that shows how things connect, not just a list of them.</p>
-                </div>
+        <div className="tree-page">
+            <header className="tree-page-header">
+                <div className="tree-page-meta">
+                    <div className="tree-page-title-row">
+                        {/* If viewing this as a non-owner, show owner's display name */}
+                        <span className="eyebrow">{!isOwner && (tree.owner_display_name + "'s")} Skill Tree</span>
 
-                {isOwner && (
-                    <div className="header-actions">
-                        <PopupButton label = "Edit Statuses">
-                            {({ onClose }) => (
-                                <>
-                                    <StatusView
-                                        statuses={myStatuses}
-                                        onStatusChanged={handleStatusChanged}
-                                        onStatusDeleted={handleStatusDeleted}
-                                    />
-                                    <AddStatusForm
-                                        currentCount={myStatuses.length}
-                                        onStatusCreated={handleStatusCreated}
-                                    />
-                                </>
-                            )}
-                        </PopupButton>
-
-                        <VisibilityToggle tree={tree} />
-                    </div>
-                )}
-            </header>
-            
-            {/* Main content area */}
-            <main className="app-main">
-                <div className="panel">
-                    <div className="tree-title-row">
-                        <h2>{treeName}</h2>
-
-                        {/* Tree name edit popup */}
+                        {/* Tree details edit popup */}
                         {isOwner && (
                             <PopupButton 
                                 label = {(
@@ -193,8 +174,20 @@ function TreePage() {
                                             <CharCounter value={draft.title} max={MAX_LENGTHS.treeTitle} />
                                         </div>
 
+                                        <div className="textarea-wrap">
+                                            <textarea
+                                                className="input"
+                                                value={draft.description}
+                                                onChange={e => updateDraft('description', e.target.value)}
+                                                placeholder="Add a description..."
+                                                maxLength={MAX_LENGTHS.treeDescription}
+                                                rows={4}
+                                            />
+                                            <CharCounter value={draft.description} max={MAX_LENGTHS.treeDescription} />
+                                        </div>
+
                                         <div className="btn-row">
-                                            <button className="btn btn-primary" onClick={() => { handleNameChange(); onClose(); }}>Save Changes</button>
+                                            <button className="btn btn-primary" onClick={() => { handleTreeDetailsChange(); onClose(); }}>Save Changes</button>
                                         </div>
                                     </div>
                                 )}
@@ -202,21 +195,69 @@ function TreePage() {
                         )}
                     </div>
 
-                    <SkillTreeView
-                        skills={skills}
-                        edges={edges}
-                        statuses={displayStatuses}
-                        isOwner={isOwner}
-                        onSkillChanged={handleSkillChanged}
-                        onSkillDeleted={handleSkillDeleted}
-                        onEdgeCreated={handleEdgeCreated}
-                        onEdgeDeleted={handleEdgeDeleted}
-                        onStatusUsed={bumpStatusUsage}
-                    />
+                    <h1 className="tree-page-title">{treeName}</h1>
+                    {treeDescription && <p className="tree-page-description">{treeDescription}</p>}
                 </div>
 
-                {isOwner && ( <AddSkillForm treeId={tree.id} onCreated={handleSkillCreated} /> )}
-            </main>
+                {/* Status Edit Button */}
+                {isOwner && (
+                    <div className="header-actions">
+                        <PopupButton label = "Edit Statuses">
+                            {({ onClose }) => (
+                                <>
+                                    <StatusView
+                                        statuses={myStatuses}
+                                        onStatusChanged={handleStatusChanged}
+                                        onStatusDeleted={handleStatusDeleted}
+                                    />
+                                    <AddStatusForm
+                                        currentCount={myStatuses.length}
+                                        onStatusCreated={handleStatusCreated}
+                                    />
+                                </>
+                            )}
+                        </PopupButton>
+
+                        <VisibilityToggle tree={tree} />
+                    </div>
+                )}
+            </header>
+
+            {/* Main content area */}
+            <div className="tree-page-canvas-wrap">
+                <SkillTreeView
+                    skills={skills}
+                    edges={edges}
+                    statuses={displayStatuses}
+                    isOwner={isOwner}
+                    onSkillChanged={handleSkillChanged}
+                    onSkillDeleted={handleSkillDeleted}
+                    onEdgeCreated={handleEdgeCreated}
+                    onEdgeDeleted={handleEdgeDeleted}
+                    onStatusUsed={bumpStatusUsage}
+                />
+
+                {isOwner && (
+                    <PopupButton
+                        label={(
+                            <svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                                <path d="M10 3v14M3 10h14" />
+                            </svg>
+                        )}
+                        className="btn tree-add-skill-fab"
+                    >
+                        {({ onClose }) => (
+                            <div className="skill-card">
+                                <span className="eyebrow">New skill</span>
+                                <AddSkillForm
+                                    treeId={tree.id}
+                                    onCreated={(skill) => { handleSkillCreated(skill); onClose(); }}
+                                />
+                            </div>
+                        )}
+                    </PopupButton>
+                )}
+            </div>
         </div>
     )
 }

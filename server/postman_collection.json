@@ -90,27 +90,6 @@
           "response": []
         },
         {
-          "name": "Get user by ID",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:3000/users/1",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "users",
-                "1"
-              ]
-            },
-            "description": "Auth required\n\nReturns the user with the specified ID"
-          },
-          "response": []
-        },
-        {
           "name": "Create user",
           "request": {
             "method": "POST",

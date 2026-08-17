@@ -1,6 +1,7 @@
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   email VARCHAR(255) UNIQUE NOT NULL,
+  display_name VARCHAR(50) NOT NULL,
   password_hash TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT NOW()
 );
@@ -36,7 +37,7 @@ CREATE TABLE skills (
 CREATE TABLE skill_edges (
   id SERIAL PRIMARY KEY,
   from_skill_id INTEGER REFERENCES skills(id) ON DELETE CASCADE,
-  to_skill_id INTEGER REFERENCES skills(id) ON DELETE CASCADE,
+  to_skill_id INTEGER REFERENCES skills(id) ON DELETE CASCADE
 );
 
 CREATE UNIQUE INDEX unique_skill_edge_undirected

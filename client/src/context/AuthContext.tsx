@@ -7,7 +7,7 @@ interface AuthContextValue {
     loading: boolean;
     authError: ApiError | null;
     login: (email: string, password: string) => Promise<void>;
-    signup: (email: string, password: string) => Promise<void>;
+    signup: (email: string, display_name: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
 }
 
@@ -44,10 +44,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setAuthError(null);
     }
 
-    async function signup(email: string, password: string) {
+    async function signup(email: string, display_name: string, password: string) {
         await apiFetch<PublicUser>('/users', {
             method: 'POST',
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify({ email, display_name, password }),
         });
         await login(email, password); // signup doesn't log you in on its own — chain into login
     }
