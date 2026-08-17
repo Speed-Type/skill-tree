@@ -1,5 +1,11 @@
+import './SettingsPage.css';
+
 import { Link } from 'react-router';
 import { useAuth } from '../context/AuthContext';
+import DisplayNameForm from '../components/settings/DisplayNameForm';
+import EmailForm from '../components/settings/EmailForm';
+import PasswordForm from '../components/settings/PasswordForm';
+import DeleteAccountSection from '../components/settings/DeleteAccountSection';
 
 function SettingsPage() {
     const { user, logout } = useAuth();
@@ -23,7 +29,19 @@ function SettingsPage() {
                 <Link className="btn" to="/trees">Back to your trees</Link>
             </header>
 
-            <button className="btn" onClick={logout}>Log out</button>
+            <main className="app-main settings-main">
+                <div className="panel settings-summary">
+                    <p><strong>{user.display_name}</strong></p>
+                    <p className="settings-form-hint">{user.email}</p>
+                    <p className="settings-form-hint">Member since {memberSince}</p>
+                    <button className="btn" onClick={logout}>Log out</button>
+                </div>
+
+                <div className="panel"><DisplayNameForm /></div>
+                <div className="panel"><EmailForm /></div>
+                <div className="panel"><PasswordForm /></div>
+                <div className="panel settings-danger-panel"><DeleteAccountSection /></div>
+            </main>
         </div>
     );
 }
