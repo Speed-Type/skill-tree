@@ -1,6 +1,6 @@
 import './SettingsPage.css';
 
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { useAuth } from '../context/AuthContext';
 import DisplayNameForm from '../components/settings/DisplayNameForm';
 import EmailForm from '../components/settings/EmailForm';
@@ -9,6 +9,11 @@ import DeleteAccountSection from '../components/settings/DeleteAccountSection';
 
 function SettingsPage() {
     const { user, logout } = useAuth();
+    const location = useLocation();
+
+    // Falls back to /trees if settings was reached directly (bookmark, refresh, typed URL)
+    // rather than by clicking a link that recorded where the user came from
+    const backTo = (location.state as { from?: string } | null)?.from ?? '/trees';
 
     if (!user) return null; // ProtectedRoute guarantees this is never reached logged-out; this is just for typescript
 
@@ -26,7 +31,7 @@ function SettingsPage() {
                     <p className="tagline">Manage your profile, credentials, and account.</p>
                 </div>
 
-                <Link className="btn" to="/trees">Back to your trees</Link>
+                <Link className="btn" to={backTo}>Back</Link>
             </header>
 
             <main className="app-main settings-main">
