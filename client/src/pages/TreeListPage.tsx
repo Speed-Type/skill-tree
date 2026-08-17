@@ -10,7 +10,7 @@ import ErrorPage from './ErrorPage';
 import { MAX_LENGTHS } from '../../../shared/constants';
 
 function TreeListPage() {
-    const { logout, user } = useAuth();
+    const { user } = useAuth();
     const [trees, setTrees] = useState<SkillTree[]>([]);
     const [loading, setLoading] = useState(true);
     const [title, setTitle] = useState('');
@@ -58,7 +58,8 @@ function TreeListPage() {
                 </div>
             </header>
 
-            <button className="btn" onClick={logout}>Log out ({user?.email})</button>
+            {/* Button to open settings */}
+            <Link className="btn" to="/settings">Settings ({user?.display_name})</Link>
 
             <main className="app-main">
                 {trees.length > 0 ? (

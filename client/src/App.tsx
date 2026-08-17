@@ -3,6 +3,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import LoginPage from './pages/LoginPage';
 import TreeListPage from './pages/TreeListPage';
 import TreePage from './pages/TreePage';
+import SettingsPage from './pages/SettingsPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
 
             <Route element={<ProtectedRoute />}>
                 <Route path="/trees" element={<TreeListPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
             </Route>
 
             {/* The catch all 404 not found route */}
