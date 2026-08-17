@@ -56,10 +56,10 @@ function TreeListPage() {
                     <h1>Your skill trees</h1>
                     <p className="tagline">Pick one up where you left off, or start a new one.</p>
                 </div>
+                
+                {/* Button to open settings */}
+                <Link className="btn" to="/settings">Settings ({user?.display_name})</Link>
             </header>
-
-            {/* Button to open settings */}
-            <Link className="btn" to="/settings">Settings ({user?.display_name})</Link>
 
             <main className="app-main">
                 {trees.length > 0 ? (
