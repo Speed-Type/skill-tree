@@ -24,9 +24,9 @@ Server runs on `http://localhost:3000` by default.
 | Method | Endpoint | Description | Body |
 |--------|----------|-------------|------|
 | GET | `/users/me` | Get your own user record (auth required) | — |
-| POST | `/users` | Create a new user | `{ email, password }` |
-| PUT | `/users/:id` | Update your own user — must match logged-in user (auth required) | `{ email, password }` |
-| DELETE | `/users/:id` | Delete your own user — must match logged-in user, cascades (auth required) | — |
+| POST | `/users` | Create a new user | `{ email, display_name, password }` |
+| PUT | `/users/:id` | Update your own user — must match logged-in user (auth required) | `{ email, display_name, password, current_password }` |
+| DELETE | `/users/:id` | Delete your own user — must match logged-in user, cascades (auth required) | `{ current_password }` |
 
 ### Skill Trees
 
@@ -83,3 +83,4 @@ Import `postman_collection.json` into Postman to test all endpoints. Run `POST /
 - Edges can only connect two skills that belong to the same tree; this is enforced at creation time, not by the database schema
 - A skill's `tree_id` and a status's ownership are both validated server-side on creation/update; client-supplied IDs are never trusted to imply ownership
 - There is no endpoint to browse or discover other users' public trees. Public trees are only accessible via their direct `/trees/:id` link.
+- Changing email or password, and deleting the account, all require current_password to match the account's existing password
