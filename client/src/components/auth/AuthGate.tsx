@@ -7,6 +7,7 @@ function AuthGate() {
     const { login, signup } = useAuth();
     const [mode, setMode] = useState<'login' | 'signup'>('login');
     const [email, setEmail] = useState('');
+    const [displayName, setDisplayName] = useState('');
     const [password, setPassword] = useState('');
 
     async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
@@ -14,7 +15,7 @@ function AuthGate() {
 
         try {
             if (mode === 'login') await login(email, password);
-            else await signup(email, password);
+            else await signup(email, displayName, password);
         }
         catch (err) {
             console.error('Failed to submit authentication form: ', err);
@@ -41,6 +42,18 @@ function AuthGate() {
                     />
                     {/* Purposefully no character limit display: <CharCounter value={email} max={MAX_LENGTHS.userEmail} /> */}
                     
+                    {/* Display name input only appears for signup */}
+                    {mode === 'signup' && (
+                        <input
+                            className="input"
+                            value={displayName}
+                            onChange={e => setDisplayName(e.target.value)}
+                            placeholder="Display name"
+                            required
+                            maxLength={MAX_LENGTHS.displayName}
+                        />
+                    )}
+
                     <input
                         className="input"
                         type="password"
