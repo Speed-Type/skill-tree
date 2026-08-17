@@ -66,11 +66,12 @@ interface UpdateUserBody {
     email?: string;
     display_name?: string;
     password?: string;
+    current_password?: string; // Required to change email or password
 }
 
 router.put('/me', requireAuth, async(req: Request<{ id: string }, {}, UpdateUserBody>, res: Response<PublicUser | ErrorResponse>) => {
     try {
-        const { email, display_name, password } = req.body;
+        const { email, display_name, password, current_password } = req.body;
 
         // email has a character limit; catch it before it hits the DB
         if (email && email.length > MAX_LENGTHS.userEmail) return res.status(400).json({ error: `Email must be ${MAX_LENGTHS.userEmail} characters or fewer` });
@@ -78,9 +79,21 @@ router.put('/me', requireAuth, async(req: Request<{ id: string }, {}, UpdateUser
         // display_name has a character limit; catch it before it hits the DB
         if (display_name && display_name.length > MAX_LENGTHS.displayName) return res.status(400).json({ error: `Display name must be ${MAX_LENGTHS.displayName} characters or fewer`  });
 
+        // Changing email or password is sensitive, so require proof you're still the account holder,
+        // so a hijacked/left-open session can't silently take over the account
+        if (email || password) {
+            if (!current_password) return res.status(400).json({ error: 'Current password is required to change your email or password' });
+
+            const userResult = await pool.query('SELECT password_hash FROM users WHERE id = $1', [req.userId]);
+            if (userResult.rows.length === 0) return res.status(404).json({ error: 'Not found' });
+
+            const currentPasswordMatches = await bcrypt.compare(current_password, userResult.rows[0].password_hash);
+            if (!currentPasswordMatches) return res.status(401).json({ error: 'Current password is incorrect' });
+        }
+
         // Encryption
         let password_hash = undefined;
-        if(password) password_hash = await bcrypt.hash(password, 10); //bcrypt.hash won't work with a null password, so only encrypt when password was passed
+        if (password) password_hash = await bcrypt.hash(password, 10); //bcrypt.hash won't work with a null password, so only encrypt when password was passed
 
         const result = await pool.query(
             `UPDATE users SET email = COALESCE($1, email), 
@@ -94,7 +107,7 @@ router.put('/me', requireAuth, async(req: Request<{ id: string }, {}, UpdateUser
         );
 
         // Check that the PUT was successful
-        if(result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
+        if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
 
         res.status(200).json(result.rows[0]);
     }
@@ -110,9 +123,23 @@ router.put('/me', requireAuth, async(req: Request<{ id: string }, {}, UpdateUser
     }
 });
 
+interface DeleteUserBody {
+    current_password: string;
+}
+
 // NOTE: The delete endpoint currently cascade deletes ALL of the user data; that might be something to change later
-router.delete('/me', requireAuth, async(req: Request<{ id: string }>, res: Response<ErrorResponse>) => {
+router.delete('/me', requireAuth, async(req: Request<{}, {}, DeleteUserBody>, res: Response<ErrorResponse>) => {
     try {
+        // Check for reauth
+        const { current_password } = req.body;
+        if (!current_password) return res.status(400).json({ error: 'Current password is required to delete your account' });
+
+        const userResult = await pool.query('SELECT password_hash FROM users WHERE id = $1', [req.userId]);
+        if (userResult.rows.length === 0) return res.status(404).json({ error: 'Not found' });
+
+        const currentPasswordMatches = await bcrypt.compare(current_password, userResult.rows[0].password_hash);
+        if (!currentPasswordMatches) return res.status(401).json({ error: 'Current password is incorrect' });
+
         const result = await pool.query('DELETE FROM users WHERE id = $1 RETURNING id', [req.userId]);
 
         // Check that DELETE was successful

@@ -9,6 +9,10 @@ interface AuthContextValue {
     login: (email: string, password: string) => Promise<void>;
     signup: (email: string, display_name: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
+    updateDisplayName: (display_name: string) => Promise<void>;
+    updateEmail: (email: string, current_password: string) => Promise<void>;
+    updatePassword: (password: string, current_password: string) => Promise<void>;
+    deleteAccount: (current_password: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -57,8 +61,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(null);
     }
 
+    async function updateDisplayName(display_name: string) {
+        const updatedUser = await apiFetch<PublicUser>('/users/me', {
+            method: 'PUT',
+            body: JSON.stringify({ display_name }),
+        });
+        setUser(updatedUser);
+    }
+
+    async function updateEmail(email: string, current_password: string) {
+        const updatedUser = await apiFetch<PublicUser>('/users/me', {
+            method: 'PUT',
+            body: JSON.stringify({ email, current_password }),
+        });
+        setUser(updatedUser);
+    }
+
+    async function updatePassword(password: string, current_password: string) {
+        await apiFetch<PublicUser>('/users/me', {
+            method: 'PUT',
+            body: JSON.stringify({ password, current_password }),
+        });
+        // Don't need to setPassword because password is never saved locally anyways
+    }
+
+    async function deleteAccount(current_password: string) {
+        await apiFetch('/users/me', {
+            method: 'DELETE',
+            body: JSON.stringify({ current_password }),
+        });
+        setUser(null); // ProtectedRoute will bounce to /login once this clears
+    }
+
     return (
-        <AuthContext.Provider value={{ user, loading, authError, login, signup, logout }}>
+        <AuthContext.Provider value={{ user, loading, authError, login, signup, logout, updateDisplayName, updateEmail, updatePassword, deleteAccount }}>
             {children}
         </AuthContext.Provider>
     );

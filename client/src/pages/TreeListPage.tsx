@@ -1,6 +1,6 @@
 import './TreeListPage.css';
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { SkillTree } from '../../../shared/types';
 import { apiFetch, ApiError, NETWORK_ERROR_MESSAGE } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
@@ -10,7 +10,8 @@ import ErrorPage from './ErrorPage';
 import { MAX_LENGTHS } from '../../../shared/constants';
 
 function TreeListPage() {
-    const { logout, user } = useAuth();
+    const { user } = useAuth();
+    const location = useLocation();
     const [trees, setTrees] = useState<SkillTree[]>([]);
     const [loading, setLoading] = useState(true);
     const [title, setTitle] = useState('');
@@ -56,9 +57,10 @@ function TreeListPage() {
                     <h1>Your skill trees</h1>
                     <p className="tagline">Pick one up where you left off, or start a new one.</p>
                 </div>
-            </header>
 
-            <button className="btn" onClick={logout}>Log out ({user?.email})</button>
+                {/* Button to open settings */}
+                <Link className="btn" to="/settings" state={{ from: location.pathname }}>Settings ({user?.display_name})</Link>
+            </header>
 
             <main className="app-main">
                 {trees.length > 0 ? (

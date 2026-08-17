@@ -96,7 +96,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\"email\": \"email_name_here@email.com\", \"password\": \"password here\"}",
+              "raw": "{\"email\": \"email_name_here@email.com\", \"display_name\": \"Display Name Here\", \"password\": \"password here\"}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -114,7 +114,7 @@
                 "users"
               ]
             },
-            "description": "Requires email and password in body"
+            "description": "Requires email, display_name, and password in body"
           },
           "response": []
         },
@@ -125,7 +125,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\"email\": \"new_email_here@email.com\", \"password\": \"new password here\"}",
+              "raw": "{\"email\": \"new_email_here@email.com\", \"display_name\": \"New Display Name Here\", \"password\": \"new password here\", \"current_password\": \"current password here\"}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -144,7 +144,7 @@
                 "me"
               ]
             },
-            "description": "Auth required\n\nUpdates the logged in user\n\nemail, password are optional in body"
+            "description": "Auth required\n\nUpdates the logged in user\n\nRequires current_password (reauth for email and password changes)\n\nemail, display_name, and password are optional in body"
           },
           "response": []
         },
@@ -153,6 +153,15 @@
           "request": {
             "method": "DELETE",
             "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"current_password\": \"current password here\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "http://localhost:3000/users/me",
               "protocol": "http",
@@ -165,7 +174,7 @@
                 "me"
               ]
             },
-            "description": "Auth required\n\nDeletes the logged in user"
+            "description": "Auth required\n\nRequires current_password (reauth for deleting all data)\n\nDeletes the logged in user"
           },
           "response": []
         }

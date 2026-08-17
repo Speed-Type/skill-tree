@@ -19,6 +19,7 @@ import ErrorPage from '../pages/ErrorPage';
 import { MAX_LENGTHS } from '../../../shared/constants';
 import CharCounter from '../components/ui/CharCounter';
 import { useAuth } from '../context/AuthContext';
+import { Link, useLocation } from 'react-router';
 
 import { apiFetch, ApiError, NETWORK_ERROR_MESSAGE } from '../lib/api';
 import { Skill, SkillEdge } from '../../../shared/types';
@@ -27,6 +28,7 @@ import { snackbar } from '../lib/snackbar';
 
 function TreePage() {
     const { treeId } = useParams<{ treeId: string }>();
+    const location = useLocation();
     const { user } = useAuth();
     const { tree, loading, error } = useSkillTree(Number(treeId));
 
@@ -199,26 +201,37 @@ function TreePage() {
                     {treeDescription && <p className="tree-page-description">{treeDescription}</p>}
                 </div>
 
-                {/* Status Edit Button */}
-                {isOwner && (
+                {/* Header Actions */}
+                {(isOwner || user) && (
                     <div className="header-actions">
-                        <PopupButton label = "Edit Statuses">
-                            {({ onClose }) => (
-                                <>
-                                    <StatusView
-                                        statuses={myStatuses}
-                                        onStatusChanged={handleStatusChanged}
-                                        onStatusDeleted={handleStatusDeleted}
-                                    />
-                                    <AddStatusForm
-                                        currentCount={myStatuses.length}
-                                        onStatusCreated={handleStatusCreated}
-                                    />
-                                </>
-                            )}
-                        </PopupButton>
 
-                        <VisibilityToggle tree={tree} />
+                        {/* Owner-only: Status edit and visibility toggle */}
+                        {isOwner && (
+                            <>
+                                <PopupButton label = "Edit Statuses">
+                                    {({ onClose }) => (
+                                        <>
+                                            <StatusView
+                                                statuses={myStatuses}
+                                                onStatusChanged={handleStatusChanged}
+                                                onStatusDeleted={handleStatusDeleted}
+                                            />
+                                            <AddStatusForm
+                                                currentCount={myStatuses.length}
+                                                onStatusCreated={handleStatusCreated}
+                                            />
+                                        </>
+                                    )}
+                                </PopupButton>
+
+                                <VisibilityToggle tree={tree} />
+                            </>
+                        )}
+
+                        {/* For any logged in user */}
+                        {user && (
+                            <Link className="btn btn-icon" to="/settings" state={{ from: location.pathname }} title="Account settings">Settings</Link>
+                        )}
                     </div>
                 )}
             </header>
