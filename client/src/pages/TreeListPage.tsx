@@ -67,7 +67,7 @@ function TreeListPage() {
                     <ul className="tree-list">
                         {trees.map(tree => (
                             <li key={tree.id}>
-                                <Link className="tree-card" to={`/trees/${tree.id}`}>{tree.title}</Link>
+                                <Link className="tree-card" to={`/trees/${tree.slug}`}>{tree.title}</Link>
                             </li>
                         ))}
                     </ul>

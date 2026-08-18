@@ -30,7 +30,8 @@ function TreePage() {
     const { treeId } = useParams<{ treeId: string }>();
     const location = useLocation();
     const { user } = useAuth();
-    const { tree, loading, error } = useSkillTree(Number(treeId));
+    const { treeSlug } = useParams<{ treeSlug: string }>();
+    const { tree, loading, error } = useSkillTree(treeSlug);
 
     const isOwner = !!user && !!tree && user.id === tree.user_id;
 

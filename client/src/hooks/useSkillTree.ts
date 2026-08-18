@@ -8,20 +8,21 @@ interface UseSkillTreeResult {
     error: unknown; // Because errors come in all kinds of types
 }
 
-export function useSkillTree(treeId: number): UseSkillTreeResult {
+export function useSkillTree(treeSlug: string | undefined): UseSkillTreeResult {
     const [tree, setTree] = useState<TreeWithDetails | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<unknown>(null);
 
     useEffect(() => {
+        if (!treeSlug) return;
         setLoading(true);
         setError(null);
 
-        apiFetch<TreeWithDetails>(`/trees/${treeId}`, { silent: true })
+        apiFetch<TreeWithDetails>(`/trees/${treeSlug}`, { silent: true })
             .then(setTree)
             .catch(setError)
             .finally(() => setLoading(false));
-    }, [treeId]);
+    }, [treeSlug]);
 
     return { tree, loading, error };
 }
