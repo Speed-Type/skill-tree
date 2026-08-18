@@ -12,6 +12,7 @@ CREATE TABLE skill_trees (
   title VARCHAR(80) NOT NULL,
   description VARCHAR(500),
   is_public BOOLEAN DEFAULT FALSE,
+  slug VARCHAR(16) UNIQUE NOT NULL,
   created_at TIMESTAMP DEFAULT NOW()
 );
 

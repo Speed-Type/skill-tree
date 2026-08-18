@@ -18,6 +18,7 @@ export interface SkillTree {
   title: string;
   description: string | null;
   is_public: boolean;
+  slug: string;
   created_at: string;
 }
 

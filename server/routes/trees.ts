@@ -3,6 +3,7 @@ import { Skill, SkillTree, TreeWithDetails, ErrorResponse } from '../../shared/t
 import { requireAuth, optionalAuth } from '../middleware/auth';
 import { isPgError } from '../utils/utils';
 import { MAX_LENGTHS } from '../../shared/constants';
+import { generateSlug } from '../utils/slug';
 
 import pool from '../db';
 
@@ -19,26 +20,20 @@ router.get('/', requireAuth, async(req: Request, res: Response<SkillTree[] | Err
     }
 });
 
-router.get('/:id', optionalAuth, async(req: Request<{ id: string }>, res: Response<TreeWithDetails | ErrorResponse>) => {
+router.get('/:slug', optionalAuth, async(req: Request<{ slug: string }>, res: Response<TreeWithDetails | ErrorResponse>) => {
     try {
-        const treeResult = await pool.query(`
-            SELECT skill_trees.*, users.display_name AS owner_display_name
-            FROM skill_trees
-            JOIN users ON users.id = skill_trees.user_id
-            WHERE skill_trees.id = $1`,
-            [req.params.id]
-        );
+        const treeResult = await pool.query('SELECT * FROM skill_trees WHERE slug = $1', [req.params.slug]);
 
         // Make sure the tree exists to begin with
         if(treeResult.rows.length === 0) return res.status(404).json({ error: 'Not found' });
-        
+
         // Make sure the tree is owned by the user or is public
         const tree = treeResult.rows[0];
         const isOwner = req.userId === tree.user_id;
         if (!tree.is_public && !isOwner) return res.status(404).json({ error: 'Not found' });
 
         // Grab skills associated with this tree
-        const skillsResult = await pool.query('SELECT * FROM skills WHERE tree_id = $1 ORDER BY id ASC', [req.params.id]);
+        const skillsResult = await pool.query('SELECT * FROM skills WHERE tree_id = $1 ORDER BY id ASC', [tree.id]);
         const skillIDs = skillsResult.rows.map((s: Skill) => s.id);
 
         // Grab edges associated with skills in this tree
@@ -53,14 +48,11 @@ router.get('/:id', optionalAuth, async(req: Request<{ id: string }>, res: Respon
         ? await pool.query('SELECT * FROM statuses WHERE id = ANY($1)', [statusIDs])
         : { rows: [] };
 
-        res.json({... tree, skills: skillsResult.rows, edges: edgesResult.rows, statuses: statusesResult.rows});
+        res.json({...tree, skills: skillsResult.rows, edges: edgesResult.rows, statuses: statusesResult.rows});
     }
     catch (err) {
         console.error(err); // Log what actually broke
-
-        // Check for invalid id parameter
-        if (isPgError(err) && err.code === '22P02') return res.status(400).json({ error: 'Invalid input' });
-
+        // We don't need to check for any strict integer types here, because slug is a VARCHAR and not an INTEGER
         res.status(500).json({ error: 'Database error' });
     }
 });
@@ -84,12 +76,22 @@ router.post('/', requireAuth, async(req: Request<{}, {}, CreateTreeBody>, res: R
         // Make sure required parameters are passed
         if (!title) return res.status(400).json({ error: 'Title is required' });
 
-        const result = await pool.query(
-            'INSERT INTO skill_trees (user_id, title, description, is_public) VALUES ($1, $2, $3, $4) RETURNING *',
-            [req.userId, title, description ?? null, is_public ?? false]
-        );
+        // Retry loop guards against the near-impossible case of a slug collision
+        let result;
+        for (let attempt = 0; attempt < 3; attempt++) {
+            try {
+                result = await pool.query(
+                    'INSERT INTO skill_trees (user_id, title, description, is_public, slug) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+                    [req.userId, title, description ?? null, is_public ?? false, generateSlug()]
+                );
+                break;
+            } catch (err) {
+                if (isPgError(err) && err.code === '23505' && attempt < 2) continue; // unique violation — try a new slug
+                throw err;
+            }
+        }
 
-        res.status(201).json(result.rows[0]);
+        res.status(201).json(result!.rows[0]);
     }
     catch (err) {
         console.error(err); // Log what actually broke
@@ -116,9 +118,20 @@ router.put('/:id', requireAuth, async(req: Request<{ id: string }, {}, UpdateTre
         // description has a character limit; catch it before it hits the DB
         if (description && description.length > MAX_LENGTHS.treeDescription) return res.status(400).json({ error: `Description must be ${MAX_LENGTHS.treeDescription} characters or fewer` });
 
+        // Whenever a request explicitly flips the tree to private, mint a fresh slug.
+        // This invalidates any previously shared link — if the tree is made public
+        // again later, it gets a brand-new URL rather than reviving the old one.
+        const rotateSlug = is_public === false;
+
+
         const result = await pool.query(
-            'UPDATE skill_trees SET title = COALESCE($1, title), description = COALESCE($2, description), is_public = COALESCE($3, is_public) WHERE id = $4 AND user_id = $5 RETURNING *',
-            [title, description, is_public, req.params.id, req.userId]
+            `UPDATE skill_trees
+             SET title = COALESCE($1, title),
+                 description = COALESCE($2, description),
+                 is_public = COALESCE($3, is_public),
+                 slug = CASE WHEN $6 THEN $7 ELSE slug END
+             WHERE id = $4 AND user_id = $5 RETURNING *`,
+            [title, description, is_public, req.params.id, req.userId, rotateSlug, generateSlug()]
         );
 
         // Check that the PUT was successful
