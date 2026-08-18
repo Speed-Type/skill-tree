@@ -33,7 +33,7 @@ Server runs on `http://localhost:3000` by default.
 | Method | Endpoint | Description | Body |
 |--------|----------|-------------|------|
 | GET | `/trees` | Get your own trees (auth required) | — |
-| GET | `/trees/:id` | Get a tree with its skills, edges, and relevant statuses — must be public or yours | — |
+| GET | `/trees/:slug` | Get a tree with its skills, edges, and relevant statuses — must be public or yours | — |
 | POST | `/trees` | Create a new tree, owned by the logged-in user (auth required) | `{ title, description, is_public }` |
 | PUT | `/trees/:id` | Update a tree — must be yours (auth required) | `{ title, description, is_public }` |
 | DELETE | `/trees/:id` | Delete a tree — must be yours, cascades (auth required) | — |
@@ -84,3 +84,5 @@ Import `postman_collection.json` into Postman to test all endpoints. Run `POST /
 - A skill's `tree_id` and a status's ownership are both validated server-side on creation/update; client-supplied IDs are never trusted to imply ownership
 - There is no endpoint to browse or discover other users' public trees. Public trees are only accessible via their direct `/trees/:id` link.
 - Changing email or password, and deleting the account, all require current_password to match the account's existing password
+- Each tree has a random, unguessable `slug` (separate from its numeric `id`) used for the public-facing `GET /trees/:slug` route; the numeric `id` is never exposed in a shareable link
+- The `slug` rotates automatically whenever a tree is switched from public to private, permanently invalidating any previously shared link — re-publishing the same tree later issues a new link, not the old one
