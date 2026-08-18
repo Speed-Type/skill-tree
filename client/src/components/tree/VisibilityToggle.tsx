@@ -1,33 +1,27 @@
 import './VisibilityToggle.css';
-import { useState, useEffect } from 'react';
 import { SkillTree } from '../../../../shared/types';
 import { apiFetch } from '../../lib/api';
 import { snackbar } from '../../lib/snackbar';
 
 interface VisibilityToggleProps {
     tree: SkillTree;
+    onTreeChanged: (updatedTree: SkillTree) => void;
 }
 
-function VisibilityToggle({ tree }: VisibilityToggleProps) {
-    const [isPublic, setIsPublic] = useState(false);
-
-    useEffect(() => {
-        setIsPublic(tree.is_public);
-    }, [tree.id, tree.is_public]);
-
+function VisibilityToggle({ tree, onTreeChanged }: VisibilityToggleProps) {
     async function handleVisibilityChange(checked: boolean) {
-        try
-        {
-            await apiFetch<SkillTree>(`/trees/${tree.id}`, {
+        try {
+            const updatedTree = await apiFetch<SkillTree>(`/trees/${tree.id}`, {
                 method: 'PUT',
                 body: JSON.stringify({ is_public: checked }),
             });
 
-            setIsPublic(checked);
+            // Includes the rotated slug when flipping to private — parent needs
+            // the full object, not just is_public, to keep the URL in sync
+            onTreeChanged(updatedTree);
             snackbar.success('Tree visibility updated successfully');
         }
-        catch(err)
-        {
+        catch (err) {
             console.error('Failed to update tree visibility: ', err);
         }
     };
@@ -37,11 +31,11 @@ function VisibilityToggle({ tree }: VisibilityToggleProps) {
             <input
                 type="checkbox"
                 className="toggle"
-                checked={isPublic}
+                checked={tree.is_public}
                 onChange={e => handleVisibilityChange(e.target.checked)}
             />
-            <span className={`toggle-label${isPublic ? ' is-on' : ''}`}>
-                {isPublic ? 'Public' : 'Private'}
+            <span className={`toggle-label${tree.is_public ? ' is-on' : ''}`}>
+                {tree.is_public ? 'Public' : 'Private'}
             </span>
         </div>
     );

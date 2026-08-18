@@ -4,6 +4,7 @@ import { apiFetch } from '../lib/api';
 
 interface UseSkillTreeResult {
     tree: TreeWithDetails | null;
+    setTree: React.Dispatch<React.SetStateAction<TreeWithDetails | null>>;
     loading: boolean;
     error: unknown; // Because errors come in all kinds of types
 }
@@ -24,5 +25,5 @@ export function useSkillTree(treeSlug: string | undefined): UseSkillTreeResult {
             .finally(() => setLoading(false));
     }, [treeSlug]);
 
-    return { tree, loading, error };
+    return { tree, setTree, loading, error };
 }

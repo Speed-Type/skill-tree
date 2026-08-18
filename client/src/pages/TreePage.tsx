@@ -2,7 +2,7 @@ import '../components/tree/tree.css';
 import './TreePage.css';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 
 import SkillTreeView from "../components/flow/SkillTreeView";
 import AddSkillForm from "../components/tree/AddSkillForm";
@@ -22,16 +22,15 @@ import { useAuth } from '../context/AuthContext';
 import { Link, useLocation } from 'react-router';
 
 import { apiFetch, ApiError, NETWORK_ERROR_MESSAGE } from '../lib/api';
-import { Skill, SkillEdge } from '../../../shared/types';
+import { Skill, SkillEdge, SkillTree } from '../../../shared/types';
 import { snackbar } from '../lib/snackbar';
 
 
 function TreePage() {
-    const { treeId } = useParams<{ treeId: string }>();
-    const location = useLocation();
-    const { user } = useAuth();
     const { treeSlug } = useParams<{ treeSlug: string }>();
-    const { tree, loading, error } = useSkillTree(treeSlug);
+    const navigate = useNavigate();
+    const { user } = useAuth();
+    const { tree, setTree, loading, error } = useSkillTree(treeSlug);
 
     const isOwner = !!user && !!tree && user.id === tree.user_id;
 
@@ -130,6 +129,19 @@ function TreePage() {
         }
     }
 
+    // ======================= Visibility Handling ==========================
+
+    function handleTreeChanged(updatedTree: SkillTree) {
+        setTree(prev => prev ? { ...prev, ...updatedTree } : prev);
+
+        // The slug rotates whenever the tree goes private (see server/routes/trees.ts).
+        // If it changed, the URL in the address bar now points at a dead link — swap it
+        // for the new one without adding a history entry, so Back doesn't return to a 404
+        if (updatedTree.slug !== treeSlug) {
+            navigate(`/trees/${updatedTree.slug}`, { replace: true });
+        }
+    }
+
     // ===========================================================================================
 
     if (loading) return <LoadingPage message="Loading skill tree..." />;
@@ -225,7 +237,7 @@ function TreePage() {
                                     )}
                                 </PopupButton>
 
-                                <VisibilityToggle tree={tree} />
+                                <VisibilityToggle tree={tree} onTreeChanged={handleTreeChanged} />
                             </>
                         )}
 
