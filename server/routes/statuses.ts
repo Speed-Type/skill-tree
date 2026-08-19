@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { Status, ErrorResponse } from '../../shared/types';
 import { requireAuth, optionalAuth } from '../middleware/auth';
 import { isPgError } from '../utils/utils';
-import { MAX_LENGTHS } from '../../shared/constants';
+import { MAX_LENGTHS, HEX_COLOR_REGEX } from '../../shared/constants';
 
 import pool from '../db';
 
@@ -62,11 +62,12 @@ router.get('/:id', optionalAuth, async(req: Request<{ id: string }>, res: Respon
 interface CreateStatusBody {
     label: string;
     sort_order?: number;
+    color?: string;
 }
 
 router.post('/', requireAuth, async(req: Request<{}, {}, CreateStatusBody>, res: Response<Status | ErrorResponse>) => {
     try {
-        const { label, sort_order } = req.body;
+        const { label, sort_order, color } = req.body;
 
         // Make sure required parameters (label) are passed
         if (!label) return res.status(400).json({ error: "Label is required" });
@@ -74,9 +75,12 @@ router.post('/', requireAuth, async(req: Request<{}, {}, CreateStatusBody>, res:
         // label has a character limit; catch it before it hits the DB
         if (label.length > MAX_LENGTHS.statusLabel) return res.status(400).json({ error: `Label must be ${MAX_LENGTHS.statusLabel} characters or fewer` });
 
+        // Check that color is valid
+        if (color && !HEX_COLOR_REGEX.test(color)) return res.status(400).json({ error: 'Color must be a valid hex code (e.g. #e3a94a)' });
+
         const result = await pool.query(
-            'INSERT INTO statuses (user_id, label, sort_order) VALUES ($1, $2, $3) RETURNING *', 
-            [req.userId, label, sort_order ?? 0]
+            'INSERT INTO statuses (user_id, label, sort_order, color) VALUES ($1, $2, $3, $4) RETURNING *', 
+            [req.userId, label, sort_order ?? 0, color ?? null]
         );
 
         res.status(201).json(result.rows[0]);
@@ -93,18 +97,24 @@ router.post('/', requireAuth, async(req: Request<{}, {}, CreateStatusBody>, res:
 interface UpdateStatusBody {
     label?: string;
     sort_order?: number;
+    color?: string;
 }
 
 router.put('/:id', requireAuth, async(req: Request<{ id: string }, {}, UpdateStatusBody>, res: Response<Status | ErrorResponse>) => {
     try {
-        const { label, sort_order } = req.body;
+        const { label, sort_order, color } = req.body;
 
         // label has a character limit; catch it before it hits the DB
         if (label && label.length > MAX_LENGTHS.statusLabel) return res.status(400).json({ error: `Label must be ${MAX_LENGTHS.statusLabel} characters or fewer` });
 
+        // Check that color is valid
+        if (color && !HEX_COLOR_REGEX.test(color)) return res.status(400).json({ error: 'Color must be a valid hex code (e.g. #e3a94a)' });
+
         const result = await pool.query(
-            'UPDATE statuses SET label = COALESCE($1, label), sort_order = COALESCE($2, sort_order) WHERE id = $3 AND user_id = $4 RETURNING *',
-            [label, sort_order, req.params.id, req.userId]
+            `UPDATE statuses SET label = COALESCE($1, label), sort_order = COALESCE($2, sort_order), color = COALESCE($3, color)
+            WHERE id = $4 AND user_id = $5
+            RETURNING *`,
+            [label, sort_order, color, req.params.id, req.userId]
         );
 
         // Check that the PUT was successful
