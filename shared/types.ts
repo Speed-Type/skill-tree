@@ -34,6 +34,7 @@ export interface Status {
   user_id: number;
   label: string;
   sort_order: number;
+  color: string | null;
   created_at: string;
 }
 

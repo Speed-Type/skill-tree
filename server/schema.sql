@@ -21,6 +21,7 @@ CREATE TABLE statuses (
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   label VARCHAR(30) NOT NULL,
   sort_order INTEGER NOT NULL DEFAULT 0,
+  color VARCHAR(7),
   created_at TIMESTAMP DEFAULT NOW()
 );
 
