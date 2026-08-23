@@ -65,8 +65,8 @@ Server runs on `http://localhost:3000` by default.
 |--------|----------|-------------|------|
 | GET | `/statuses` | Get all of your own statuses (auth required) | — |
 | GET | `/statuses/:id` | Get a specific status — must be yours, or attached to a skill in a public tree | — |
-| POST | `/statuses` | Create a status, owned by the logged-in user (auth required) | `{ label, sort_order }` |
-| PUT | `/statuses/:id` | Update a status — must be yours (auth required) | `{ label, sort_order }` |
+| POST | `/statuses` | Create a status, owned by the logged-in user (auth required) | `{ label, sort_order, color }` |
+| PUT | `/statuses/:id` | Update a status — must be yours (auth required) | `{ label, sort_order, color }` |
 | DELETE | `/statuses/:id` | Delete a status — must be yours (auth required) | — |
 
 ## Testing
