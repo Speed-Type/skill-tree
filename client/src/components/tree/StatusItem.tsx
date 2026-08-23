@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import PopupButton from '../ui/PopupButton';
 import { useDoubleConfirm } from '../../hooks/useDoubleConfirm';
 import { useDraft } from '../../hooks/useDraft';
@@ -7,15 +5,8 @@ import { useDraft } from '../../hooks/useDraft';
 import { Status, StatusChangedHandler, StatusDeletedHandler } from '../../../../shared/types';
 import { apiFetch } from '../../lib/api';
 import { snackbar } from '../../lib/snackbar';
+import { resolveStatusColor } from '../../lib/statusColor';
 import { MAX_LENGTHS } from '../../../../shared/constants';
-
-function hueFromLabel(label: string): number {
-    let hash = 0;
-    for (let i = 0; i < label.length; i++) {
-        hash = label.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return Math.abs(hash) % 360;
-}
 
 interface StatusItemProps {
     status: Status;
@@ -60,7 +51,7 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
         <li className="status-row">
             <span
                 className="status-dot"
-                style={{ '--status-hue': hueFromLabel(status.label) } as React.CSSProperties}
+                style={{ '--status-color': resolveStatusColor(status) } as React.CSSProperties}
             />
             <strong>{status.label} </strong>
 
