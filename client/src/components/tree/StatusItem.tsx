@@ -16,14 +16,17 @@ interface StatusItemProps {
 
 function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProps)
 {
-    const { draft, updateDraft, resetDraft, draftIsDirty } = useDraft({ label: status.label });
+    const { draft, updateDraft, resetDraft, draftIsDirty } = useDraft({
+        label: status.label,
+        color: status.color ?? '#8b7cf6', // neutral starting point for the picker
+    });
 
     async function handleEdit()
     {
         try {
             const updatedStatus = await apiFetch<Status>(`/statuses/${status.id}`, {
                 method: 'PUT',
-                body: JSON.stringify({ label: draft.label })
+                body: JSON.stringify({ label: draft.label, color: draft.color })
             });
 
             onStatusChanged(updatedStatus);
@@ -70,6 +73,12 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
                             value={draft.label}
                             onChange={e => updateDraft('label', e.target.value)}
                             maxLength={MAX_LENGTHS.statusLabel}
+                        />
+
+                        <input
+                            type="color"
+                            value={draft.color}
+                            onChange={e => updateDraft('color', e.target.value)}
                         />
 
                         <div className="btn-row">

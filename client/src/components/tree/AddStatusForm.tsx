@@ -11,6 +11,7 @@ interface AddStatusFormProps {
 
 function AddStatusForm({ onStatusCreated, currentCount }: AddStatusFormProps) {
     const [label, setLabel] = useState('');
+    const [color, setColor] = useState('#8b7cf6');
 
     async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
         try {
@@ -18,7 +19,7 @@ function AddStatusForm({ onStatusCreated, currentCount }: AddStatusFormProps) {
 
             const newStatus = await apiFetch<Status>('/statuses', {
                 method: 'POST',
-                body: JSON.stringify({ label, sort_order: currentCount}),
+                body: JSON.stringify({ label, sort_order: currentCount, color }),
             });
 
             onStatusCreated(newStatus);
@@ -43,6 +44,12 @@ function AddStatusForm({ onStatusCreated, currentCount }: AddStatusFormProps) {
                 />
                 <CharCounter value={label} max={MAX_LENGTHS.statusLabel} />
             </div>
+
+            <input
+                type="color"
+                value={color}
+                onChange={e => setColor(e.target.value)}
+            />
             
             <button className="btn btn-primary" type="submit">Add Status</button>
         </form>
