@@ -76,7 +76,7 @@ router.post('/', requireAuth, async(req: Request<{}, {}, CreateStatusBody>, res:
         if (label.length > MAX_LENGTHS.statusLabel) return res.status(400).json({ error: `Label must be ${MAX_LENGTHS.statusLabel} characters or fewer` });
 
         // Check that color is valid
-        if (color && !HEX_COLOR_REGEX.test(color)) return res.status(400).json({ error: 'Color must be a valid hex code (e.g. #e3a94a)' });
+        if (color !== undefined && color !== null && !HEX_COLOR_REGEX.test(color)) return res.status(400).json({ error: 'Color must be a valid hex code (e.g. #e3a94a)' });
 
         const result = await pool.query(
             'INSERT INTO statuses (user_id, label, sort_order, color) VALUES ($1, $2, $3, $4) RETURNING *', 
@@ -108,7 +108,7 @@ router.put('/:id', requireAuth, async(req: Request<{ id: string }, {}, UpdateSta
         if (label && label.length > MAX_LENGTHS.statusLabel) return res.status(400).json({ error: `Label must be ${MAX_LENGTHS.statusLabel} characters or fewer` });
 
         // Check that color is valid
-        if (color && !HEX_COLOR_REGEX.test(color)) return res.status(400).json({ error: 'Color must be a valid hex code (e.g. #e3a94a)' });
+        if (color !== undefined && color !== null && !HEX_COLOR_REGEX.test(color)) return res.status(400).json({ error: 'Color must be a valid hex code (e.g. #e3a94a)' });
 
         const result = await pool.query(
             `UPDATE statuses SET label = COALESCE($1, label), sort_order = COALESCE($2, sort_order), color = COALESCE($3, color)
