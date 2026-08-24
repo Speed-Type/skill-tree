@@ -646,7 +646,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\"label\": \"Label here\", \"sort_order\": 1}",
+              "raw": "{\"label\": \"Label here\", \"sort_order\": 1, \"color\": \"#FFFFFF\"}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -665,7 +665,7 @@
                 ""
               ]
             },
-            "description": "Auth required\n\nRequires label in body\n\nsort_order is optional in body"
+            "description": "Auth required\n\nRequires label in body\n\nsort_order, color are optional in body"
           },
           "response": []
         },
@@ -676,7 +676,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\"label\": \"New label here\", \"sort_order\": 1}",
+              "raw": "{\"label\": \"New label here\", \"sort_order\": 1, \"color\": \"#FFFFFF\"}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -695,7 +695,7 @@
                 "1"
               ]
             },
-            "description": "Auth required\n\nUpdates the status with the specified ID (must belong to logged in user)\n\nlabel, sort_order are optional in body"
+            "description": "Auth required\n\nUpdates the status with the specified ID (must belong to logged in user)\n\nlabel, sort_order, color are optional in body"
           },
           "response": []
         },
