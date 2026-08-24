@@ -71,6 +71,7 @@
     0 0 0 1px rgba(140, 145, 165, 0.5),
     0 0 18px color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) var(--status-glow, 0%), transparent);
   border-left: 3px solid var(--status-color, hsl(220, 70%, 55%));
+  transition: box-shadow 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
 }
 
 .skill-node.is-unset .skill-node-body {
