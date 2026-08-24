@@ -5,7 +5,7 @@ import { useDraft } from '../../hooks/useDraft';
 import { Status, StatusChangedHandler, StatusDeletedHandler } from '../../../../shared/types';
 import { apiFetch } from '../../lib/api';
 import { snackbar } from '../../lib/snackbar';
-import { resolveStatusColor } from '../../lib/statusColor';
+import { resolveStatusColor, resolveStatusColorHex } from '../../lib/statusColor';
 import { MAX_LENGTHS } from '../../../../shared/constants';
 
 interface StatusItemProps {
@@ -18,7 +18,7 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
 {
     const { draft, updateDraft, resetDraft, draftIsDirty } = useDraft({
         label: status.label,
-        color: status.color ?? '#8b7cf6', // neutral starting point for the picker
+        color: resolveStatusColorHex(status),
     });
 
     async function handleEdit()
