@@ -29,8 +29,8 @@ export function hslToHex(h: number, s: number, l: number): string {
 // 12 evenly-spaced hues at the same s/l as hueFromLabel's auto-colors,
 // so every preset reads cleanly against the dark panel background
 export const STATUS_COLOR_PALETTE: string[] = Array.from(
-    { length: 12 },
-    (_, i) => hslToHex(i * 30, 70, 55)
+    { length: 11 },
+    (_, i) => hslToHex(Math.round(i * (360 / 11)), 70, 55)
 );
 
 // Always returns a hex string, for seeding <input type="color">:
