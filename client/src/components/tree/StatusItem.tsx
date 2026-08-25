@@ -1,4 +1,5 @@
 import PopupButton from '../ui/PopupButton';
+import ColorSwatchPicker from '../ui/ColorSwatchPicker';
 import { useDoubleConfirm } from '../../hooks/useDoubleConfirm';
 import { useDraft } from '../../hooks/useDraft';
 
@@ -75,11 +76,7 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
                             maxLength={MAX_LENGTHS.statusLabel}
                         />
 
-                        <input
-                            type="color"
-                            value={draft.color}
-                            onChange={e => updateDraft('color', e.target.value)}
-                        />
+                        <ColorSwatchPicker value={draft.color} onChange={c => updateDraft('color', c)} />
 
                         <div className="btn-row">
                             <button className="btn btn-primary" onClick={() => {handleEdit(); onClose();}}>Save Changes</button>

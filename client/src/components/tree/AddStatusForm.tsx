@@ -1,4 +1,5 @@
-import {useState} from 'react'
+import { useState } from 'react'
+import ColorSwatchPicker from '../ui/ColorSwatchPicker';
 import { Status, StatusChangedHandler } from '../../../../shared/types';
 import { apiFetch } from '../../lib/api';
 import { MAX_LENGTHS } from '../../../../shared/constants';
@@ -45,11 +46,7 @@ function AddStatusForm({ onStatusCreated, currentCount }: AddStatusFormProps) {
                 <CharCounter value={label} max={MAX_LENGTHS.statusLabel} />
             </div>
 
-            <input
-                type="color"
-                value={color}
-                onChange={e => setColor(e.target.value)}
-            />
+            <ColorSwatchPicker value={color} onChange={c => setColor(c)} />
             
             <button className="btn btn-primary" type="submit">Add Status</button>
         </form>

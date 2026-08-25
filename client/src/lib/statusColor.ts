@@ -12,7 +12,7 @@ export function resolveStatusColor(status: { label: string; color?: string | nul
 
 // Converts an HSL triple to a hex string (e.g. "#e3a94a"), since native
 // <input type="color"> only accepts/displays hex — it can't take an hsl() string
-function hslToHex(h: number, s: number, l: number): string {
+export function hslToHex(h: number, s: number, l: number): string {
     s /= 100;
     l /= 100;
 
@@ -25,6 +25,13 @@ function hslToHex(h: number, s: number, l: number): string {
 
     return `#${toHex(0)}${toHex(8)}${toHex(4)}`;
 }
+
+// 12 evenly-spaced hues at the same s/l as hueFromLabel's auto-colors,
+// so every preset reads cleanly against the dark panel background
+export const STATUS_COLOR_PALETTE: string[] = Array.from(
+    { length: 12 },
+    (_, i) => hslToHex(i * 30, 70, 55)
+);
 
 // Always returns a hex string, for seeding <input type="color">:
 // the user's actual saved color if they have one, otherwise their
