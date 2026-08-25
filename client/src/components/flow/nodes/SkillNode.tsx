@@ -9,18 +9,9 @@ import { useDraft } from '../../../hooks/useDraft';
 import { Skill, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../../shared/types';
 import { apiFetch } from '../../../lib/api';
 import { snackbar } from '../../../lib/snackbar';
+import { resolveStatusColor } from '../../../lib/statusColor';
 import { MAX_LENGTHS } from '../../../../../shared/constants';
 import CharCounter from '../../ui/CharCounter';
-
-// Deterministic hue from a status label, so any user-defined status gets a distinct,
-// stable ring color without needing a color field in the schema
-function hueFromLabel(label: string): number {
-    let hash = 0;
-    for (let i = 0; i < label.length; i++) {
-        hash = label.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return Math.abs(hash) % 360;
-}
 
 export interface SkillNodeData extends Record<string, unknown> {
     skill: Skill;
@@ -48,7 +39,7 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
     // Determine the current status and its associated ring style (just visuals)
     const currentStatus = statuses.find(s => s.id === skill.status_id);
     const ringStyle = currentStatus
-        ? ({ '--status-hue': hueFromLabel(currentStatus.label), '--status-glow': 0.35 } as React.CSSProperties)
+        ? ({ '--status-color': resolveStatusColor(currentStatus), '--status-glow': '35%' } as React.CSSProperties)
         : undefined;
 
     const currentStatusLabel = currentStatus?.label ?? 'No status';

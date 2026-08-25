@@ -10,3 +10,6 @@ export const MAX_LENGTHS = {
     skillDescription: 500,
     displayName: 50
 } as const;
+
+// Regex for hex color values
+export const HEX_COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;

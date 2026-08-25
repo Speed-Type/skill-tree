@@ -1,4 +1,5 @@
-import {useState} from 'react'
+import { useState } from 'react'
+import ColorSwatchPicker from '../ui/ColorSwatchPicker';
 import { Status, StatusChangedHandler } from '../../../../shared/types';
 import { apiFetch } from '../../lib/api';
 import { MAX_LENGTHS } from '../../../../shared/constants';
@@ -11,6 +12,7 @@ interface AddStatusFormProps {
 
 function AddStatusForm({ onStatusCreated, currentCount }: AddStatusFormProps) {
     const [label, setLabel] = useState('');
+    const [color, setColor] = useState('#8b7cf6');
 
     async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
         try {
@@ -18,7 +20,7 @@ function AddStatusForm({ onStatusCreated, currentCount }: AddStatusFormProps) {
 
             const newStatus = await apiFetch<Status>('/statuses', {
                 method: 'POST',
-                body: JSON.stringify({ label, sort_order: currentCount}),
+                body: JSON.stringify({ label, sort_order: currentCount, color }),
             });
 
             onStatusCreated(newStatus);
@@ -43,6 +45,8 @@ function AddStatusForm({ onStatusCreated, currentCount }: AddStatusFormProps) {
                 />
                 <CharCounter value={label} max={MAX_LENGTHS.statusLabel} />
             </div>
+
+            <ColorSwatchPicker value={color} onChange={c => setColor(c)} />
             
             <button className="btn btn-primary" type="submit">Add Status</button>
         </form>

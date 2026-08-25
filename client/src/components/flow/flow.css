@@ -68,9 +68,9 @@
 
   /* Status ring, driven by --status-hue set inline per node; falls back to locked grey */
   box-shadow:
-    0 0 0 1px hsl(var(--status-hue, 220) 0% 30% / 0.5),
-    0 0 18px hsl(var(--status-hue, 220) 70% 55% / var(--status-glow, 0));
-  border-left: 3px solid hsl(var(--status-hue, 220) 70% 55%);
+    0 0 0 1px rgba(140, 145, 165, 0.5),
+    0 0 18px color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) var(--status-glow, 0%), transparent);
+  border-left: 3px solid var(--status-color, hsl(220, 70%, 55%));
   transition: box-shadow 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
 }
 
@@ -88,8 +88,8 @@
 .skill-node-body:hover {
   transform: translateY(-1px) scale(1.025);
   box-shadow:
-    0 0 0 1px hsl(var(--status-hue, 220) 0% 30% / 0.5),
-    0 0 24px hsl(var(--status-hue, 220) 70% 55% / 0.55);
+    0 0 0 1px rgba(140, 145, 165, 0.5),
+    0 0 24px color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 55%, transparent);
 }
 
 /*
@@ -108,7 +108,7 @@
   position: absolute;
   inset: 0;
   border-radius: var(--radius);
-  box-shadow: 0 0 20px hsl(var(--status-hue, 220) 70% 55% / var(--status-glow, 0.35));
+  box-shadow: 0 0 20px color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) var(--status-glow, 35%), transparent);
   pointer-events: none;
   z-index: 0;
   animation: skill-node-idle-pulse 3.6s ease-in-out infinite;
@@ -153,9 +153,9 @@
   font-size: 0.62rem;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: hsl(var(--status-hue, 220) 60% 78%);
-  background-color: hsl(var(--status-hue, 220) 70% 55% / 0.14);
-  border: 1px solid hsl(var(--status-hue, 220) 70% 55% / 0.4);
+  color: color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 60%, white);
+  background-color: color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 40%, transparent);
   border-radius: 999px;
   padding: 0.2rem 0.6rem;
 }
@@ -183,8 +183,8 @@
 
 .skill-node-status-select:hover,
 .skill-node-status-select:focus-visible {
-  border-color: hsl(var(--status-hue, 220) 70% 55% / 0.7);
-  background-color: hsl(var(--status-hue, 220) 70% 55% / 0.22);
+  border-color: color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 70%, transparent);
+  background-color: color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 22%, transparent);
 }
 
 .skill-node-controls {
@@ -268,9 +268,9 @@
   font-size: 0.68rem;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: hsl(var(--status-hue, 220) 60% 78%);
-  background: hsl(var(--status-hue, 220) 70% 55% / 0.16);
-  border: 1px solid hsl(var(--status-hue, 220) 70% 55% / 0.45);
+  color: color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 60%, white);
+  background: color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 45%, transparent);
   border-radius: 999px;
   padding: 0.2rem 0.6rem;
 }

@@ -1,21 +1,13 @@
-import { useState } from 'react';
-
 import PopupButton from '../ui/PopupButton';
+import ColorSwatchPicker from '../ui/ColorSwatchPicker';
 import { useDoubleConfirm } from '../../hooks/useDoubleConfirm';
 import { useDraft } from '../../hooks/useDraft';
 
 import { Status, StatusChangedHandler, StatusDeletedHandler } from '../../../../shared/types';
 import { apiFetch } from '../../lib/api';
 import { snackbar } from '../../lib/snackbar';
+import { resolveStatusColor, resolveStatusColorHex } from '../../lib/statusColor';
 import { MAX_LENGTHS } from '../../../../shared/constants';
-
-function hueFromLabel(label: string): number {
-    let hash = 0;
-    for (let i = 0; i < label.length; i++) {
-        hash = label.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return Math.abs(hash) % 360;
-}
 
 interface StatusItemProps {
     status: Status;
@@ -25,14 +17,17 @@ interface StatusItemProps {
 
 function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProps)
 {
-    const { draft, updateDraft, resetDraft, draftIsDirty } = useDraft({ label: status.label });
+    const { draft, updateDraft, resetDraft, draftIsDirty } = useDraft({
+        label: status.label,
+        color: resolveStatusColorHex(status),
+    });
 
     async function handleEdit()
     {
         try {
             const updatedStatus = await apiFetch<Status>(`/statuses/${status.id}`, {
                 method: 'PUT',
-                body: JSON.stringify({ label: draft.label })
+                body: JSON.stringify({ label: draft.label, color: draft.color })
             });
 
             onStatusChanged(updatedStatus);
@@ -60,7 +55,7 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
         <li className="status-row">
             <span
                 className="status-dot"
-                style={{ '--status-hue': hueFromLabel(status.label) } as React.CSSProperties}
+                style={{ '--status-color': resolveStatusColor(status) } as React.CSSProperties}
             />
             <strong>{status.label} </strong>
 
@@ -80,6 +75,8 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
                             onChange={e => updateDraft('label', e.target.value)}
                             maxLength={MAX_LENGTHS.statusLabel}
                         />
+
+                        <ColorSwatchPicker value={draft.color} onChange={c => updateDraft('color', c)} />
 
                         <div className="btn-row">
                             <button className="btn btn-primary" onClick={() => {handleEdit(); onClose();}}>Save Changes</button>

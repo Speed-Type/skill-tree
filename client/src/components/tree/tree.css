@@ -35,8 +35,8 @@
   height: 9px;
   flex-shrink: 0;
   border-radius: 50%;
-  background: hsl(var(--status-hue, 220) 70% 60%);
-  box-shadow: 0 0 6px hsl(var(--status-hue, 220) 70% 60% / 0.7);
+  background: var(--status-color, hsl(220, 70%, 55%));
+  box-shadow: 0 0 6px color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 70%, transparent);
 }
 
 .status-edit-fields {
