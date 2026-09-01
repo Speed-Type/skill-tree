@@ -5,8 +5,10 @@ import { useEffect, useCallback } from 'react';
 import { useEdgeSelection } from '../../hooks/useEdgeSelection';
 import { 
     ReactFlow,
+    ReactFlowProvider,
     useNodesState,
     useEdgesState,
+    useReactFlow,
     OnNodeDrag,
     Connection,
     OnConnectEnd,
@@ -35,7 +37,15 @@ interface SkillTreeViewProps {
     onStatusUsed: (statusId: number) => void;
 }
 
-function SkillTreeView({ skills, edges, statuses, isOwner, onSkillChanged, onSkillDeleted, onEdgeCreated, onEdgeDeleted, onStatusUsed }: SkillTreeViewProps) {
+function SkillTreeView(props: SkillTreeViewProps) {
+    return (
+        <ReactFlowProvider>
+            <SkillTreeViewInner {...props} />
+        </ReactFlowProvider>
+    );
+}
+
+function SkillTreeViewInner({ skills, edges, statuses, isOwner, onSkillChanged, onSkillDeleted, onEdgeCreated, onEdgeDeleted, onStatusUsed }: SkillTreeViewProps) {
     
     // ======================= Tracking Delete Popups for Edges ==========================
 
@@ -199,6 +209,14 @@ function SkillTreeView({ skills, edges, statuses, isOwner, onSkillChanged, onSki
         }
     }
 
+    // ====================== Recenter Logic =========================
+
+    const { fitView } = useReactFlow();
+
+    function handleRecenter() {
+        fitView({ maxZoom: 1.5, duration: 300 });
+    }
+
     // ========================================= Other ReactFlow Props =============================================
 
     // Prop for ReactFlow component that prevents self-connections, duplicate edges, and reverse-direction links
@@ -235,12 +253,25 @@ function SkillTreeView({ skills, edges, statuses, isOwner, onSkillChanged, onSki
                 // Other settings
                 connectionMode={ConnectionMode.Loose}
                 fitView
+                fitViewOptions={{ padding: 0.2, maxZoom: 1.5 }}
 
                 // Possibly temporary
                 connectOnClick={false} // At least for now, we don't want to have another way to create edges
                 deleteKeyCode={null} // Currently, node deletion this way isn't synced to backend
                 multiSelectionKeyCode={null} // Multi-selection and bulk dragging doesn't sync correctly right now
             />
+
+            <button
+                type="button"
+                className="btn btn-icon flow-recenter-btn"
+                onClick={handleRecenter}
+                title="Recenter view"
+            >
+                <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="14" height="14" rx="2" />
+                    <path d="M10 6.5v7M6.5 10h7" />
+                </svg>
+            </button>
         </div>
     );
 }

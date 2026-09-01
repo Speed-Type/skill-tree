@@ -39,6 +39,18 @@
   color: var(--text-dim);
 }
 
+/* =========================== Recenter Button =========================== */
+
+.flow-recenter-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 10;
+  background: var(--panel-raised);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
 /* =========================== Node =========================== */
 
 .skill-node {
@@ -444,6 +456,8 @@
     stroke-dashoffset: -18;
   }
 }
+
+/* =========================== For Reduced Motion =========================== */
 
 @media (prefers-reduced-motion: reduce) {
 
