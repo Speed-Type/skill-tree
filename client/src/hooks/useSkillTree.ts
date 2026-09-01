@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { TreeWithDetails } from '../../../shared/types';
 import { apiFetch } from '../lib/api';
 
@@ -13,14 +13,21 @@ export function useSkillTree(treeSlug: string | undefined): UseSkillTreeResult {
     const [tree, setTree] = useState<TreeWithDetails | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<unknown>(null);
+    const hasLoadedOnce = useRef(false);
 
     useEffect(() => {
         if (!treeSlug) return;
-        setLoading(true);
+
+        // Only show the full loading state on the genuine first load, to avoid unmounting the canvas and resetting zoom
+        if (!hasLoadedOnce.current) setLoading(true);
+
         setError(null);
 
         apiFetch<TreeWithDetails>(`/trees/${treeSlug}`, { silent: true })
-            .then(setTree)
+            .then(data => {
+                setTree(data);
+                hasLoadedOnce.current = true;
+            })
             .catch(setError)
             .finally(() => setLoading(false));
     }, [treeSlug]);
