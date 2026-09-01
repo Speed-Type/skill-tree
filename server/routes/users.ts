@@ -27,9 +27,17 @@ interface CreateUserBody {
     password: string;
 }
 
+// Seeded for every new user so they don't start with an empty status list
+const DEFAULT_STATUSES: { label: string; color: string }[] = [
+    { label: 'Learning', color: '#6fb9ee' },
+    { label: 'Proficient', color: '#4f4ae3' },
+    { label: 'Mastered', color: '#bc0de3' },
+];
+
 router.post('/', async (req: Request<{}, {}, CreateUserBody>, res: Response<PublicUser | ErrorResponse>) => {
+    const client = await pool.connect();
+
     try {
-        
         const { email, display_name, password } = req.body;
 
         // Make sure required parameters (email and password) are passed
@@ -44,13 +52,30 @@ router.post('/', async (req: Request<{}, {}, CreateUserBody>, res: Response<Publ
         // Encryption
         const password_hash = await bcrypt.hash(password, 10);
 
+        await client.query('BEGIN');
+
         const result = await pool.query(
             'INSERT INTO users (email, display_name, password_hash) VALUES ($1, $2, $3) RETURNING id, email, display_name, created_at',
             [email, display_name || 'Anonymous User', password_hash] // Default display name here
         );
-        res.status(201).json(result.rows[0]);
+
+        const newUser = result.rows[0];
+
+        // Seed default statuses for the new user
+        await pool.query(
+            `INSERT INTO statuses (user_id, label, sort_order, color)
+             SELECT $1, label, ordinality - 1, color
+             FROM unnest($2::text[], $3::text[]) WITH ORDINALITY AS t(label, color)`,
+            [newUser.id, DEFAULT_STATUSES.map(s => s.label), DEFAULT_STATUSES.map(s => s.color)]
+        );
+
+        await client.query('COMMIT');
+
+        res.status(201).json(newUser);
     }
     catch (err) {
+        await client.query('ROLLBACK');
+
         console.error(err); // Log what actually broke 
 
         // Check for duplicate user violation
@@ -59,6 +84,9 @@ router.post('/', async (req: Request<{}, {}, CreateUserBody>, res: Response<Publ
         if (isPgError(err) && err.code === "22001") return res.status(400).json({ error: "One or more fields is too long" });
 
         res.status(500).json({ error: 'Database error' });
+    }
+    finally {
+        client.release();
     }
 });
 
