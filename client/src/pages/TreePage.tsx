@@ -40,7 +40,7 @@ function TreePage() {
 
     useEffect(() => {
         if (tree) setSkills(tree.skills);
-    }, [tree]);
+    }, [tree?.id]);
 
     function handleSkillCreated(newSkill: Skill) {
         setSkills(prev => [...prev, newSkill]);
@@ -79,7 +79,7 @@ function TreePage() {
     // Seed local edges state once the tree data arrives
     useEffect(() => {
         if (tree) setEdges(tree.edges);
-    }, [tree]);
+    }, [tree?.id]);
 
     function handleEdgeCreated(newEdge: SkillEdge) {
         setEdges(prev => [...prev, newEdge]);
@@ -109,7 +109,7 @@ function TreePage() {
             setTreeName(tree.title);
             setTreeDescription(tree.description || '');
         }
-    }, [tree]);
+    }, [tree?.id]);
 
     // Function to handle the actual change to the tree title/description in the database
     async function handleTreeDetailsChange() {
