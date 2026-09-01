@@ -229,10 +229,15 @@ function TreePage() {
                                                 onStatusChanged={handleStatusChanged}
                                                 onStatusDeleted={handleStatusDeleted}
                                             />
-                                            <AddStatusForm
-                                                currentCount={myStatuses.length}
-                                                onStatusCreated={handleStatusCreated}
-                                            />
+                                            
+                                            <PopupButton label="Add Status" className="btn btn-primary">
+                                                {() => (
+                                                    <AddStatusForm
+                                                        currentCount={myStatuses.length}
+                                                        onStatusCreated={handleStatusCreated}
+                                                    />
+                                                )}
+                                            </PopupButton>
                                         </>
                                     )}
                                 </PopupButton>
