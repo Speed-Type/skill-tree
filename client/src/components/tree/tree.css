@@ -10,6 +10,12 @@
   gap: 0.4rem;
 }
 
+.status-list {
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 0.4rem;
+}
+
 .status-row,
 .skill-row {
   display: flex;

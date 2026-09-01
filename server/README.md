@@ -79,10 +79,10 @@ Import `postman_collection.json` into Postman to test all endpoints. Run `POST /
 - User deletion cascades to all their trees, which cascades to their skills, which cascades to skill edges
 - Authentication is cookie-based (httpOnly JWT). After a successful `POST /auth/login`, the browser automatically attaches the auth cookie to subsequent requests; no manual token handling required on the client. Requests must be made with `credentials: 'include'` (fetch) or `withCredentials: true` (axios) for the cookie to be sent, since the client and server run on different origins in dev
 - "Auth required" endpoints return `401` if no valid session is present
-- Ownership mismatches (e.g. trying to edit someone else's tree) return `404`, not `403`
 - Edges can only connect two skills that belong to the same tree; this is enforced at creation time, not by the database schema
 - A skill's `tree_id` and a status's ownership are both validated server-side on creation/update; client-supplied IDs are never trusted to imply ownership
-- There is no endpoint to browse or discover other users' public trees. Public trees are only accessible via their direct `/trees/:id` link.
+- There is no endpoint to browse or discover other users' public trees. Public trees are only accessible via their direct `/trees/:slug` link.
 - Changing email or password, and deleting the account, all require current_password to match the account's existing password
 - Each tree has a random, unguessable `slug` (separate from its numeric `id`) used for the public-facing `GET /trees/:slug` route; the numeric `id` is never exposed in a shareable link
 - The `slug` rotates automatically whenever a tree is switched from public to private, permanently invalidating any previously shared link — re-publishing the same tree later issues a new link, not the old one
+- New users have three default statuses POSTed with their id
