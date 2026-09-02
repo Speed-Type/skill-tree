@@ -39,12 +39,22 @@
   color: var(--text-dim);
 }
 
-/* =========================== Recenter Button =========================== */
+/* =========================== Recenter and Autospace Buttons =========================== */
 
 .flow-recenter-btn {
   position: absolute;
   top: 0.75rem;
   right: 0.75rem;
+  z-index: 10;
+  background: var(--panel-raised);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.flow-autospace-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 3.25rem;
   z-index: 10;
   background: var(--panel-raised);
   border: 1px solid var(--panel-border);

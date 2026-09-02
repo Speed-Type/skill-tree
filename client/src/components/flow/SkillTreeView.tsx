@@ -20,6 +20,7 @@ import { edgeTypes } from './edgeTypes';
 import { SkillFlowNode } from './nodes/SkillNode'; // Exported as types
 import { FloatingSkillEdge } from './edges/FloatingEdge'; // Exported as types
 import CustomConnectionLine from './connectionLines/CustomConnectionLine';
+import { getBorderPoint, resolveOverlaps } from './geometry';
 
 import { Skill, SkillEdge, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../shared/types';
 import { apiFetch } from '../../lib/api';
@@ -217,6 +218,54 @@ function SkillTreeViewInner({ skills, edges, statuses, isOwner, onSkillChanged, 
         fitView({ maxZoom: 1.5, duration: 300 });
     }
 
+    // ====================== Autospace Logic =========================
+
+    // Fallback dimensions in case a node hasn't been measured yet (shouldn't normally happen
+    // post-mount, but keeps this from silently no-op-ing if it does)
+    const FALLBACK_NODE_WIDTH = 200;
+    const FALLBACK_NODE_HEIGHT = 90;
+
+    async function handleAutoSpace() {
+        const spacingInput = nodes.map(n => ({
+            id: n.id,
+            x: n.position.x,
+            y: n.position.y,
+            width: n.measured?.width ?? FALLBACK_NODE_WIDTH,
+            height: n.measured?.height ?? FALLBACK_NODE_HEIGHT,
+        }));
+
+        const spaced = resolveOverlaps(spacingInput);
+
+        // Only nodes that actually needed to move
+        const moved = spaced.filter(s => {
+            const original = spacingInput.find(n => n.id === s.id)!;
+            return Math.abs(original.x - s.x) > 0.5 || Math.abs(original.y - s.y) > 0.5;
+        });
+
+        if (moved.length === 0) {
+            return;
+        }
+
+        // Update visually right away, ahead of the round-trip to the server
+        setNodes(nds => nds.map(n => {
+            const update = moved.find(m => m.id === n.id);
+            return update ? { ...n, position: { x: update.x, y: update.y } } : n;
+        }));
+
+        const results = await Promise.allSettled(moved.map(m =>
+            apiFetch<Skill>(`/skills/${m.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ x_position: m.x, y_position: m.y }),
+            }).then(onSkillChanged)
+        ));
+
+        const failures = results.filter(r => r.status === 'rejected').length;
+        if (failures > 0) {
+            console.error(`Failed to persist ${failures} node position(s) after auto-spacing`);
+            snackbar.error("Some positions couldn't be saved — try again");
+        }
+    }
+
     // ========================================= Other ReactFlow Props =============================================
 
     // Prop for ReactFlow component that prevents self-connections, duplicate edges, and reverse-direction links
@@ -272,6 +321,22 @@ function SkillTreeViewInner({ skills, edges, statuses, isOwner, onSkillChanged, 
                     <path d="M10 6.5v7M6.5 10h7" />
                 </svg>
             </button>
+
+            {isOwner && (
+                <button
+                    type="button"
+                    className="btn btn-icon flow-autospace-btn"
+                    onClick={handleAutoSpace}
+                    title="Space out overlapping skills"
+                >
+                    <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M4 4l4 4M4 4v4M4 4h4" />
+                        <path d="M16 4l-4 4M16 4v4M16 4h-4" />
+                        <path d="M4 16l4-4M4 16v-4M4 16h4" />
+                        <path d="M16 16l-4-4M16 16v-4M16 16h-4" />
+                    </svg>
+                </button>
+            )}
         </div>
     );
 }
