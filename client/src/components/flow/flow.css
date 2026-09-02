@@ -65,8 +65,7 @@
 
 .skill-node {
   position: relative;
-  min-width: 180px;
-  max-width: 220px;
+  width: 200px;
   border-radius: var(--radius);
   background: var(--panel-raised);
 }
