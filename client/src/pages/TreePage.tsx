@@ -59,6 +59,14 @@ function TreePage() {
         );
     }
 
+    // Draft for new skill form
+    const {
+        draft: newSkillDraft,
+        updateDraft: updateNewSkillDraft,
+        resetDraft: resetNewSkillDraft,
+        draftIsDirty: newSkillDraftIsDirty,
+    } = useDraft({ label: '', description: '' });
+
     // ===================================== Status Handling =====================================
 
     // The owner's full personal status list — includes statuses not yet assigned to any skill
@@ -277,13 +285,21 @@ function TreePage() {
                             </svg>
                         )}
                         className="btn tree-add-skill-fab"
+                        resetValues={resetNewSkillDraft}
+                        isDirty={newSkillDraftIsDirty}
                     >
                         {({ onClose }) => (
                             <div className="skill-card">
                                 <span className="eyebrow">New skill</span>
                                 <AddSkillForm
                                     treeId={tree.id}
-                                    onCreated={(skill) => { handleSkillCreated(skill); onClose(); }}
+                                    draft={newSkillDraft}
+                                    updateDraft={updateNewSkillDraft}
+                                    onCreated={(skill) => {
+                                        handleSkillCreated(skill);
+                                        resetNewSkillDraft();
+                                        onClose();
+                                    }}
                                 />
                             </div>
                         )}
