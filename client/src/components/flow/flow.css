@@ -389,15 +389,18 @@
 /* =========================== Edges =========================== */
 
 .skill-edge-path {
-  stroke: var(--line);
   stroke-width: 1.5;
-  transition: stroke 0.15s ease, filter 0.15s ease;
+  /* Dim + glow-free at rest so hover reads as a real jump in vibrance, not just a bit more blur */
+  opacity: 0.5;
+  filter: none;
+  transition: opacity 0.15s ease, filter 0.15s ease, stroke-width 0.15s ease;
 }
 
 .skill-edge-path.is-selected {
   stroke: var(--gold);
   stroke-width: 2;
   stroke-dasharray: 7 5;
+  opacity: 1;
   filter: drop-shadow(0 0 5px var(--gold-line));
   animation: skill-edge-flow 0.7s linear infinite;
 }
@@ -408,9 +411,58 @@
   }
 }
 
+/* Hover can't recolor the stroke (an inline gradient wins over this), so it escalates via
+   full opacity + thickness + glow instead — a clear jump up from the dimmed resting state */
 .react-flow__edge:hover .skill-edge-path:not(.is-selected) {
-  stroke: var(--violet);
-  filter: drop-shadow(0 0 4px var(--violet-soft));
+  stroke-width: 2;
+  opacity: 1;
+  stroke-width: 2;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.32));
+}
+
+/* Traveling highlight shown only on hover, sweeping from source to target along the edge.
+   Always animating (avoids a restart flicker on hover-in); opacity is the actual toggle */
+.skill-edge-pulse {
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 8 30; /* short bright dash, long gap */
+  opacity: 0;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.5));
+  animation: skill-edge-pulse-flow 1.3s linear infinite;
+  transition: opacity 0.15s ease;
+}
+
+.react-flow__edge:hover .skill-edge-pulse {
+  opacity: 0.9;
+}
+
+@keyframes skill-edge-pulse-flow {
+  to {
+    /* -76 = 2x the "8 30" pattern length (38), so the loop tiles seamlessly with no visible snap */
+    stroke-dashoffset: -76;
+  }
+}
+
+/* Small glow dot where an edge meets a node's border on each end,
+   tinted per-node via the --endpoint-color custom property set inline in FloatingEdge */
+.skill-edge-endpoint {
+  fill: var(--endpoint-color, hsl(220, 70%, 55%));
+  opacity: 0.45;
+  filter: none;
+  transition: opacity 0.15s ease, filter 0.15s ease;
+}
+
+.react-flow__edge:hover .skill-edge-endpoint:not(.is-selected) {
+  opacity: 1;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--endpoint-color, hsl(220, 70%, 55%)) 70%, transparent));
+}
+
+/* Selected state stays gold to match the selected line, overriding the per-node tint
+   so "this edge is selected" reads unambiguously regardless of endpoint status colors */
+.skill-edge-endpoint.is-selected {
+  fill: var(--gold);
+  opacity: 1;
+  filter: drop-shadow(0 0 7px var(--gold-line));
 }
 
 .edge-delete-popup {
@@ -472,6 +524,7 @@
 
   .skill-node:not(.is-unset) .skill-node-body,
   .skill-edge-path.is-selected,
+  .skill-edge-pulse,
   .connection-line-path {
     animation: none;
   }
