@@ -109,6 +109,9 @@ body {
   display: flex;
   align-items: center;
   gap: 1.25rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .tree-title-row {

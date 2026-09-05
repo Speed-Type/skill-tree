@@ -171,10 +171,51 @@ function TreePage() {
     return (
         <div className="tree-page">
             <header className="tree-page-header">
-                <div className="tree-page-meta">
+                <div className="tree-page-top-row">
                     {/* If viewing this as a non-owner, show owner's display name */}
                     <span className="eyebrow">{!isOwner && (tree.owner_display_name + "'s")} Skill Tree</span>
 
+                    {/* Header Actions */}
+                    {(isOwner || user) && (
+                        <div className="header-actions">
+
+                            {/* Owner-only: Status edit and visibility toggle */}
+                            {isOwner && (
+                                <>
+                                    <PopupButton label = "Edit Statuses">
+                                        {({ onClose }) => (
+                                            <>
+                                                <StatusView
+                                                    statuses={myStatuses}
+                                                    onStatusChanged={handleStatusChanged}
+                                                    onStatusDeleted={handleStatusDeleted}
+                                                />
+                                                
+                                                <PopupButton label="Add Status" className="btn btn-primary">
+                                                    {() => (
+                                                        <AddStatusForm
+                                                            currentCount={myStatuses.length}
+                                                            onStatusCreated={handleStatusCreated}
+                                                        />
+                                                    )}
+                                                </PopupButton>
+                                            </>
+                                        )}
+                                    </PopupButton>
+
+                                    <VisibilityToggle tree={tree} onTreeChanged={handleTreeChanged} />
+                                </>
+                            )}
+
+                            {/* For any logged in user */}
+                            {user && (
+                                <Link className="btn btn-icon" to="/settings" state={{ from: location.pathname }} title="Account settings">Settings</Link>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                <div className="tree-page-meta">
                     <div className="tree-page-title-row">
                         <h1 className="tree-page-title">{treeName}</h1>
                         
@@ -233,45 +274,6 @@ function TreePage() {
 
                     {treeDescription && <p className="tree-page-description">{descriptionPreview}</p>}
                 </div>
-
-                {/* Header Actions */}
-                {(isOwner || user) && (
-                    <div className="header-actions">
-
-                        {/* Owner-only: Status edit and visibility toggle */}
-                        {isOwner && (
-                            <>
-                                <PopupButton label = "Edit Statuses">
-                                    {({ onClose }) => (
-                                        <>
-                                            <StatusView
-                                                statuses={myStatuses}
-                                                onStatusChanged={handleStatusChanged}
-                                                onStatusDeleted={handleStatusDeleted}
-                                            />
-                                            
-                                            <PopupButton label="Add Status" className="btn btn-primary">
-                                                {() => (
-                                                    <AddStatusForm
-                                                        currentCount={myStatuses.length}
-                                                        onStatusCreated={handleStatusCreated}
-                                                    />
-                                                )}
-                                            </PopupButton>
-                                        </>
-                                    )}
-                                </PopupButton>
-
-                                <VisibilityToggle tree={tree} onTreeChanged={handleTreeChanged} />
-                            </>
-                        )}
-
-                        {/* For any logged in user */}
-                        {user && (
-                            <Link className="btn btn-icon" to="/settings" state={{ from: location.pathname }} title="Account settings">Settings</Link>
-                        )}
-                    </div>
-                )}
             </header>
 
             {/* Main content area */}
