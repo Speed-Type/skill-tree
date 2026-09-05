@@ -56,7 +56,7 @@ function AddSkillForm({ treeId, draft, updateDraft, onCreated }: AddSkillFormPro
                     onChange={e => updateDraft('description', e.target.value)}
                     placeholder="Add a description..."
                     maxLength={MAX_LENGTHS.skillDescription}
-                    rows={4}
+                    rows={9}
                 />
                 <CharCounter value={draft.description} max={MAX_LENGTHS.skillDescription} />
             </div>
