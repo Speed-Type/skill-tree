@@ -15,6 +15,11 @@ interface StatusSelectProps {
     onSkillChanged: SkillChangedHandler;
     onStatusUsed: (statusId: number) => void;
     className?: string;
+    // Optional: fired whenever the dropdown opens/closes, so a parent can react —
+    // SkillNode uses this to force its hover tooltip shut the moment this dropdown
+    // opens, since the portaled menu confuses the tooltip's own mouseenter/mouseleave
+    // tracking (the menu no longer lives inside .skill-node's real DOM subtree)
+    onOpenChange?: (open: boolean) => void;
 }
 
 interface MenuPosition {
@@ -39,11 +44,21 @@ function computeMenuPosition(triggerEl: HTMLElement): MenuPosition {
         : { left: rect.left, top: rect.bottom + 4 };
 }
 
-function StatusSelect({ skill, statuses, onSkillChanged, onStatusUsed, className = 'input' }: StatusSelectProps) {
-    const [open, setOpen] = useState(false);
+function StatusSelect({ skill, statuses, onSkillChanged, onStatusUsed, className = 'input', onOpenChange }: StatusSelectProps) {
+    const [open, setOpenState] = useState(false);
     const [menuPos, setMenuPos] = useState<MenuPosition | null>(null);
     const rootRef = useRef<HTMLDivElement>(null);
     const triggerRef = useRef<HTMLButtonElement>(null);
+
+    // Wraps the raw setter so every open/close transition — however it happens
+    // (toggle click, selection, outside click, Escape) — also notifies the parent
+    function setOpen(next: boolean | ((prev: boolean) => boolean)) {
+        setOpenState(prev => {
+            const resolved = typeof next === 'function' ? (next as (p: boolean) => boolean)(prev) : next;
+            onOpenChange?.(resolved);
+            return resolved;
+        });
+    }
     
     const currentStatus = statuses.find(s => s.id === skill.status_id);
     const currentLabel = currentStatus?.label ?? 'No status';

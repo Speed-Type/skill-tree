@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Handle, Position, NodeProps, Node, NodeToolbar } from '@xyflow/react';
 import StatusSelect from '../../tree/StatusSelect';
 import PopupButton from '../../ui/PopupButton';
@@ -137,6 +137,7 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
                             onSkillChanged={onSkillChanged}
                             onStatusUsed={onStatusUsed}
                             className="skill-node-status-select"
+                            onOpenChange={() => tooltip.hide()}
                         />
                     ) : (
                         <span className="skill-node-status-chip" title={currentStatusLabel}>{currentStatusLabel}</span>
