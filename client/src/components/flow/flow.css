@@ -262,6 +262,9 @@
   -webkit-line-clamp: 4;
   line-clamp: 4;
   overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word; /* belt-and-suspenders for older engines */
+  white-space: pre-wrap;
 }
 
 /* =========================== Skill detail card (click popup contents) =========================== */
