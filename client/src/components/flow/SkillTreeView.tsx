@@ -1,10 +1,12 @@
 import '@xyflow/react/dist/style.css';
 import './flow.css';
 
-import { useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
 import { useEdgeSelection } from '../../hooks/useEdgeSelection';
 import { 
     ReactFlow,
+    ReactFlowInstance,
+    OnMoveEnd,
     ReactFlowProvider,
     useNodesState,
     useEdgesState,
@@ -48,6 +50,25 @@ function SkillTreeView(props: SkillTreeViewProps) {
 
 function SkillTreeViewInner({ skills, edges, statuses, isOwner, onSkillChanged, onSkillDeleted, onEdgeCreated, onEdgeDeleted, onStatusUsed }: SkillTreeViewProps) {
     
+    // ======================= Blurry Text Prevention ==========================
+
+    const rfInstanceRef = useRef<ReactFlowInstance<SkillFlowNode, FloatingSkillEdge> | null>(null);
+
+    // Snap the viewport to integer pixel coordinates once panning/zooming
+    // settles, so text and node borders don't end up rendered at a subpixel
+    // offset — see https://github.com/wbkd/react-flow/issues/3282
+    const onMoveEnd: OnMoveEnd = useCallback((_event, viewport) => {
+        const roundedX = Math.round(viewport.x);
+        const roundedY = Math.round(viewport.y);
+
+        if (roundedX !== viewport.x || roundedY !== viewport.y) {
+            rfInstanceRef.current?.setViewport(
+                { x: roundedX, y: roundedY, zoom: viewport.zoom },
+                { duration: 0 } // snap instantly, no visible jump
+            );
+        }
+    }, []);
+
     // ======================= Tracking Delete Popups for Edges ==========================
 
     const { selectedEdgeId, setSelectedEdgeId } = useEdgeSelection(isOwner, handleEdgeDelete);
@@ -303,6 +324,10 @@ function SkillTreeViewInner({ skills, edges, statuses, isOwner, onSkillChanged, 
                 connectionMode={ConnectionMode.Loose}
                 fitView
                 fitViewOptions={{ padding: 0.2, maxZoom: 1.5 }}
+
+                // Blur prevention
+                onInit={(instance) => { rfInstanceRef.current = instance; }}
+                onMoveEnd={onMoveEnd}
 
                 // Possibly temporary
                 connectOnClick={false} // At least for now, we don't want to have another way to create edges

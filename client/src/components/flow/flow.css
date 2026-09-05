@@ -92,7 +92,7 @@
     0 0 0 1px rgba(140, 145, 165, 0.5),
     0 0 18px color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) var(--status-glow, 0%), transparent);
   border-left: 3px solid var(--status-color, hsl(220, 70%, 55%));
-  transition: box-shadow 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
 }
 
 .skill-node.is-unset .skill-node-body {
@@ -107,23 +107,12 @@
 }
 
 .skill-node-body:hover {
-  transform: translateY(-1px) scale(1.025);
+  transform: translateY(-1.5px);
   box-shadow:
     0 0 0 1px rgba(140, 145, 165, 0.5),
-    0 0 24px color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 55%, transparent);
+    0 0 32px color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 70%, transparent);
 }
 
-/*
-  Ambient idle pulse for skills that have an active status, so the graph doesn't sit dead-still.
- 
-  IMPORTANT: this animates on a separate ::after layer, and only animates `opacity` (a plain
-  number, no var() inside the keyframes). Custom properties referenced *inside* @keyframes get
-  snapshotted by the browser when the animation starts and don't reliably update afterwards —
-  that was causing the ring to only "activate" after a hover forced a style recalc, and caused
-  a visible glitch when a hover-driven transition and this animation fought over the same
-  box-shadow property. Keeping the color (which depends on --status-hue/--status-glow) as a
-  static, non-animated declaration and only pulsing opacity sidesteps both bugs.
-*/
 .skill-node:not(.is-unset)::after {
   content: '';
   position: absolute;
@@ -133,6 +122,14 @@
   pointer-events: none;
   z-index: 0;
   animation: skill-node-idle-pulse 3.6s ease-in-out infinite;
+
+  /* Forces this pseudo-element onto its own compositing layer, so its
+     continuous animation can't get "squashed" together with the sibling
+     .skill-node-body layer (which holds the label text) during compositing.
+     Without this, the text layer can end up cached/rasterized once and
+     just bitmap-scaled on every React Flow zoom, causing blur. */
+  isolation: isolate;
+  will-change: opacity;
 }
 
 @keyframes skill-node-idle-pulse {
