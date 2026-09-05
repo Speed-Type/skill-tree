@@ -2,6 +2,7 @@ import PopupButton from '../ui/PopupButton';
 import ColorSwatchPicker from '../ui/ColorSwatchPicker';
 import { useDoubleConfirm } from '../../hooks/useDoubleConfirm';
 import { useDraft } from '../../hooks/useDraft';
+import CharCounter from '../ui/CharCounter';
 
 import { Status, StatusChangedHandler, StatusDeletedHandler } from '../../../../shared/types';
 import { apiFetch } from '../../lib/api';
@@ -69,12 +70,16 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
             >
                 {({ onClose }) => (
                     <div className="status-edit-fields">
-                        <input
-                            className="input"
-                            value={draft.label}
-                            onChange={e => updateDraft('label', e.target.value)}
-                            maxLength={MAX_LENGTHS.statusLabel}
-                        />
+                        <div className="input-wrap">
+                            <input
+                                className="input"
+                                value={draft.label}
+                                onChange={e => updateDraft('label', e.target.value)}
+                                maxLength={MAX_LENGTHS.statusLabel}
+                            />
+
+                            <CharCounter value={draft.label} max={MAX_LENGTHS.statusLabel} />
+                        </div>
 
                         <ColorSwatchPicker value={draft.color} onChange={c => updateDraft('color', c)} />
 
