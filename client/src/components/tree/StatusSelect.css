@@ -1,0 +1,76 @@
+/* ===================================== Status dropdown (color-aware select) ===================================== */
+
+.status-dropdown {
+  flex: 0 1 auto;
+}
+
+.status-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  /* cancel the native-select chevron background this class inherits when used as .skill-node-status-select */
+  background-image: none;
+}
+
+.status-dropdown-trigger .status-dot {
+  flex-shrink: 0;
+}
+
+.status-dropdown-trigger-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status-dropdown-menu {
+  z-index: 1000; /* portaled to document.body, so this just needs to clear ordinary page content */
+  min-width: 150px;
+  max-width: 220px;
+  max-height: 220px;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0.3rem;
+  background: var(--panel-raised);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+}
+
+.status-dropdown-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.status-dropdown-option:hover,
+.status-dropdown-option:focus-visible {
+  background: var(--panel);
+  color: var(--text-h);
+}
+
+.status-dropdown-option.is-current {
+  color: var(--gold);
+}
+
+.status-dropdown-option-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status-dot-none {
+  background: var(--locked);
+  box-shadow: none;
+}
