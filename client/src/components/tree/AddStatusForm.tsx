@@ -33,7 +33,7 @@ function AddStatusForm({ onStatusCreated, currentCount }: AddStatusFormProps) {
     }
 
     return (
-        <form className="form-row" onSubmit={handleSubmit}>
+        <form className="status-edit-fields" onSubmit={handleSubmit}>
             <div className="input-wrap">
                 <input
                     className="input"
@@ -48,7 +48,9 @@ function AddStatusForm({ onStatusCreated, currentCount }: AddStatusFormProps) {
 
             <ColorSwatchPicker value={color} onChange={c => setColor(c)} />
             
-            <button className="btn btn-primary" type="submit">Add Status</button>
+            <div className="btn-row">
+                <button className="btn btn-primary" type="submit">Add Status</button>
+            </div>
         </form>
     );
 }
