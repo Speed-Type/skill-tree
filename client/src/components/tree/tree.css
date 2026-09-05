@@ -30,6 +30,10 @@
 .status-row strong,
 .skill-row strong {
   flex: 1;
+  min-width: 0; /* lets the flex item shrink below its content width so ellipsis can apply */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-family: var(--heading);
   font-weight: 500;
   font-size: 0.9rem;

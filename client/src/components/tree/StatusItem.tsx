@@ -57,7 +57,7 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
                 className="status-dot"
                 style={{ '--status-color': resolveStatusColor(status) } as React.CSSProperties}
             />
-            <strong>{status.label} </strong>
+            <strong title={status.label}>{status.label} </strong>
 
             <PopupButton
                 label = "..."
