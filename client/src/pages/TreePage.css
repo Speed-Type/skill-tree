@@ -41,7 +41,11 @@
     color: var(--text-dim);
     font-size: 0.88rem;
     max-width: 60ch;
-    white-space: pre-wrap;
+    margin: 0;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .tree-page-canvas-wrap {

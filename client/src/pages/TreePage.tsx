@@ -119,6 +119,9 @@ function TreePage() {
         }
     }, [tree?.id]);
 
+    // Replace whitespace with a single space to avoid weird issues
+    const descriptionPreview = treeDescription.replace(/\s+/g, ' ').trim();
+
     // Function to handle the actual change to the tree title/description in the database
     async function handleTreeDetailsChange() {
         if (!tree) return; // Guard for typescript that tree is not null beyond this point
@@ -176,7 +179,7 @@ function TreePage() {
                         <h1 className="tree-page-title">{treeName}</h1>
                         
                         {/* Tree details edit popup */}
-                        {isOwner && (
+                        {(isOwner || treeDescription) && (
                             <PopupButton 
                                 label = {(
                                     <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -184,43 +187,51 @@ function TreePage() {
                                     </svg>
                                 )}
                                 className="btn btn-icon"
-                                resetValues={resetDraft}
-                                isDirty={draftIsDirty}
+                                resetValues={isOwner? resetDraft: undefined}
+                                isDirty={isOwner? draftIsDirty: undefined}
                             >
                                 {({ onClose }) => (
-                                    <div className="status-edit-fields">
-                                        <div className="input-wrap">
-                                            <input
-                                                className="input"
-                                                value={draft.title}
-                                                onChange={e => updateDraft('title', e.target.value)}
-                                                maxLength={MAX_LENGTHS.treeTitle}
-                                            />
-                                            <CharCounter value={draft.title} max={MAX_LENGTHS.treeTitle} />
-                                        </div>
+                                    isOwner ? (
+                                        <div className="status-edit-fields">
+                                            <div className="input-wrap">
+                                                <input
+                                                    className="input"
+                                                    value={draft.title}
+                                                    onChange={e => updateDraft('title', e.target.value)}
+                                                    maxLength={MAX_LENGTHS.treeTitle}
+                                                />
+                                                <CharCounter value={draft.title} max={MAX_LENGTHS.treeTitle} />
+                                            </div>
 
-                                        <div className="textarea-wrap">
-                                            <textarea
-                                                className="input"
-                                                value={draft.description}
-                                                onChange={e => updateDraft('description', e.target.value)}
-                                                placeholder="Add a description..."
-                                                maxLength={MAX_LENGTHS.treeDescription}
-                                                rows={4}
-                                            />
-                                            <CharCounter value={draft.description} max={MAX_LENGTHS.treeDescription} />
-                                        </div>
+                                            <div className="textarea-wrap">
+                                                <textarea
+                                                    className="input skill-card-desc-input"
+                                                    value={draft.description}
+                                                    onChange={e => updateDraft('description', e.target.value)}
+                                                    placeholder="Add a description..."
+                                                    maxLength={MAX_LENGTHS.treeDescription}
+                                                    rows={9}
+                                                />
+                                                <CharCounter value={draft.description} max={MAX_LENGTHS.treeDescription} />
+                                            </div>
 
-                                        <div className="btn-row">
-                                            <button className="btn btn-primary" onClick={() => { handleTreeDetailsChange(); onClose(); }}>Save Changes</button>
+                                            <div className="btn-row">
+                                                <button className="btn btn-primary" onClick={() => { handleTreeDetailsChange(); onClose(); }}>Save Changes</button>
+                                            </div>
                                         </div>
-                                    </div>
+                                    ) : (
+                                        <div className="skill-card">
+                                            <span className="eyebrow">Tree details</span>
+                                            <h3 className="skill-card-title">{treeName}</h3>
+                                            <p className="skill-card-desc">{treeDescription}</p>
+                                        </div>
+                                    )
                                 )}
                             </PopupButton>
                         )}
                     </div>
 
-                    {treeDescription && <p className="tree-page-description">{treeDescription}</p>}
+                    {treeDescription && <p className="tree-page-description">{descriptionPreview}</p>}
                 </div>
 
                 {/* Header Actions */}
