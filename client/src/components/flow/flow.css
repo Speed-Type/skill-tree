@@ -65,7 +65,8 @@
 
 .skill-node {
   position: relative;
-  width: 200px;
+  min-width: 175px;
+  max-width: 200px;
   border-radius: var(--radius);
   background: var(--panel-raised);
 }
@@ -160,29 +161,31 @@
   (owner) — same visual, same spot in the controls row. A capped width + ellipsis means a
   long status name truncates on its own pill instead of ever eating into the label's space again.
 */
+/* client/src/components/flow/flow.css */
+
 .skill-node-status-chip,
 .skill-node-status-select {
-  flex: 0 1 auto;
-  width: 8.5rem;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: none;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.03em;
+  font-size: 0.58rem;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 60%, white);
-  background-color: color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 14%, transparent);
-  border: 1px solid color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 40%, transparent);
-  border-radius: 999px;
-  padding: 0.2rem 0.6rem;
+  color: color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 65%, white);
+  background-color: color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 10%, transparent);
+  border: none;
+  border-radius: 5px;
+  padding: 0.18rem 0.45rem;
 }
 
 .skill-node.is-unset .skill-node-status-chip,
 .skill-node.is-unset .skill-node-status-select {
   color: var(--text-dim);
   background-color: rgba(255, 255, 255, 0.03);
-  border-color: var(--panel-border);
 }
 
 /* Extra affordances only the interactive (owner) variant needs */
@@ -190,36 +193,40 @@
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
-  padding-right: 1.3rem;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  padding-right: 1.05rem;
+  transition: background-color 0.15s ease;
   background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
     linear-gradient(135deg, currentColor 50%, transparent 50%);
-  background-position: calc(100% - 10px) center, calc(100% - 6px) center;
-  background-size: 4px 4px, 4px 4px;
+  background-position: calc(100% - 8px) center, calc(100% - 4px) center;
+  background-size: 3px 3px, 3px 3px;
   background-repeat: no-repeat;
 }
 
 .skill-node-status-select:hover,
 .skill-node-status-select:focus-visible {
-  border-color: color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 70%, transparent);
-  background-color: color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 22%, transparent);
+  background-color: color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 18%, transparent);
 }
 
 .skill-node-controls {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.4rem;
+  width: 100%;
+  gap: 0.5rem;
   pointer-events: auto;
 }
 
 .skill-node-inspect-btn {
-  flex-shrink: 0;
+  flex: 0 0 auto; /* keeps the button from getting squeezed as the chip grows */
   color: var(--text-dim);
+  padding: 0.2rem 0.4rem;
+  font-size: 0.85rem;
+  line-height: 1;
+  border-radius: 4px;
 }
 
 .skill-node-inspect-btn:hover {
   color: var(--gold);
+  background: var(--panel-border);
 }
 
 /* =========================== Hover tooltip (NodeToolbar) =========================== */
