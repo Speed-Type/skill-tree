@@ -18,6 +18,7 @@ import NotFoundPage from '../pages/NotFoundPage';
 import ErrorPage from '../pages/ErrorPage';
 import { MAX_LENGTHS } from '../../../shared/constants';
 import CharCounter from '../components/ui/CharCounter';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useAuth } from '../context/AuthContext';
 import { Link, useLocation } from 'react-router';
 
@@ -32,6 +33,7 @@ function TreePage() {
     const location = useLocation();
     const { user } = useAuth();
     const { tree, setTree, loading, error } = useSkillTree(treeSlug);
+    useDocumentTitle(tree?.title);
 
     const isOwner = !!user && !!tree && user.id === tree.user_id;
 

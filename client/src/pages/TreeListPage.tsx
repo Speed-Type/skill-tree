@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router';
 import { SkillTree } from '../../../shared/types';
 import { apiFetch, ApiError, NETWORK_ERROR_MESSAGE } from '../lib/api';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useAuth } from '../context/AuthContext';
 import { snackbar } from '../lib/snackbar';
 import LoadingPage from './LoadingPage';
@@ -10,6 +11,8 @@ import ErrorPage from './ErrorPage';
 import { MAX_LENGTHS } from '../../../shared/constants';
 
 function TreeListPage() {
+    useDocumentTitle('Your trees');
+
     const { user } = useAuth();
     const location = useLocation();
     const [trees, setTrees] = useState<SkillTree[]>([]);

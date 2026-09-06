@@ -1,4 +1,5 @@
 import './StatusPage.css';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 interface ErrorPageProps {
     title?: string;
@@ -11,6 +12,7 @@ function ErrorPage({
     message = "We couldn't load this. Please try again.",
     onRetry,
 }: ErrorPageProps) {
+    useDocumentTitle(title);
     return (
         <div className="app-shell">
             <main className="status-page">
