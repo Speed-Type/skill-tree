@@ -173,7 +173,12 @@ function TreePage() {
             <header className="tree-page-header">
                 <div className="tree-page-top-row">
                     {/* If viewing this as a non-owner, show owner's display name */}
-                    <span className="eyebrow">{!isOwner && (tree.owner_display_name + "'s")} Skill Tree</span>
+                    <span
+                        className="eyebrow"
+                        title={!isOwner ? `${tree.owner_display_name}'s Skill Tree` : 'Skill Tree'}
+                    >
+                        {!isOwner && (tree.owner_display_name + "'s")} Skill Tree
+                    </span>
 
                     {/* Header Actions */}
                     {(isOwner || user) && (
