@@ -30,7 +30,7 @@
 }
 
 .btn-primary:hover {
-  background: rgba(227, 169, 74, 0.25);
+  background: var(--gold-hover);
 }
 
 .btn-danger {

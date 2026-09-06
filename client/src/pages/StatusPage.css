@@ -42,7 +42,7 @@
 
 .status-page__action:hover,
 .status-page__action:focus-visible {
-    background: rgba(227, 169, 74, 0.25);
+    background: var(--gold-hover);
 }
 
 .status-page__action:focus-visible {
