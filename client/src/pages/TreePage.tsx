@@ -29,6 +29,7 @@ import { snackbar } from '../lib/snackbar';
 function TreePage() {
     const { treeSlug } = useParams<{ treeSlug: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
     const { user } = useAuth();
     const { tree, setTree, loading, error } = useSkillTree(treeSlug);
 
