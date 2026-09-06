@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { PublicUser } from '../../../shared/types';
-import { apiFetch, ApiError } from '../lib/api';
+import { apiFetch, ApiError, setUnauthorizedHandler } from '../lib/api';
 
 interface AuthContextValue {
     user: PublicUser | null;
@@ -39,6 +39,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             .finally(() => setLoading(false));
     }, []);
 
+    // Any unsuppressed 401, anywhere in the app, clears the session — ProtectedRoute then
+    // bounces to /login on its own. Using the functional setUser form means this only actually
+    // changes anything (and thus only re-renders) when someone was genuinely logged in.
+    useEffect(() => {
+        setUnauthorizedHandler(() => {
+            setUser(prev => prev ? null : prev);
+        });
+        return () => setUnauthorizedHandler(null);
+    }, []);
+
     async function login(email: string, password: string) {
         const loggedInUser = await apiFetch<PublicUser>('/auth/login', {
             method: 'POST',
@@ -69,10 +79,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(updatedUser);
     }
 
+    // These three all involve current_password re-auth — a wrong password is a normal,
+    // expected 401 here, not a sign the session expired, so suppress the auto-logout
+
     async function updateEmail(email: string, current_password: string) {
         const updatedUser = await apiFetch<PublicUser>('/users/me', {
             method: 'PUT',
             body: JSON.stringify({ email, current_password }),
+            suppressAuthRedirect: true,
         });
         setUser(updatedUser);
     }
@@ -81,6 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await apiFetch<PublicUser>('/users/me', {
             method: 'PUT',
             body: JSON.stringify({ password, current_password }),
+            suppressAuthRedirect: true,
         });
         // Don't need to setPassword because password is never saved locally anyways
     }
@@ -89,6 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await apiFetch('/users/me', {
             method: 'DELETE',
             body: JSON.stringify({ current_password }),
+            suppressAuthRedirect: true,
         });
         setUser(null); // ProtectedRoute will bounce to /login once this clears
     }
