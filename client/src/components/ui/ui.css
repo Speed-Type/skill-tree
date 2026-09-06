@@ -10,6 +10,10 @@
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-sm);
   padding: 0.55rem 1rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: border-color 0.15s ease, transform 0.1s ease, background 0.15s ease;
 }
