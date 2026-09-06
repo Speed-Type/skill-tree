@@ -62,7 +62,7 @@ function TreeListPage() {
                 </div>
 
                 {/* Button to open settings */}
-                <Link className="btn" to="/settings" state={{ from: location.pathname }}>Settings ({user?.display_name})</Link>
+                <Link className="btn" to="/settings" state={{ from: location.pathname }}>Settings</Link>
             </header>
 
             <main className="app-main">
