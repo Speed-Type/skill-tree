@@ -114,21 +114,6 @@ body {
   justify-content: flex-end;
 }
 
-.tree-title-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.tree-title-row h2 {
-  margin-bottom: 0;
-}
-
-.tree-title-row .btn-icon svg {
-  display: block;
-}
-
 .app-main {
   display: flex;
   flex-direction: column;

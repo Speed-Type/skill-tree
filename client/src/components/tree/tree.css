@@ -16,8 +16,7 @@
   padding-right: 0.4rem;
 }
 
-.status-row,
-.skill-row {
+.status-row {
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -27,8 +26,7 @@
   padding: 0.5rem 0.6rem 0.5rem 0.8rem;
 }
 
-.status-row strong,
-.skill-row strong {
+.status-row strong {
   flex: 1;
   min-width: 0; /* lets the flex item shrink below its content width so ellipsis can apply */
   overflow: hidden;
@@ -60,19 +58,4 @@
   display: flex;
   gap: 0.5rem;
   margin-top: 0.25rem;
-}
-
-/* Native select used for status assignment on a skill */
-select.input {
-  appearance: none;
-  padding-right: 1.75rem;
-  background-image: linear-gradient(45deg, transparent 50%, var(--text-dim) 50%),
-    linear-gradient(135deg, var(--text-dim) 50%, transparent 50%);
-  background-position: calc(100% - 14px) center, calc(100% - 9px) center;
-  background-size: 5px 5px, 5px 5px;
-  background-repeat: no-repeat;
-  max-width: 15ch;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
 }
