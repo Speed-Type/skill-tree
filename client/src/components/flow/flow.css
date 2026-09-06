@@ -165,12 +165,7 @@
 
 .skill-node-status-chip,
 .skill-node-status-select {
-  flex: 1 1 0;
-  min-width: 0;
   max-width: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   font-family: var(--mono);
   font-size: 0.58rem;
   letter-spacing: 0.02em;

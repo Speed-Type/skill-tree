@@ -140,7 +140,15 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
                             onOpenChange={() => tooltip.hide()}
                         />
                     ) : (
-                        <span className="skill-node-status-chip" title={currentStatusLabel}>{currentStatusLabel}</span>
+                        <>
+                            <span className="skill-node-status-chip status-dropdown-trigger" title={currentStatusLabel}>
+                                <span
+                                    className="status-dot"
+                                    style={currentStatus ? ({ '--status-color': resolveStatusColor(currentStatus) } as React.CSSProperties) : undefined}
+                                />
+                                <span className="status-dropdown-trigger-label">{currentStatusLabel}</span>
+                            </span>
+                        </>
                     )}
 
                     {/* Click-through detail card — available to everyone, editable only for the owner */}
@@ -203,9 +211,12 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
                                 ) : (
                                     <>
                                         <h3 className="skill-card-title">{skill.label}</h3>
-                                        <p className="skill-card-desc">
-                                            {skill.description?.trim() || 'No description provided.'}
-                                        </p>
+
+                                        {skill.description && (
+                                            <p className="skill-card-desc">
+                                                {skill.description.trim()}
+                                            </p>
+                                        )}
                                     </>
                                 )}
                             </div>

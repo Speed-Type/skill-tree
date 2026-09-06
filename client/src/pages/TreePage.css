@@ -22,7 +22,16 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    flex-wrap: wrap; /* last-resort fallback for very narrow screens with many action buttons */
+    flex-wrap: nowrap; /* let the eyebrow truncate instead of wrapping header-actions to a new line */
+    min-width: 0;
+}
+
+.tree-page-top-row .eyebrow {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-shrink: 1;
 }
 
 .tree-page-meta {
@@ -36,6 +45,11 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    min-width: 0; /* lets this flex row actually shrink instead of forcing header wrap */
+}
+
+.tree-page-title-row .btn-icon {
+    flex-shrink: 0; /* keep the edit pencil full-size; the eyebrow text should be the thing that gives way */
 }
 
 .tree-page-title {

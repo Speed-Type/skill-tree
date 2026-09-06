@@ -104,7 +104,7 @@ function SkillTreeViewInner({ skills, edges, statuses, isOwner, onSkillChanged, 
                 isOwner: isOwner,
                 onDelete: handleEdgeDelete,
                 isSelected: selectedEdgeId === String(edge.id),
-                onSelect: () => setSelectedEdgeId(String(edge.id)),
+                onSelect: () => { if (isOwner) setSelectedEdgeId(String(edge.id)); },
             }
         }));
 

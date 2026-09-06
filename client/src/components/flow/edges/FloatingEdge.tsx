@@ -94,8 +94,8 @@ function FloatingEdge({ id, source, target, markerEnd, style, data }: EdgeProps<
                 fill="none"
                 stroke="transparent"
                 strokeWidth={20}
-                style={{ cursor: 'pointer', pointerEvents: 'all' }}
-                onClick={onSelect}
+                style={{ cursor: isOwner ? 'pointer' : 'default', pointerEvents: 'all' }}
+                onClick={isOwner ? onSelect : undefined}
             />
 
             {/* Visible thin line; purely visual. Stroke is the per-edge gradient while
