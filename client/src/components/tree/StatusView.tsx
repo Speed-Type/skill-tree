@@ -12,7 +12,7 @@ interface StatusViewProps {
 
 function StatusView({ statuses, onStatusChanged, onStatusDeleted }: StatusViewProps) {
     return (
-        <div className="status-edit-fields" style={{ minWidth: 280 }}>
+        <div className="status-edit-fields" style={{ minWidth: 340 }}>
             <h2>Edit Statuses</h2>
             <ul className="status-list">
                 {statuses.map(status => (

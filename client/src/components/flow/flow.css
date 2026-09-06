@@ -39,12 +39,34 @@
   color: var(--text-dim);
 }
 
+/* =========================== Recenter and Autospace Buttons =========================== */
+
+.flow-recenter-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 10;
+  background: var(--panel-raised);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.flow-autospace-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 3.25rem;
+  z-index: 10;
+  background: var(--panel-raised);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
 /* =========================== Node =========================== */
 
 .skill-node {
   position: relative;
-  min-width: 180px;
-  max-width: 220px;
+  min-width: 175px;
+  max-width: 200px;
   border-radius: var(--radius);
   background: var(--panel-raised);
 }
@@ -71,7 +93,7 @@
     0 0 0 1px rgba(140, 145, 165, 0.5),
     0 0 18px color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) var(--status-glow, 0%), transparent);
   border-left: 3px solid var(--status-color, hsl(220, 70%, 55%));
-  transition: box-shadow 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
 }
 
 .skill-node.is-unset .skill-node-body {
@@ -86,23 +108,12 @@
 }
 
 .skill-node-body:hover {
-  transform: translateY(-1px) scale(1.025);
+  transform: translateY(-1.5px);
   box-shadow:
     0 0 0 1px rgba(140, 145, 165, 0.5),
-    0 0 24px color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 55%, transparent);
+    0 0 32px color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 70%, transparent);
 }
 
-/*
-  Ambient idle pulse for skills that have an active status, so the graph doesn't sit dead-still.
- 
-  IMPORTANT: this animates on a separate ::after layer, and only animates `opacity` (a plain
-  number, no var() inside the keyframes). Custom properties referenced *inside* @keyframes get
-  snapshotted by the browser when the animation starts and don't reliably update afterwards —
-  that was causing the ring to only "activate" after a hover forced a style recalc, and caused
-  a visible glitch when a hover-driven transition and this animation fought over the same
-  box-shadow property. Keeping the color (which depends on --status-hue/--status-glow) as a
-  static, non-animated declaration and only pulsing opacity sidesteps both bugs.
-*/
 .skill-node:not(.is-unset)::after {
   content: '';
   position: absolute;
@@ -112,6 +123,14 @@
   pointer-events: none;
   z-index: 0;
   animation: skill-node-idle-pulse 3.6s ease-in-out infinite;
+
+  /* Forces this pseudo-element onto its own compositing layer, so its
+     continuous animation can't get "squashed" together with the sibling
+     .skill-node-body layer (which holds the label text) during compositing.
+     Without this, the text layer can end up cached/rasterized once and
+     just bitmap-scaled on every React Flow zoom, causing blur. */
+  isolation: isolate;
+  will-change: opacity;
 }
 
 @keyframes skill-node-idle-pulse {
@@ -142,29 +161,31 @@
   (owner) — same visual, same spot in the controls row. A capped width + ellipsis means a
   long status name truncates on its own pill instead of ever eating into the label's space again.
 */
+/* client/src/components/flow/flow.css */
+
 .skill-node-status-chip,
 .skill-node-status-select {
-  flex: 0 1 auto;
-  width: 8.5rem;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: none;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.03em;
+  font-size: 0.58rem;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 60%, white);
-  background-color: color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 14%, transparent);
-  border: 1px solid color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 40%, transparent);
-  border-radius: 999px;
-  padding: 0.2rem 0.6rem;
+  color: color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 65%, white);
+  background-color: color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 10%, transparent);
+  border: none;
+  border-radius: 5px;
+  padding: 0.18rem 0.45rem;
 }
 
 .skill-node.is-unset .skill-node-status-chip,
 .skill-node.is-unset .skill-node-status-select {
   color: var(--text-dim);
   background-color: rgba(255, 255, 255, 0.03);
-  border-color: var(--panel-border);
 }
 
 /* Extra affordances only the interactive (owner) variant needs */
@@ -172,36 +193,40 @@
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
-  padding-right: 1.3rem;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  padding-right: 1.05rem;
+  transition: background-color 0.15s ease;
   background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
     linear-gradient(135deg, currentColor 50%, transparent 50%);
-  background-position: calc(100% - 10px) center, calc(100% - 6px) center;
-  background-size: 4px 4px, 4px 4px;
+  background-position: calc(100% - 8px) center, calc(100% - 4px) center;
+  background-size: 3px 3px, 3px 3px;
   background-repeat: no-repeat;
 }
 
 .skill-node-status-select:hover,
 .skill-node-status-select:focus-visible {
-  border-color: color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 70%, transparent);
-  background-color: color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 22%, transparent);
+  background-color: color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 18%, transparent);
 }
 
 .skill-node-controls {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.4rem;
+  width: 100%;
+  gap: 0.5rem;
   pointer-events: auto;
 }
 
 .skill-node-inspect-btn {
-  flex-shrink: 0;
+  flex: 0 0 auto; /* keeps the button from getting squeezed as the chip grows */
   color: var(--text-dim);
+  padding: 0.2rem 0.4rem;
+  font-size: 0.85rem;
+  line-height: 1;
+  border-radius: 4px;
 }
 
 .skill-node-inspect-btn:hover {
   color: var(--gold);
+  background: var(--panel-border);
 }
 
 /* =========================== Hover tooltip (NodeToolbar) =========================== */
@@ -244,6 +269,9 @@
   -webkit-line-clamp: 4;
   line-clamp: 4;
   overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word; /* belt-and-suspenders for older engines */
+  white-space: pre-wrap;
 }
 
 /* =========================== Skill detail card (click popup contents) =========================== */
@@ -280,6 +308,7 @@
   font-size: 1.05rem;
   color: var(--text-h);
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .skill-card-desc {
@@ -288,6 +317,7 @@
   line-height: 1.5;
   margin: 0;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .skill-card-title-input {
@@ -368,15 +398,18 @@
 /* =========================== Edges =========================== */
 
 .skill-edge-path {
-  stroke: var(--line);
   stroke-width: 1.5;
-  transition: stroke 0.15s ease, filter 0.15s ease;
+  /* Dim + glow-free at rest so hover reads as a real jump in vibrance, not just a bit more blur */
+  opacity: 0.5;
+  filter: none;
+  transition: opacity 0.15s ease, filter 0.15s ease, stroke-width 0.15s ease;
 }
 
 .skill-edge-path.is-selected {
   stroke: var(--gold);
   stroke-width: 2;
   stroke-dasharray: 7 5;
+  opacity: 1;
   filter: drop-shadow(0 0 5px var(--gold-line));
   animation: skill-edge-flow 0.7s linear infinite;
 }
@@ -387,9 +420,58 @@
   }
 }
 
+/* Hover can't recolor the stroke (an inline gradient wins over this), so it escalates via
+   full opacity + thickness + glow instead — a clear jump up from the dimmed resting state */
 .react-flow__edge:hover .skill-edge-path:not(.is-selected) {
-  stroke: var(--violet);
-  filter: drop-shadow(0 0 4px var(--violet-soft));
+  stroke-width: 2;
+  opacity: 1;
+  stroke-width: 2;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.32));
+}
+
+/* Traveling highlight shown only on hover, sweeping from source to target along the edge.
+   Always animating (avoids a restart flicker on hover-in); opacity is the actual toggle */
+.skill-edge-pulse {
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 8 30; /* short bright dash, long gap */
+  opacity: 0;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.5));
+  animation: skill-edge-pulse-flow 1.3s linear infinite;
+  transition: opacity 0.15s ease;
+}
+
+.react-flow__edge:hover .skill-edge-pulse {
+  opacity: 0.9;
+}
+
+@keyframes skill-edge-pulse-flow {
+  to {
+    /* -76 = 2x the "8 30" pattern length (38), so the loop tiles seamlessly with no visible snap */
+    stroke-dashoffset: -76;
+  }
+}
+
+/* Small glow dot where an edge meets a node's border on each end,
+   tinted per-node via the --endpoint-color custom property set inline in FloatingEdge */
+.skill-edge-endpoint {
+  fill: var(--endpoint-color, hsl(220, 70%, 55%));
+  opacity: 0.45;
+  filter: none;
+  transition: opacity 0.15s ease, filter 0.15s ease;
+}
+
+.react-flow__edge:hover .skill-edge-endpoint:not(.is-selected) {
+  opacity: 1;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--endpoint-color, hsl(220, 70%, 55%)) 70%, transparent));
+}
+
+/* Selected state stays gold to match the selected line, overriding the per-node tint
+   so "this edge is selected" reads unambiguously regardless of endpoint status colors */
+.skill-edge-endpoint.is-selected {
+  fill: var(--gold);
+  opacity: 1;
+  filter: drop-shadow(0 0 7px var(--gold-line));
 }
 
 .edge-delete-popup {
@@ -445,10 +527,13 @@
   }
 }
 
+/* =========================== For Reduced Motion =========================== */
+
 @media (prefers-reduced-motion: reduce) {
 
   .skill-node:not(.is-unset) .skill-node-body,
   .skill-edge-path.is-selected,
+  .skill-edge-pulse,
   .connection-line-path {
     animation: none;
   }

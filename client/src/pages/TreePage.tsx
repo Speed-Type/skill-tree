@@ -40,7 +40,7 @@ function TreePage() {
 
     useEffect(() => {
         if (tree) setSkills(tree.skills);
-    }, [tree]);
+    }, [tree?.id]);
 
     function handleSkillCreated(newSkill: Skill) {
         setSkills(prev => [...prev, newSkill]);
@@ -58,6 +58,14 @@ function TreePage() {
             prev.filter(skill => skill.id !== deletedSkillID)
         );
     }
+
+    // Draft for new skill form
+    const {
+        draft: newSkillDraft,
+        updateDraft: updateNewSkillDraft,
+        resetDraft: resetNewSkillDraft,
+        draftIsDirty: newSkillDraftIsDirty,
+    } = useDraft({ label: '', description: '' });
 
     // ===================================== Status Handling =====================================
 
@@ -79,7 +87,7 @@ function TreePage() {
     // Seed local edges state once the tree data arrives
     useEffect(() => {
         if (tree) setEdges(tree.edges);
-    }, [tree]);
+    }, [tree?.id]);
 
     function handleEdgeCreated(newEdge: SkillEdge) {
         setEdges(prev => [...prev, newEdge]);
@@ -109,7 +117,10 @@ function TreePage() {
             setTreeName(tree.title);
             setTreeDescription(tree.description || '');
         }
-    }, [tree]);
+    }, [tree?.id]);
+
+    // Replace whitespace with a single space to avoid weird issues
+    const descriptionPreview = treeDescription.replace(/\s+/g, ' ').trim();
 
     // Function to handle the actual change to the tree title/description in the database
     async function handleTreeDetailsChange() {
@@ -160,13 +171,56 @@ function TreePage() {
     return (
         <div className="tree-page">
             <header className="tree-page-header">
+                <div className="tree-page-top-row">
+                    {/* If viewing this as a non-owner, show owner's display name */}
+                    <span className="eyebrow">{!isOwner && (tree.owner_display_name + "'s")} Skill Tree</span>
+
+                    {/* Header Actions */}
+                    {(isOwner || user) && (
+                        <div className="header-actions">
+
+                            {/* Owner-only: Status edit and visibility toggle */}
+                            {isOwner && (
+                                <>
+                                    <PopupButton label = "Edit Statuses">
+                                        {({ onClose }) => (
+                                            <>
+                                                <StatusView
+                                                    statuses={myStatuses}
+                                                    onStatusChanged={handleStatusChanged}
+                                                    onStatusDeleted={handleStatusDeleted}
+                                                />
+                                                
+                                                <PopupButton label="Add Status" className="btn btn-primary">
+                                                    {() => (
+                                                        <AddStatusForm
+                                                            currentCount={myStatuses.length}
+                                                            onStatusCreated={handleStatusCreated}
+                                                        />
+                                                    )}
+                                                </PopupButton>
+                                            </>
+                                        )}
+                                    </PopupButton>
+
+                                    <VisibilityToggle tree={tree} onTreeChanged={handleTreeChanged} />
+                                </>
+                            )}
+
+                            {/* For any logged in user */}
+                            {user && (
+                                <Link className="btn btn-icon" to="/settings" state={{ from: location.pathname }} title="Account settings">Settings</Link>
+                            )}
+                        </div>
+                    )}
+                </div>
+
                 <div className="tree-page-meta">
                     <div className="tree-page-title-row">
-                        {/* If viewing this as a non-owner, show owner's display name */}
-                        <span className="eyebrow">{!isOwner && (tree.owner_display_name + "'s")} Skill Tree</span>
-
+                        <h1 className="tree-page-title">{treeName}</h1>
+                        
                         {/* Tree details edit popup */}
-                        {isOwner && (
+                        {(isOwner || treeDescription) && (
                             <PopupButton 
                                 label = {(
                                     <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -174,84 +228,52 @@ function TreePage() {
                                     </svg>
                                 )}
                                 className="btn btn-icon"
-                                resetValues={resetDraft}
-                                isDirty={draftIsDirty}
+                                resetValues={isOwner? resetDraft: undefined}
+                                isDirty={isOwner? draftIsDirty: undefined}
                             >
                                 {({ onClose }) => (
-                                    <div className="status-edit-fields">
-                                        <div className="input-wrap">
-                                            <input
-                                                className="input"
-                                                value={draft.title}
-                                                onChange={e => updateDraft('title', e.target.value)}
-                                                maxLength={MAX_LENGTHS.treeTitle}
-                                            />
-                                            <CharCounter value={draft.title} max={MAX_LENGTHS.treeTitle} />
-                                        </div>
+                                    isOwner ? (
+                                        <div className="status-edit-fields">
+                                            <div className="input-wrap">
+                                                <input
+                                                    className="input"
+                                                    value={draft.title}
+                                                    onChange={e => updateDraft('title', e.target.value)}
+                                                    maxLength={MAX_LENGTHS.treeTitle}
+                                                />
+                                                <CharCounter value={draft.title} max={MAX_LENGTHS.treeTitle} />
+                                            </div>
 
-                                        <div className="textarea-wrap">
-                                            <textarea
-                                                className="input"
-                                                value={draft.description}
-                                                onChange={e => updateDraft('description', e.target.value)}
-                                                placeholder="Add a description..."
-                                                maxLength={MAX_LENGTHS.treeDescription}
-                                                rows={4}
-                                            />
-                                            <CharCounter value={draft.description} max={MAX_LENGTHS.treeDescription} />
-                                        </div>
+                                            <div className="textarea-wrap">
+                                                <textarea
+                                                    className="input skill-card-desc-input"
+                                                    value={draft.description}
+                                                    onChange={e => updateDraft('description', e.target.value)}
+                                                    placeholder="Add a description..."
+                                                    maxLength={MAX_LENGTHS.treeDescription}
+                                                    rows={9}
+                                                />
+                                                <CharCounter value={draft.description} max={MAX_LENGTHS.treeDescription} />
+                                            </div>
 
-                                        <div className="btn-row">
-                                            <button className="btn btn-primary" onClick={() => { handleTreeDetailsChange(); onClose(); }}>Save Changes</button>
+                                            <div className="btn-row">
+                                                <button className="btn btn-primary" onClick={() => { handleTreeDetailsChange(); onClose(); }}>Save Changes</button>
+                                            </div>
                                         </div>
-                                    </div>
+                                    ) : (
+                                        <div className="skill-card">
+                                            <span className="eyebrow">Tree details</span>
+                                            <h3 className="skill-card-title">{treeName}</h3>
+                                            <p className="skill-card-desc">{treeDescription}</p>
+                                        </div>
+                                    )
                                 )}
                             </PopupButton>
                         )}
                     </div>
 
-                    <h1 className="tree-page-title">{treeName}</h1>
-                    {treeDescription && <p className="tree-page-description">{treeDescription}</p>}
+                    {treeDescription && <p className="tree-page-description">{descriptionPreview}</p>}
                 </div>
-
-                {/* Header Actions */}
-                {(isOwner || user) && (
-                    <div className="header-actions">
-
-                        {/* Owner-only: Status edit and visibility toggle */}
-                        {isOwner && (
-                            <>
-                                <PopupButton label = "Edit Statuses">
-                                    {({ onClose }) => (
-                                        <>
-                                            <StatusView
-                                                statuses={myStatuses}
-                                                onStatusChanged={handleStatusChanged}
-                                                onStatusDeleted={handleStatusDeleted}
-                                            />
-                                            
-                                            <PopupButton label="Add Status" className="btn btn-primary">
-                                                {() => (
-                                                    <AddStatusForm
-                                                        currentCount={myStatuses.length}
-                                                        onStatusCreated={handleStatusCreated}
-                                                    />
-                                                )}
-                                            </PopupButton>
-                                        </>
-                                    )}
-                                </PopupButton>
-
-                                <VisibilityToggle tree={tree} onTreeChanged={handleTreeChanged} />
-                            </>
-                        )}
-
-                        {/* For any logged in user */}
-                        {user && (
-                            <Link className="btn btn-icon" to="/settings" state={{ from: location.pathname }} title="Account settings">Settings</Link>
-                        )}
-                    </div>
-                )}
             </header>
 
             {/* Main content area */}
@@ -276,13 +298,21 @@ function TreePage() {
                             </svg>
                         )}
                         className="btn tree-add-skill-fab"
+                        resetValues={resetNewSkillDraft}
+                        isDirty={newSkillDraftIsDirty}
                     >
                         {({ onClose }) => (
                             <div className="skill-card">
                                 <span className="eyebrow">New skill</span>
                                 <AddSkillForm
                                     treeId={tree.id}
-                                    onCreated={(skill) => { handleSkillCreated(skill); onClose(); }}
+                                    draft={newSkillDraft}
+                                    updateDraft={updateNewSkillDraft}
+                                    onCreated={(skill) => {
+                                        handleSkillCreated(skill);
+                                        resetNewSkillDraft();
+                                        onClose();
+                                    }}
                                 />
                             </div>
                         )}
