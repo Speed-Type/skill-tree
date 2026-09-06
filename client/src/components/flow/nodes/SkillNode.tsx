@@ -203,9 +203,12 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
                                 ) : (
                                     <>
                                         <h3 className="skill-card-title">{skill.label}</h3>
-                                        <p className="skill-card-desc">
-                                            {skill.description?.trim() || 'No description provided.'}
-                                        </p>
+
+                                        {skill.description && (
+                                            <p className="skill-card-desc">
+                                                {skill.description.trim()}
+                                            </p>
+                                        )}
                                     </>
                                 )}
                             </div>
