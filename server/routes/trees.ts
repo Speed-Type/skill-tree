@@ -22,7 +22,13 @@ router.get('/', requireAuth, async(req: Request, res: Response<SkillTree[] | Err
 
 router.get('/:slug', optionalAuth, async(req: Request<{ slug: string }>, res: Response<TreeWithDetails | ErrorResponse>) => {
     try {
-        const treeResult = await pool.query('SELECT * FROM skill_trees WHERE slug = $1', [req.params.slug]);
+        const treeResult = await pool.query(
+            `SELECT t.*, u.display_name AS owner_display_name
+             FROM skill_trees t
+             JOIN users u ON u.id = t.user_id
+             WHERE t.slug = $1`,
+            [req.params.slug]
+        );
 
         // Make sure the tree exists to begin with
         if(treeResult.rows.length === 0) return res.status(404).json({ error: 'Not found' });
