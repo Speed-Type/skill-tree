@@ -47,6 +47,11 @@
   box-shadow: 0 0 6px color-mix(in srgb, var(--status-color, hsl(220, 70%, 55%)) 70%, transparent);
 }
 
+.status-dot-none {
+  background: var(--locked);
+  box-shadow: none;
+}
+
 .status-edit-fields {
   display: flex;
   flex-direction: column;

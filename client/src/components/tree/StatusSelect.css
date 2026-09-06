@@ -76,8 +76,3 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-.status-dot-none {
-  background: var(--locked);
-  box-shadow: none;
-}
