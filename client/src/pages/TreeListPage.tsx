@@ -1,4 +1,5 @@
 import './TreeListPage.css';
+import '../components/tree/tree.css';
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router';
 import { SkillTree } from '../../../shared/types';
@@ -8,7 +9,23 @@ import { useAuth } from '../context/AuthContext';
 import { snackbar } from '../lib/snackbar';
 import LoadingPage from './LoadingPage';
 import ErrorPage from './ErrorPage';
+import CharCounter from '../components/ui/CharCounter';
 import { MAX_LENGTHS } from '../../../shared/constants';
+
+const dateFormatter = new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+
+// Rotating flavor text for the tagline — picked once per visit rather than
+// on every re-render, so it doesn't shuffle mid-session
+function buildTaglines(displayName: string | undefined): string[] {
+    return [
+        "Pick one up where you left off, or chart a new one.",
+        "Ready to show off your skills?",
+        "Go beyond a plain list. Build a skill tree.",
+        "Your skills, your way.",
+        "Show your growth.",
+        `Welcome, ${displayName ?? 'friend'}.`,
+    ];
+};
 
 function TreeListPage() {
     useDocumentTitle('Your trees');
@@ -17,8 +34,11 @@ function TreeListPage() {
     const location = useLocation();
     const [trees, setTrees] = useState<SkillTree[]>([]);
     const [loading, setLoading] = useState(true);
-    const [title, setTitle] = useState('');
     const [error, setError] = useState<unknown>(null);
+    const [tagline] = useState(() => {
+        const options = buildTaglines(user?.display_name);
+        return options[Math.floor(Math.random() * options.length)];
+    });
 
     useEffect(() => {
         apiFetch<SkillTree[]>('/trees', { silent: true })
@@ -27,16 +47,28 @@ function TreeListPage() {
             .finally(() => setLoading(false));
     }, []);
 
+    // ===================================== New tree tile =====================================
+
+    const [isCreating, setIsCreating] = useState(false);
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+
+    function closeCreateForm() {
+        setIsCreating(false);
+        setTitle('');
+        setDescription('');
+    }
+
     async function handleCreate(e: React.SubmitEvent<HTMLFormElement>) {
         e.preventDefault();
 
         try {
             const newTree = await apiFetch<SkillTree>('/trees', {
                 method: 'POST',
-                body: JSON.stringify({ title }),
+                body: JSON.stringify({ title, description: description || undefined }),
             });
             setTrees(prev => [...prev, newTree]);
-            setTitle('');
+            closeCreateForm();
             snackbar.success('Tree created successfully');
         }
         catch (err) {
@@ -57,8 +89,16 @@ function TreeListPage() {
             <header className="app-header">
                 <div className="brand">
                     <span className="eyebrow">Skill tree</span>
-                    <h1>Your skill trees</h1>
-                    <p className="tagline">Pick one up where you left off, or start a new one.</p>
+                    
+                    <div className="tree-list-heading-row">
+                        <h1>Your skill trees</h1>
+                        {trees.length > 0 && (
+                            <span className="tree-count-badge">
+                                {trees.length} {trees.length === 1 ? 'tree' : 'trees'}
+                            </span>
+                        )}
+                    </div>
+                    <p className="tagline">{tagline}</p>
                 </div>
 
                 {/* Button to open settings */}
@@ -72,30 +112,74 @@ function TreeListPage() {
             </header>
 
             <main className="app-main">
-                {trees.length > 0 ? (
-                    <ul className="tree-list">
-                        {trees.map(tree => (
-                            <li key={tree.id}>
-                                <Link className="tree-card" to={`/trees/${tree.slug}`}>{tree.title}</Link>
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p className="tree-list-empty">No skill trees yet. Create your first one below.</p>
-                )}
+                <div className="tree-grid">
+                    {/* New tree tile — always the first cell in the grid, so charting a new tree
+                        is never something you have to scroll past your existing trees to find */}
+                    <div className={`tree-card tree-card-new${isCreating ? ' is-editing' : ''}`}>
+                        {isCreating ? (
+                            <form className="tree-card-new-form" onSubmit={handleCreate}>
+                                <div className="input-wrap">
+                                    <input
+                                        className="input"
+                                        value={title}
+                                        onChange={e => setTitle(e.target.value)}
+                                        placeholder="Tree name"
+                                        autoFocus
+                                        required
+                                        maxLength={MAX_LENGTHS.treeTitle}
+                                    />
+                                    <CharCounter value={title} max={MAX_LENGTHS.treeTitle} />
+                                </div>
 
-                <form className="panel form-row" onSubmit={handleCreate}>
-                    <input
-                        className="input"
-                        value={title}
-                        onChange={e => setTitle(e.target.value)}
-                        placeholder="New tree title"
-                        required
-                        style={{ flex: 1 }}
-                        maxLength={MAX_LENGTHS.treeTitle}
-                    />
-                    <button className="btn btn-primary" type="submit">Create tree</button>
-                </form>
+
+                                <div className="textarea-wrap">
+                                    <textarea
+                                        className="input tree-card-new-desc-input"
+                                        value={description}
+                                        onChange={e => setDescription(e.target.value)}
+                                        placeholder="What's this tree for? (optional)"
+                                        maxLength={MAX_LENGTHS.treeDescription}
+                                        rows={3}
+                                    />
+                                    <CharCounter value={description} max={MAX_LENGTHS.treeDescription} />
+                                </div>
+
+                                <div className="btn-row">
+                                    <button className="btn btn-primary" type="submit">Create tree</button>
+                                    <button className="btn-link" type="button" onClick={closeCreateForm}>Cancel</button>
+                                </div>
+                            </form>
+                        ) : (
+                            <button type="button" className="tree-card-new-trigger" onClick={() => setIsCreating(true)}>
+                                <svg viewBox="0 0 20 20" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+                                    <path d="M10 3v14M3 10h14" />
+                                </svg>
+                                <span>New skill tree</span>
+                            </button>
+                        )}
+                    </div>
+
+                    {trees.map(tree => (
+                        <Link key={tree.id} className="tree-card" to={`/trees/${tree.slug}`}>
+                            <div className="tree-card-top">
+                                <h3 className="tree-card-title" title={tree.title}>{tree.title}</h3>
+                                <span className="tree-card-visibility">
+                                    {tree.is_public ? (
+                                        <span className="status-dot" style={{ '--status-color': 'var(--gold)' } as React.CSSProperties} />
+                                    ) : (
+                                        <span className="status-dot status-dot-none" />
+                                    )}
+                                    {tree.is_public ? 'Public' : 'Private'}
+                                </span>
+                            </div>
+
+                            {tree.description && <p className="tree-card-desc">{tree.description}</p>}
+
+                            <span className="tree-card-date">Created {dateFormatter.format(new Date(tree.created_at))}</span>
+                        </Link>
+                    ))}
+                </div>
+
             </main>
         </div>
     );
