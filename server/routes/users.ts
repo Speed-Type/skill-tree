@@ -2,7 +2,7 @@ import { Router, Request, Response} from 'express';
 import { PublicUser, ErrorResponse } from '../../shared/types';
 import { isPgError } from '../utils/utils';
 import { requireAuth } from '../middleware/auth';
-import { MAX_LENGTHS } from '../../shared/constants';
+import { MAX_LENGTHS, PASSWORD_MIN_LENGTH } from '../../shared/constants';
 import bcrypt from 'bcrypt';
 
 import pool from '../db';
@@ -42,6 +42,11 @@ router.post('/', async (req: Request<{}, {}, CreateUserBody>, res: Response<Publ
 
         // Make sure required parameters (email and password) are passed
         if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
+
+        // Check that password meets min length
+        if (password.length < PASSWORD_MIN_LENGTH) {
+            return res.status(400).json({ error: `Password must be at least ${PASSWORD_MIN_LENGTH} characters` });
+        }
 
         // email has a character limit; catch it before it hits the DB
         if (email.length > MAX_LENGTHS.userEmail) return res.status(400).json({ error: `Email must be ${MAX_LENGTHS.userEmail} characters or fewer`  });
@@ -111,6 +116,11 @@ router.put('/me', requireAuth, async(req: Request<{ id: string }, {}, UpdateUser
         // so a hijacked/left-open session can't silently take over the account
         if (email || password) {
             if (!current_password) return res.status(400).json({ error: 'Current password is required to change your email or password' });
+
+            // Check that new password meets min length
+            if (password && password.length < PASSWORD_MIN_LENGTH) {
+                return res.status(400).json({ error: `Password must be at least ${PASSWORD_MIN_LENGTH} characters` });
+            }
 
             const userResult = await pool.query('SELECT password_hash FROM users WHERE id = $1', [req.userId]);
             if (userResult.rows.length === 0) return res.status(404).json({ error: 'Not found' });
