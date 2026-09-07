@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { snackbar } from '../../lib/snackbar';
+import { PASSWORD_MIN_LENGTH } from '../../../../shared/constants';
 
 function PasswordForm() {
     const { updatePassword } = useAuth();
@@ -46,6 +47,7 @@ function PasswordForm() {
                 onChange={e => setNewPassword(e.target.value)}
                 placeholder="New password"
                 required
+                minLength={PASSWORD_MIN_LENGTH}
             />
             <input
                 className="input"

@@ -1,7 +1,7 @@
 import './AuthGate.css';
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { MAX_LENGTHS } from '../../../../shared/constants';
+import { MAX_LENGTHS, PASSWORD_MIN_LENGTH    } from '../../../../shared/constants';
 
 function AuthGate() {
     const { login, signup } = useAuth();
@@ -61,6 +61,7 @@ function AuthGate() {
                         onChange={e => setPassword(e.target.value)}
                         placeholder="Password"
                         required
+                        minLength={mode === 'signup' ? PASSWORD_MIN_LENGTH : undefined}
                     />
                     <button className="btn btn-primary" type="submit">{mode === 'login' ? 'Log in' : 'Sign up'}</button>
                 </form>
