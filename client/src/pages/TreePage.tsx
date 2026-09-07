@@ -18,6 +18,7 @@ import NotFoundPage from '../pages/NotFoundPage';
 import ErrorPage from '../pages/ErrorPage';
 import { MAX_LENGTHS } from '../../../shared/constants';
 import CharCounter from '../components/ui/CharCounter';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useAuth } from '../context/AuthContext';
 import { Link, useLocation } from 'react-router';
 
@@ -29,8 +30,10 @@ import { snackbar } from '../lib/snackbar';
 function TreePage() {
     const { treeSlug } = useParams<{ treeSlug: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
     const { user } = useAuth();
     const { tree, setTree, loading, error } = useSkillTree(treeSlug);
+    useDocumentTitle(tree?.title);
 
     const isOwner = !!user && !!tree && user.id === tree.user_id;
 
@@ -181,43 +184,33 @@ function TreePage() {
                     </span>
 
                     {/* Header Actions */}
-                    {(isOwner || user) && (
-                        <div className="header-actions">
-
-                            {/* Owner-only: Status edit and visibility toggle */}
-                            {isOwner && (
-                                <>
-                                    <PopupButton label = "Edit Statuses">
-                                        {({ onClose }) => (
-                                            <>
-                                                <StatusView
-                                                    statuses={myStatuses}
-                                                    onStatusChanged={handleStatusChanged}
-                                                    onStatusDeleted={handleStatusDeleted}
-                                                />
-                                                
-                                                <PopupButton label="Add Status" className="btn btn-primary">
-                                                    {() => (
-                                                        <AddStatusForm
-                                                            currentCount={myStatuses.length}
-                                                            onStatusCreated={handleStatusCreated}
-                                                        />
-                                                    )}
-                                                </PopupButton>
-                                            </>
-                                        )}
-                                    </PopupButton>
-
-                                    <VisibilityToggle tree={tree} onTreeChanged={handleTreeChanged} />
-                                </>
+                    <div className="header-actions">
+                        {/* Everyone gets a way back to main menu, either tree list or login page */}
+                        <Link className="btn btn-icon" to={user ? '/trees' : '/login'}>
+                            {user ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
+                                    <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                </svg>
+                            ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="m10 17 5-5-5-5"/>
+                                    <path d="M15 12H3"/>
+                                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                                </svg>
                             )}
+                        </Link>
 
-                            {/* For any logged in user */}
-                            {user && (
-                                <Link className="btn btn-icon" to="/settings" state={{ from: location.pathname }} title="Account settings">Settings</Link>
-                            )}
-                        </div>
-                    )}
+                        {/* For logged in users */}
+                        {user && (
+                            <Link className="btn btn-icon" to="/settings" state={{ from: location.pathname }} title="Account settings">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/>                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </Link>
+                        )}
+                    </div>
+                
                 </div>
 
                 <div className="tree-page-meta">
@@ -274,6 +267,34 @@ function TreePage() {
                                     )
                                 )}
                             </PopupButton>
+                        )}
+
+                        {/* Owner-only: Status edit and visibility toggle */}
+                        {isOwner && (
+                            <div className="tree-page-controls-row">
+                                <VisibilityToggle tree={tree} onTreeChanged={handleTreeChanged} />
+
+                                <PopupButton label = "Edit Statuses" className="btn">
+                                    {({ onClose }) => (
+                                        <>
+                                            <StatusView
+                                                statuses={myStatuses}
+                                                onStatusChanged={handleStatusChanged}
+                                                onStatusDeleted={handleStatusDeleted}
+                                            />
+                                            
+                                            <PopupButton label="Add Status" className="btn btn-primary">
+                                                {() => (
+                                                    <AddStatusForm
+                                                        currentCount={myStatuses.length}
+                                                        onStatusCreated={handleStatusCreated}
+                                                    />
+                                                )}
+                                            </PopupButton>
+                                        </>
+                                    )}
+                                </PopupButton>
+                            </div>
                         )}
                     </div>
 

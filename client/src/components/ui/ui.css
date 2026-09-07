@@ -10,6 +10,11 @@
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-sm);
   padding: 0.55rem 1rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  justify-content: center;
   cursor: pointer;
   transition: border-color 0.15s ease, transform 0.1s ease, background 0.15s ease;
 }
@@ -57,6 +62,9 @@
   padding: 0.3rem 0.55rem;
   font-size: 1rem;
   line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .btn-icon:hover {

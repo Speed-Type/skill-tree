@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router';
 import { SkillTree } from '../../../shared/types';
 import { apiFetch, ApiError, NETWORK_ERROR_MESSAGE } from '../lib/api';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useAuth } from '../context/AuthContext';
 import { snackbar } from '../lib/snackbar';
 import LoadingPage from './LoadingPage';
@@ -10,6 +11,8 @@ import ErrorPage from './ErrorPage';
 import { MAX_LENGTHS } from '../../../shared/constants';
 
 function TreeListPage() {
+    useDocumentTitle('Your trees');
+
     const { user } = useAuth();
     const location = useLocation();
     const [trees, setTrees] = useState<SkillTree[]>([]);
@@ -59,7 +62,13 @@ function TreeListPage() {
                 </div>
 
                 {/* Button to open settings */}
-                <Link className="btn" to="/settings" state={{ from: location.pathname }}>Settings ({user?.display_name})</Link>
+                <Link className="btn" to="/settings" state={{ from: location.pathname }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/>                                    <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    
+                    <span>Settings</span>
+                </Link>
             </header>
 
             <main className="app-main">

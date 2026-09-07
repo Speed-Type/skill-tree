@@ -1,6 +1,7 @@
 import './SettingsPage.css';
 
 import { Link, useLocation } from 'react-router';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useAuth } from '../context/AuthContext';
 import DisplayNameForm from '../components/settings/DisplayNameForm';
 import EmailForm from '../components/settings/EmailForm';
@@ -8,6 +9,8 @@ import PasswordForm from '../components/settings/PasswordForm';
 import DeleteAccountSection from '../components/settings/DeleteAccountSection';
 
 function SettingsPage() {
+    useDocumentTitle('Settings');
+
     const { user, logout } = useAuth();
     const location = useLocation();
 

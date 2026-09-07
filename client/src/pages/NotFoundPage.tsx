@@ -1,4 +1,5 @@
 import './StatusPage.css';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { Link } from 'react-router';
 
 interface NotFoundPageProps {
@@ -10,6 +11,7 @@ function NotFoundPage({
     title = "Can't find that",
     message = "This doesn't exist, or it's private.",
 }: NotFoundPageProps) {
+    useDocumentTitle(title);
     return (
         <div className="app-shell">
             <main className="status-page">

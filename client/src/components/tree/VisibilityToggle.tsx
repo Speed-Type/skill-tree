@@ -27,7 +27,7 @@ function VisibilityToggle({ tree, onTreeChanged }: VisibilityToggleProps) {
     };
 
     return (
-        <div className="toggle-row">
+        <div className={`visibility-chip${tree.is_public ? ' is-public' : ''}`}>
             <input
                 type="checkbox"
                 className="toggle"
