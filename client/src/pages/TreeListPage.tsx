@@ -14,6 +14,19 @@ import { MAX_LENGTHS } from '../../../shared/constants';
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 
+// Rotating flavor text for the tagline — picked once per visit rather than
+// on every re-render, so it doesn't shuffle mid-session
+function buildTaglines(displayName: string | undefined): string[] {
+    return [
+        "Pick one up where you left off, or chart a new one.",
+        "Ready to show off your skills?",
+        "Go beyond a plain list. Build a skill tree.",
+        "Your skills, your way.",
+        "Show your growth.",
+        `Welcome, ${displayName ?? 'friend'}.`,
+    ];
+};
+
 function TreeListPage() {
     useDocumentTitle('Your trees');
 
@@ -22,6 +35,10 @@ function TreeListPage() {
     const [trees, setTrees] = useState<SkillTree[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<unknown>(null);
+    const [tagline] = useState(() => {
+        const options = buildTaglines(user?.display_name);
+        return options[Math.floor(Math.random() * options.length)];
+    });
 
     useEffect(() => {
         apiFetch<SkillTree[]>('/trees', { silent: true })
@@ -81,7 +98,7 @@ function TreeListPage() {
                             </span>
                         )}
                     </div>
-                    <p className="tagline">Pick one up where you left off, or chart a new one.</p>
+                    <p className="tagline">{tagline}</p>
                 </div>
 
                 {/* Button to open settings */}
