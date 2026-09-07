@@ -220,9 +220,15 @@ function TreePage() {
                         {/* Tree details edit popup */}
                         {(isOwner || treeDescription) && (
                             <PopupButton 
-                                label = {(
-                                    <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                                label = {isOwner ? (
+                                    <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                                         <path d="M13.5 3.5l3 3L6 17H3v-3L13.5 3.5z" />
+                                    </svg>
+                                ) : (
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M12 16v-4"/>
+                                        <path d="M12 8h.01"/>
                                     </svg>
                                 )}
                                 className="btn btn-icon"
