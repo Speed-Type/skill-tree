@@ -1,36 +1,168 @@
 /* ===================================== Tree list ===================================== */
 
-.tree-list {
-  list-style: none;
-  margin: 0 0 1.25rem;
-  padding: 0;
+.tree-list-heading-row {
   display: flex;
-  flex-direction: column;
+  align-items: baseline;
   gap: 0.6rem;
+  flex-wrap: wrap;
 }
 
+.tree-count-badge {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: var(--text-dim);
+  background: var(--panel-raised);
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+}
+
+.tree-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+/* =========================== Existing-tree cards =========================== */
+
 .tree-card {
-  display: block;
-  padding: 1rem 1.1rem;
-  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 148px;
+  padding: 1.1rem 1.2rem;
+  background: linear-gradient(160deg, var(--panel), var(--panel-raised) 160%);
   border: 1px solid var(--panel-border);
   border-left: 3px solid var(--violet);
   border-radius: var(--radius);
   color: var(--text-h);
   text-decoration: none;
-  font-family: var(--heading);
-  font-weight: 500;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
 }
 
 .tree-card:hover {
   border-color: var(--line);
-  box-shadow: 0 0 16px var(--violet-soft);
-  transform: translateX(2px);
+  box-shadow: 0 0 20px var(--violet-soft);
+  transform: translateY(-2px);
 }
 
-.tree-list-empty {
+.tree-card-top {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
+.tree-card-title {
+  font-family: var(--heading);
+  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.3;
+  color: var(--text-h);
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.tree-card-visibility {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.03em;
   color: var(--text-dim);
+}
+
+.tree-card-desc {
+  flex: 1;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.45;
+  margin: 0;
+
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.tree-card-date {
+  margin-top: auto;
+  padding-top: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  opacity: 0.8;
+}
+
+/* =========================== New-tree tile =========================== */
+
+.tree-card-new {
+  padding: 0;
+  border-left: 3px dashed var(--gold-line);
+  background: var(--panel);
+}
+
+/* Take the full grid row on its own while the form is open, so its taller
++   content can't stretch the other cards sharing that row */
+.tree-card-new.is-editing {
+  grid-column: 1 / -1;
+}
+
+.tree-card-new:not(.is-editing):hover {
+  border-color: var(--gold-line);
+  box-shadow: 0 0 20px var(--gold-soft);
+}
+
+.tree-card-new-trigger {
+  width: 100%;
+  height: 100%;
+  min-height: 148px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.1rem;
+  background: transparent;
+  border: none;
+  color: var(--gold);
+  font-family: var(--heading);
+  font-weight: 500;
   font-size: 0.9rem;
-  padding: 1rem 0;
+  cursor: pointer;
+}
+
+.tree-card-new-trigger:hover {
+  color: var(--gold);
+}
+
+.tree-card-new-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.1rem 1.2rem;
+}
+
+.tree-card-new-desc-input {
+  resize: none;
+  min-height: 3.5rem;
+  font-family: var(--sans);
+  line-height: 1.4;
+}
+
+.tree-card-new-form .btn-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.1rem;
 }
