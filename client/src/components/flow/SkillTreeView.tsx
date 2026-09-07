@@ -16,13 +16,15 @@ import {
     OnConnectEnd,
     ConnectionMode,
     IsValidConnection,
+    Background,
+    BackgroundVariant,
 } from '@xyflow/react';
 import { nodeTypes } from './nodeTypes';
 import { edgeTypes } from './edgeTypes';
 import { SkillFlowNode } from './nodes/SkillNode'; // Exported as types
 import { FloatingSkillEdge } from './edges/FloatingEdge'; // Exported as types
 import CustomConnectionLine from './connectionLines/CustomConnectionLine';
-import { getBorderPoint, resolveOverlaps } from './geometry';
+import { resolveOverlaps } from './geometry';
 
 import { Skill, SkillEdge, Status, SkillChangedHandler, SkillDeletedHandler } from '../../../../shared/types';
 import { apiFetch } from '../../lib/api';
@@ -333,7 +335,9 @@ function SkillTreeViewInner({ skills, edges, statuses, isOwner, onSkillChanged, 
                 connectOnClick={false} // At least for now, we don't want to have another way to create edges
                 deleteKeyCode={null} // Currently, node deletion this way isn't synced to backend
                 multiSelectionKeyCode={null} // Multi-selection and bulk dragging doesn't sync correctly right now
-            />
+            >
+                <Background variant={BackgroundVariant.Dots} gap={26} size={1.5} color="rgba(139, 124, 246, 0.5)" />
+            </ReactFlow>
 
             <button
                 type="button"
