@@ -185,35 +185,6 @@ function TreePage() {
 
                     {/* Header Actions */}
                     <div className="header-actions">
-
-                        {/* Owner-only: Status edit and visibility toggle */}
-                        {isOwner && (
-                            <>
-                                <PopupButton label = "Edit Statuses">
-                                    {({ onClose }) => (
-                                        <>
-                                            <StatusView
-                                                statuses={myStatuses}
-                                                onStatusChanged={handleStatusChanged}
-                                                onStatusDeleted={handleStatusDeleted}
-                                            />
-                                            
-                                            <PopupButton label="Add Status" className="btn btn-primary">
-                                                {() => (
-                                                    <AddStatusForm
-                                                        currentCount={myStatuses.length}
-                                                        onStatusCreated={handleStatusCreated}
-                                                    />
-                                                )}
-                                            </PopupButton>
-                                        </>
-                                    )}
-                                </PopupButton>
-
-                                <VisibilityToggle tree={tree} onTreeChanged={handleTreeChanged} />
-                            </>
-                        )}
-
                         {/* Everyone gets a way back to main menu, either tree list or login page */}
                         <Link className="btn btn-icon" to={user ? '/trees' : '/login'}>
                             {user ? 'Your trees' : 'Log in'}
@@ -281,6 +252,34 @@ function TreePage() {
                                     )
                                 )}
                             </PopupButton>
+                        )}
+
+                        {/* Owner-only: Status edit and visibility toggle */}
+                        {isOwner && (
+                            <div className="tree-page-controls-row">
+                                <PopupButton label = "Edit Statuses">
+                                    {({ onClose }) => (
+                                        <>
+                                            <StatusView
+                                                statuses={myStatuses}
+                                                onStatusChanged={handleStatusChanged}
+                                                onStatusDeleted={handleStatusDeleted}
+                                            />
+                                            
+                                            <PopupButton label="Add Status" className="btn btn-primary">
+                                                {() => (
+                                                    <AddStatusForm
+                                                        currentCount={myStatuses.length}
+                                                        onStatusCreated={handleStatusCreated}
+                                                    />
+                                                )}
+                                            </PopupButton>
+                                        </>
+                                    )}
+                                </PopupButton>
+
+                                <VisibilityToggle tree={tree} onTreeChanged={handleTreeChanged} />
+                            </div>
                         )}
                     </div>
 

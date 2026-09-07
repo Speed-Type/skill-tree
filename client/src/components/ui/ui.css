@@ -61,6 +61,9 @@
   padding: 0.3rem 0.55rem;
   font-size: 1rem;
   line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .btn-icon:hover {

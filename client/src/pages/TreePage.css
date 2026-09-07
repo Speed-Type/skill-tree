@@ -52,6 +52,14 @@
     flex-shrink: 0; /* keep the edit pencil full-size; the eyebrow text should be the thing that gives way */
 }
 
+.tree-page-controls-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0; /* the title truncates before these controls get squeezed */
+    margin-left: auto; /* pushes this group to the right edge of the title row */
+}
+
 .tree-page-title {
     font-size: 1.4rem;
     white-space: nowrap;
