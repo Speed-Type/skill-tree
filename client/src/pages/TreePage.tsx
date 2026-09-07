@@ -257,7 +257,9 @@ function TreePage() {
                         {/* Owner-only: Status edit and visibility toggle */}
                         {isOwner && (
                             <div className="tree-page-controls-row">
-                                <PopupButton label = "Edit Statuses">
+                                <VisibilityToggle tree={tree} onTreeChanged={handleTreeChanged} />
+                                
+                                <PopupButton label = "Edit Statuses" className="btn">
                                     {({ onClose }) => (
                                         <>
                                             <StatusView
@@ -277,8 +279,6 @@ function TreePage() {
                                         </>
                                     )}
                                 </PopupButton>
-
-                                <VisibilityToggle tree={tree} onTreeChanged={handleTreeChanged} />
                             </div>
                         )}
                     </div>
