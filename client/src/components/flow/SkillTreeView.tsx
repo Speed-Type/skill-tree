@@ -126,30 +126,29 @@ function SkillTreeViewInner({ skills, edges, statuses, isOwner, onSkillChanged, 
     // ===================================== Node handling ==================================================
 
     // Handles node dragging
-    // Sends request to update backend with new node position
-    const handleNodeDragStop : OnNodeDrag<SkillFlowNode> = async (event, node) => {
+    // Sends requests to update the backend with new node position(s)
+    // Can handle multi select and drag
+    const handleNodeDragStop : OnNodeDrag<SkillFlowNode> = async (event, _node, nodes) => {
 
-        //Check whether there has been any change in location at all (i.e. the node was not just clicked)
-        const original = skills.find(s => String(s.id) === node.id);
-        if (
-            original &&
-            original.x_position === node.position.x &&
-            original.y_position === node.position.y
-        ) {
-            return; // no movement, skip the save
-        }
+        // Check whether there has been any change in location at all (i.e. the node was not just clicked)
+        const changedNodes = nodes.filter(n => {
+            const original = skills.find(s => String(s.id) === n.id);
+            return !(original && original.x_position === n.position.x && original.y_position === n.position.y);
+        });
 
-        try {
-            const updatedSkill = await apiFetch<Skill>(`/skills/${node.id}`, {
+        if (changedNodes.length === 0) return; // no movement, skip the save
+
+        const results = await Promise.allSettled(changedNodes.map(n =>
+            apiFetch<Skill>(`/skills/${n.id}`, {
                 method: 'PUT',
-                body: JSON.stringify({ x_position: node.position.x, y_position: node.position.y }),
-            });
+                body: JSON.stringify({ x_position: n.position.x, y_position: n.position.y }),
+            }).then(onSkillChanged)
+        ));
 
-            onSkillChanged(updatedSkill);
-            // No need to use snackbar to confirm that operation was successful, especially since nodes can get moved a lot
-        }
-        catch(err) {
-            console.error('Failed to update node position: ', err);
+        const failures = results.filter(r => r.status === 'rejected').length;
+        if (failures > 0) {
+            console.error(`Failed to persist ${failures} node position(s) after drag`);
+            snackbar.error("Some positions couldn't be saved; try again");
         }
     }
 
@@ -331,11 +330,13 @@ function SkillTreeViewInner({ skills, edges, statuses, isOwner, onSkillChanged, 
                 onInit={(instance) => { rfInstanceRef.current = instance; }}
                 onMoveEnd={onMoveEnd}
 
+                // Override multiselect keybind for windows users to be ctrl instead of windows button
+                multiSelectionKeyCode={['Meta', 'Control', 'Shift']}
+
                 // Locked interactions, some of which are possibly temporary
                 disableKeyboardA11y={true} // Prevent keyboard nudging of node positions; NOTE: this also disables other aria things
                 deleteKeyCode={null} // Currently, node deletion this way isn't synced to backend
                 connectOnClick={false} // At least for now, we don't want to have another way to create edges
-                multiSelectionKeyCode={null} // Multi-selection and bulk dragging doesn't sync correctly right now
             >
                 <Background variant={BackgroundVariant.Dots} gap={26} size={1.5} color="rgba(139, 124, 246, 0.5)" />
             </ReactFlow>
