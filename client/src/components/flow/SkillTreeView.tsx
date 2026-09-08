@@ -331,9 +331,10 @@ function SkillTreeViewInner({ skills, edges, statuses, isOwner, onSkillChanged, 
                 onInit={(instance) => { rfInstanceRef.current = instance; }}
                 onMoveEnd={onMoveEnd}
 
-                // Possibly temporary
-                connectOnClick={false} // At least for now, we don't want to have another way to create edges
+                // Locked interactions, some of which are possibly temporary
+                disableKeyboardA11y={true} // Prevent keyboard nudging of node positions; NOTE: this also disables other aria things
                 deleteKeyCode={null} // Currently, node deletion this way isn't synced to backend
+                connectOnClick={false} // At least for now, we don't want to have another way to create edges
                 multiSelectionKeyCode={null} // Multi-selection and bulk dragging doesn't sync correctly right now
             >
                 <Background variant={BackgroundVariant.Dots} gap={26} size={1.5} color="rgba(139, 124, 246, 0.5)" />
