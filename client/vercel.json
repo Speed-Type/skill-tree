@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://skilltree-37qm.onrender.com/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
