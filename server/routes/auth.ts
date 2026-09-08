@@ -33,10 +33,12 @@ router.post('/login', async (req: Request<{}, {}, LoginBody>, res: Response<Publ
 
         const token = signToken({ userId: user.id });
 
+        const isProduction = process.env.NODE_ENV === 'production';
+
         res.cookie('token', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // only over HTTPS in prod
-            sameSite: 'lax',
+            secure: isProduction, // only over HTTPS in prod
+            sameSite: isProduction ? 'none' : 'lax', // 'none' lets the cookie travel cross-site (Vercel -> Render); only safe paired with secure: true, which is guaranteed above
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days, in ms — should match the JWT's expiresIn
         });
 
@@ -48,7 +50,12 @@ router.post('/login', async (req: Request<{}, {}, LoginBody>, res: Response<Publ
 });
 
 router.post('/logout', (req: Request, res: Response) => {
-    res.clearCookie('token');
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+    });
     res.status(204).send();
 });
 
