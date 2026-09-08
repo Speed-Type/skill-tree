@@ -26,7 +26,7 @@ export interface SkillNodeData extends Record<string, unknown> {
 
 export type SkillFlowNode = Node<SkillNodeData>;
 
-function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
+function SkillNode({ data, dragging, selected }: NodeProps<SkillFlowNode>) {
 
     // Unpack data (needs to be done because of how data is passed into react flow's nodes)
     const { skill, statuses, isOwner, onSkillChanged, onSkillDeleted, onStatusUsed } = data;
@@ -100,7 +100,7 @@ function SkillNode({ data, dragging }: NodeProps<SkillFlowNode>) {
 
     return(
         <div 
-            className={`skill-node${currentStatus ? '' : ' is-unset'}`} 
+            className={`skill-node${currentStatus ? '' : ' is-unset'}${selected ? ' is-selected' : ''}`} 
             style={ringStyle}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={tooltip.hide}
