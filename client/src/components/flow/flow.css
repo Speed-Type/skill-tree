@@ -105,6 +105,31 @@
   opacity: 0.95;
 }
 
+.skill-node.is-selected .skill-node-body {
+  outline: 1px dashed var(--gold);
+  outline-offset: 2px;
+}
+
+/* React Flow's own default selected-node box-shadow is themed for a light UI and doesn't
+   match this palette — suppressed in favor of the .is-selected outline above */
+.react-flow__node.selected {
+  box-shadow: none;
+}
+
+/* The drag rectangle shown while shift-dragging to box-select */
+.flow-canvas .react-flow__selection {
+  background: var(--gold-soft);
+  border: 1px dashed var(--gold-line);
+}
+
+/* The bounding box shown around already-selected nodes; also doubles as the
+   handle for dragging the whole selection together, so it can't be hidden
+   outright — just restyled to match the rest of the selection language */
+.flow-canvas .react-flow__nodesselection-rect {
+  background: transparent;
+  border: 1px dashed var(--gold-line);
+}
+
 .skill-node-body:hover {
   transform: translateY(-1.5px);
   box-shadow:

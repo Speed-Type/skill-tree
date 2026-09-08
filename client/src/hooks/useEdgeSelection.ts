@@ -9,6 +9,12 @@ export function useEdgeSelection(isOwner: boolean, onDelete: (id: string) => voi
 
         function handleKeyDown(event: KeyboardEvent) {
             if (event.key === 'Backspace' || event.key === 'Delete') {
+                // Don't hijack Backspace/Delete while the user is typing somewhere else (e.g. tabbing 
+                // into a skill/status edit field while an edge is still selected in the background)
+                const target = event.target as HTMLElement | null;
+                const tag = target?.tagName;
+                if (tag === 'INPUT' || tag === 'TEXTAREA' || target?.isContentEditable) return;
+
                 onDelete(selectedEdgeId!);
             }
         }
