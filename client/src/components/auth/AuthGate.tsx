@@ -68,11 +68,13 @@ function AuthGate() {
                         required
                         minLength={mode === 'signup' ? PASSWORD_MIN_LENGTH : undefined}
                     />
-                    <button className="btn btn-primary" type="submit">{mode === 'login' ? 'Log in' : 'Sign up'}</button>
+                    <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
+                        {isSubmitting ? 'One moment…' : (mode === 'login' ? 'Log in' : 'Sign up')}
+                    </button>
                 </form>
 
-                <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? 'One moment…' : (mode === 'login' ? 'Log in' : 'Sign up')}
+                <button className="btn-link" onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}>
+                    {mode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Log in'}
                 </button>
             </div>
         </div>
