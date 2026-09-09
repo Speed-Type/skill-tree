@@ -9,9 +9,11 @@ function AuthGate() {
     const [email, setEmail] = useState('');
     const [displayName, setDisplayName] = useState('');
     const [password, setPassword] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
         e.preventDefault();
+        setIsSubmitting(true);
 
         try {
             if (mode === 'login') await login(email, password);
@@ -19,6 +21,9 @@ function AuthGate() {
         }
         catch (err) {
             console.error('Failed to submit authentication form: ', err);
+        }
+        finally {
+            setIsSubmitting(false);
         }
     }
 
@@ -66,8 +71,8 @@ function AuthGate() {
                     <button className="btn btn-primary" type="submit">{mode === 'login' ? 'Log in' : 'Sign up'}</button>
                 </form>
 
-                <button className="btn-link" onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}>
-                    {mode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Log in'}
+                <button className="btn btn-primary" type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? 'One moment…' : (mode === 'login' ? 'Log in' : 'Sign up')}
                 </button>
             </div>
         </div>
