@@ -290,10 +290,13 @@ function TreePage() {
                                             />
                                             
                                             <PopupButton label="Add Status" className="btn btn-primary">
-                                                {() => (
+                                                {({ onClose }) => (
                                                     <AddStatusForm
                                                         currentCount={myStatuses.length}
-                                                        onStatusCreated={handleStatusCreated}
+                                                        onStatusCreated={(status) => {
+                                                            handleStatusCreated(status);
+                                                            onClose();
+                                                        }}
                                                     />
                                                 )}
                                             </PopupButton>
