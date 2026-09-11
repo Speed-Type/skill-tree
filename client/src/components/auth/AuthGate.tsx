@@ -1,6 +1,7 @@
 import './AuthGate.css';
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { Link } from 'react-router';
 import { MAX_LENGTHS, PASSWORD_MIN_LENGTH    } from '../../../../shared/constants';
 
 function AuthGate() {
@@ -29,6 +30,14 @@ function AuthGate() {
 
     return (
         <div className="auth-shell">
+            <Link className="btn btn-icon auth-back-link" to="/" title="Back to home">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m12 19-7-7 7-7"/>
+                    <path d="M19 12H5"/>
+                </svg>
+                <span>Back</span>
+            </Link>
+
             <div className="auth-card panel">
                 <div className="brand">
                     <span className="eyebrow">Skill tree</span>
