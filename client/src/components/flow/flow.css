@@ -3,6 +3,7 @@
 /* =========================== Canvas Wrapper =========================== */
 
 .flow-canvas {
+  position: relative;
   height: 560px;
   border-radius: var(--radius-lg);
   border: 1px solid var(--panel-border);
