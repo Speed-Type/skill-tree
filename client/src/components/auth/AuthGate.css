@@ -1,6 +1,7 @@
 /* ===================================== Auth screen ===================================== */
 
 .auth-shell {
+  position: relative;
   min-height: 100svh;
   display: flex;
   align-items: center;
@@ -29,4 +30,10 @@
 
 .auth-form .btn {
   margin-top: 0.25rem;
+}
+
+.auth-back-link {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
 }

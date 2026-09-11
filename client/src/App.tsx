@@ -1,5 +1,6 @@
-import { Routes, Route, Navigate } from 'react-router';
+import { Routes, Route } from 'react-router';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import TreeListPage from './pages/TreeListPage';
 import TreePage from './pages/TreePage';
@@ -9,7 +10,7 @@ import NotFoundPage from './pages/NotFoundPage';
 function App() {
     return (
         <Routes>
-            <Route path="/" element={<Navigate to="/trees" replace />} />
+            <Route path="/" element={<LandingPage />} />
 
             <Route path="/login" element={<LoginPage />} />
             <Route path="/trees/:treeSlug" element={<TreePage />} />
