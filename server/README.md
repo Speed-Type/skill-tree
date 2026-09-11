@@ -80,6 +80,7 @@ Import `postman_collection.json` into Postman to test all endpoints. Run `POST /
 - Authentication is cookie-based (httpOnly JWT). After a successful `POST /auth/login`, the browser automatically attaches the auth cookie to subsequent requests; no manual token handling required on the client. Requests must be made with `credentials: 'include'` (fetch) or `withCredentials: true` (axios) for the cookie to be sent, since the client and server run on different origins in dev
 - "Auth required" endpoints return `401` if no valid session is present
 - Edges can only connect two skills that belong to the same tree; this is enforced at creation time, not by the database schema
+- An edge from A to B blocks an edge from being created from B to A
 - A skill's `tree_id` and a status's ownership are both validated server-side on creation/update; client-supplied IDs are never trusted to imply ownership
 - There is no endpoint to browse or discover other users' public trees. Public trees are only accessible via their direct `/trees/:slug` link.
 - Changing email or password, and deleting the account, all require current_password to match the account's existing password
