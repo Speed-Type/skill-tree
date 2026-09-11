@@ -1,15 +1,15 @@
 # SkillTree
 
-Reading a linear list is one of the hardest ways to gauge somebody's skills. Preparing that list is just as difficult. SkillTree lets you organize skills like a video game skill tree: as a connected graph, where skills connect to other skills and progress is visible at a glance.
+Reading a plain list is one of the hardest ways to gauge somebody's skills. Preparing that list is just as difficult. SkillTree lets you organize skills like a video game skill tree: as a connected graph, where skills connect to other skills and progress is visible at a glance.
 
-![SkillTree](https://img.shields.io/badge/status-in--development-e3a94a)
+![SkillTree](https://img.shields.io/badge/status-live-e3a94a)
 
 ## Features
 
 - **Visual, draggable skill trees**: powered by [React Flow](https://reactflow.dev/)
 - **Custom statuses**: define your own labels (e.g. "Want to Learn," "In Progress," "Solid")
 - **Skill connections**: link skills together to show prerequisites or related growth
-- **Public sharing**: flip a tree to public and share a read-only link; visitors can view (but not edit) your tree without an account
+- **Public sharing**: share a read-only link to the trees you choose, available to view even without an account
 
 ## Tech Stack
 
@@ -18,7 +18,7 @@ Reading a linear list is one of the hardest ways to gauge somebody's skills. Pre
 | Frontend | React, TypeScript, Vite, [React Flow](https://reactflow.dev/) |
 | Backend | Node.js, Express, TypeScript |
 | Database | PostgreSQL |
-| Auth | JWT (httpOnly cookies) + bcrypt |
+| Auth | JWT + bcrypt |
 
 ## Project Structure
 
@@ -41,7 +41,7 @@ Reading a linear list is one of the hardest ways to gauge somebody's skills. Pre
 └── shared/          # Types and constants shared between client and server
 ```
 
-## Getting Started
+## Run It Locally
 
 ### Prerequisites
 
@@ -91,8 +91,15 @@ npm install
 npm run dev
 ```
 
-The client runs on `http://localhost:5173` and talks to the API at `http://localhost:3000` (CORS is currently configured for this exact pair of origins, so update `server/index.ts` if you change ports).
+The client runs on `http://localhost:5173` and talks to the API at `http://localhost:3000` (update `server/index.ts` if you change ports).
 
+## Deploy It
+
+The client is deployed on Vercel and the server on Render. If you deploy your own instance:
+
+- Update the `destination` in `client/vercel.json` to point at your own backend URL
+- Set `CORS_ORIGIN` in your server's environment to your deployed frontend's origin (default is`http://localhost:5173`)
+- Set `NODE_ENV=production`
 ## API Reference
 
 Full endpoint documentation, including request/response shapes and ownership rules, lives in [`server/README.md`](server/README.md). A Postman collection (`server/postman_collection.json`) is also available for manual testing.
