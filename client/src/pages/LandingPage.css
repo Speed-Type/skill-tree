@@ -34,6 +34,18 @@
     margin-top: 0.5rem;
 }
 
+.landing-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.landing-demo-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
 .landing-footer {
     text-align: center;
     display: flex;

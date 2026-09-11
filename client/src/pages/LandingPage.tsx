@@ -59,6 +59,29 @@ function LandingPage() {
                 </div>
             </header>
 
+            <section className="landing-demo panel">
+                <div className="landing-demo-label">
+                    <span className="eyebrow">Try it out</span>
+                    <span className="eyebrow"></span>
+                    <span className="eyebrow"></span>
+
+                    <p className="settings-form-hint">
+                        Explore this sample tree to see how SkillTree works. Drag the canvas, zoom, or hover over a skill.
+                    </p>
+                </div>
+                <SkillTreeView
+                    skills={DEMO_SKILLS}
+                    edges={DEMO_EDGES}
+                    statuses={DEMO_STATUSES}
+                    isOwner={false}
+                    onSkillChanged={noop}
+                    onSkillDeleted={noop}
+                    onEdgeCreated={noop}
+                    onEdgeDeleted={noop}
+                    onStatusUsed={noop}
+                />
+            </section>
+
             <footer className="landing-footer">
                 <p>Ready to build your own?</p>
                 <Link className="btn btn-primary" to="/login">Create your skill tree</Link>
