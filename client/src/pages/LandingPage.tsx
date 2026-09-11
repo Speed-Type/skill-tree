@@ -82,6 +82,21 @@ function LandingPage() {
                 />
             </section>
 
+            <section className="landing-features">
+                <div className="landing-feature panel">
+                    <h3>Visual, draggable trees</h3>
+                    <p>Arrange skills spatially and highlight the connections that a plain list can't show.</p>
+                </div>
+                <div className="landing-feature panel">
+                    <h3>Your own statuses</h3>
+                    <p>Define labels that match your definition of mastery – "Proficient," "In Progress," "Five years experience," or anything else.</p>
+                </div>
+                <div className="landing-feature panel">
+                    <h3>Easy sharing</h3>
+                    <p>Flip a tree to public and share it via link. Visitors can explore even without an account.</p>
+                </div>
+            </section>
+
             <footer className="landing-footer">
                 <p>Ready to build your own?</p>
                 <Link className="btn btn-primary" to="/login?mode=signup">Create your skill tree</Link>
