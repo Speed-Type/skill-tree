@@ -54,7 +54,7 @@ function LandingPage() {
                     multidimensionality are obvious at a glance.
                 </p>
                 <div className="landing-cta-row">
-                    <Link className="btn btn-primary" to="/login">Get started</Link>
+                    <Link className="btn btn-primary" to="/login?mode=signup">Get started</Link>
                     <Link className="btn" to="/login">Log in</Link>
                 </div>
             </header>
@@ -84,7 +84,7 @@ function LandingPage() {
 
             <footer className="landing-footer">
                 <p>Ready to build your own?</p>
-                <Link className="btn btn-primary" to="/login">Create your skill tree</Link>
+                <Link className="btn btn-primary" to="/login?mode=signup">Create your skill tree</Link>
             </footer>
         </div>
     );

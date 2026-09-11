@@ -4,9 +4,13 @@ import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router';
 import { MAX_LENGTHS, PASSWORD_MIN_LENGTH    } from '../../../../shared/constants';
 
-function AuthGate() {
+interface AuthGateProps {
+    initialMode?: 'login' | 'signup';
+}
+
+function AuthGate({ initialMode = 'login' }: AuthGateProps) {
     const { login, signup } = useAuth();
-    const [mode, setMode] = useState<'login' | 'signup'>('login');
+    const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
     const [email, setEmail] = useState('');
     const [displayName, setDisplayName] = useState('');
     const [password, setPassword] = useState('');
