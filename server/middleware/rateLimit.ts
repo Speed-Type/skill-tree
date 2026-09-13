@@ -1,10 +1,41 @@
 import rateLimit from 'express-rate-limit';
-import { Request } from 'express';
+import { Request, Response, NextFunction } from 'express';
+
+interface RequestWithRateLimit extends Request {
+    rateLimit?: {
+        resetTime?: Date;
+    };
+}
+
+// Builds a "try again in Xm Ys" style message from the store's resetTime,
+// so a rate-limited response tells the person exactly how long to wait
+// instead of a generic "try again later"
+function rateLimitHandler(baseMessage: string) {
+    return (req: Request, res: Response, _next: NextFunction) => {
+        const resetTime = (req as RequestWithRateLimit).rateLimit?.resetTime;
+        let waitMessage = '';
+
+        if (resetTime) {
+            const msRemaining = resetTime.getTime() - Date.now();
+            const secondsRemaining = Math.max(0, Math.ceil(msRemaining / 1000));
+            const minutes = Math.floor(secondsRemaining / 60);
+            const seconds = secondsRemaining % 60;
+
+            if (minutes > 0) {
+                waitMessage = ` Try again in ${minutes}m ${seconds}s.`;
+            } else {
+                waitMessage = ` Try again in ${seconds}s.`;
+            }
+        }
+
+        res.status(429).json({ error: `${baseMessage}${waitMessage}` });
+    };
+}
 
 // General-purpose baseline for every route
 // Generous enough not to bother normal usage, just there to cover 
 // blunt scraping/abuse that isn't already covered by a more specific limiter
-//
+
 // Skips certain high-frequency, low-risk traffic like repositioning nodes
 
 const isHighFrequencyBenignRoute = (req: Request) =>
@@ -18,7 +49,7 @@ export const globalLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     skip: isHighFrequencyBenignRoute,
-    message: { error: 'Too many requests. Please try again later.' },
+    handler: rateLimitHandler('Too many requests.'),
 });
 
 // Dedicated limiter for edge creation specifically
@@ -28,7 +59,7 @@ export const edgeCreationLimiter = rateLimit({
     max: 150,
     standardHeaders: true,
     legacyHeaders: false,
-    message: { error: 'Too many connections created. Please try again later.' },
+    handler: rateLimitHandler('Too many connections created.'),
 });
 
 // Brute-force guard for login: keyed by IP, fairly strict since a real user
@@ -38,7 +69,7 @@ export const loginLimiter = rateLimit({
     max: 10,
     standardHeaders: true,
     legacyHeaders: false,
-    message: { error: 'Too many login attempts. Please try again later.' },
+    handler: rateLimitHandler('Too many login attempts.'),
 });
 
 // Signup abuse guard: prevents mass account creation / bcrypt-hashing spam from one IP
@@ -47,7 +78,7 @@ export const signupLimiter = rateLimit({
     max: 10,
     standardHeaders: true,
     legacyHeaders: false,
-    message: { error: 'Too many accounts created from this IP. Please try again later.' },
+    handler: rateLimitHandler('Too many accounts created from this IP.'),
 });
 
 // Reauth guard: same brute-force concern as login, applies to email/password change
@@ -57,5 +88,5 @@ export const reauthLimiter = rateLimit({
     max: 15,
     standardHeaders: true,
     legacyHeaders: false,
-    message: { error: 'Too many attempts. Please try again later.' },
+    handler: rateLimitHandler('Too many attempts.'),
 });
