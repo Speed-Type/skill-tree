@@ -348,9 +348,11 @@ function SkillTreeViewInner({ skills, edges, statuses, isOwner, onSkillChanged, 
                 data-tooltip="Recenter view"
                 aria-label="Recenter view"
             >
-                <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="3" width="14" height="14" rx="2" />
-                    <path d="M10 6.5v7M6.5 10h7" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
+                    <path d="M21 8V5a2 2 0 0 0-2-2h-3"/>
+                    <path d="M3 16v3a2 2 0 0 0 2 2h3"/>
+                    <path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
                 </svg>
             </button>
 
@@ -362,11 +364,10 @@ function SkillTreeViewInner({ skills, edges, statuses, isOwner, onSkillChanged, 
                     data-tooltip="Space out overlapping skills"
                     aria-label="Space out overlapping skills"
                 >
-                    <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M4 4l4 4M4 4v4M4 4h4" />
-                        <path d="M16 4l-4 4M16 4v4M16 4h-4" />
-                        <path d="M4 16l4-4M4 16v-4M4 16h4" />
-                        <path d="M16 16l-4-4M16 16v-4M16 16h-4" />
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12.65 7.65a2 2 0 012.629-1.046l5.51 2.374a2 2 0 011.046 2.628l-3.957 9.184a2 2 0 01-2.628 1.046l-5.51-2.374a2 2 0 01-1.046-2.628z"/>
+                        <path d="M18 7.777V4a2 2 0 00-2-2h-6a2 2 0 00-2 2v10a2 2 0 001.137 1.805"/>
+                        <path d="m8 4.389-4.364.809a2 2 0 00-1.602 2.33l1.822 9.833a2 2 0 002.331 1.602l2.542-.47"/>
                     </svg>
                 </button>
             )}
