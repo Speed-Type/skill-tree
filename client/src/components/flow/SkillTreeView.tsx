@@ -343,9 +343,10 @@ function SkillTreeViewInner({ skills, edges, statuses, isOwner, onSkillChanged, 
 
             <button
                 type="button"
-                className="btn btn-icon flow-recenter-btn"
+                className="btn btn-icon flow-recenter-btn flow-tooltip"
                 onClick={handleRecenter}
-                title="Recenter view"
+                data-tooltip="Recenter view"
+                aria-label="Recenter view"
             >
                 <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="3" width="14" height="14" rx="2" />
@@ -356,9 +357,10 @@ function SkillTreeViewInner({ skills, edges, statuses, isOwner, onSkillChanged, 
             {isOwner && (
                 <button
                     type="button"
-                    className="btn btn-icon flow-autospace-btn"
+                    className="btn btn-icon flow-autospace-btn flow-tooltip"
                     onClick={handleAutoSpace}
-                    title="Space out overlapping skills"
+                    data-tooltip="Space out overlapping skills"
+                    aria-label="Space out overlapping skills"
                 >
                     <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M4 4l4 4M4 4v4M4 4h4" />

@@ -60,6 +60,33 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
+.flow-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  padding: 0.35rem 0.6rem;
+  background: var(--panel-raised);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  white-space: nowrap;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 20;
+}
+
+.flow-tooltip:hover::after,
+.flow-tooltip:focus-visible::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* =========================== Node =========================== */
 
 .skill-node {
@@ -557,6 +584,10 @@
   }
 
   .skill-tooltip {
+    transition: none;
+  }
+
+  .flow-tooltip::after {
     transition: none;
   }
 }
