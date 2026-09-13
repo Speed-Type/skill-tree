@@ -7,16 +7,19 @@ import skillsRouter from './routes/skills';
 import skillEdgesRouter from './routes/edges';
 import statusesRouter from './routes/statuses';
 import authRouter from './routes/auth';
+import { globalLimiter } from './middleware/rateLimit';
 
 import cookieParser from 'cookie-parser';
 
 const app = express();
+app.set('trust proxy', 1); // Because render sits behind a reverse proxy; this setting is necessary for correct rate limiting
 app.use(express.json());
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   credentials: true,
 }));
 app.use(cookieParser());
+app.use(globalLimiter);
 
 app.use('/users', usersRouter);
 app.use('/trees', treesRouter);

@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import pool from '../db';
 import { signToken } from '../utils/jwt';
 import { ErrorResponse, PublicUser } from '../../shared/types';
+import { loginLimiter } from '../middleware/rateLimit';
 
 const router = Router();
 
@@ -11,7 +12,7 @@ interface LoginBody {
     password: string;
 }
 
-router.post('/login', async (req: Request<{}, {}, LoginBody>, res: Response<PublicUser | ErrorResponse>) => {
+router.post('/login', loginLimiter, async (req: Request<{}, {}, LoginBody>, res: Response<PublicUser | ErrorResponse>) => {
     try {
         
         const { email, password } = req.body;

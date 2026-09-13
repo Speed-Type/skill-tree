@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { SkillEdge, ErrorResponse } from '../../shared/types';
 import { isPgError } from '../utils/utils';
 import { requireAuth, optionalAuth } from '../middleware/auth';
+import { edgeCreationLimiter } from '../middleware/rateLimit';
 
 import pool from '../db';
 
@@ -61,7 +62,7 @@ interface CreateEdgeBody {
     to_skill_id: number;
 }
 
-router.post('/', requireAuth, async (req: Request<{}, {}, CreateEdgeBody>, res: Response<SkillEdge | ErrorResponse>) => {
+router.post('/', requireAuth, edgeCreationLimiter, async (req: Request<{}, {}, CreateEdgeBody>, res: Response<SkillEdge | ErrorResponse>) => {
     try {
         const { from_skill_id, to_skill_id } = req.body;
 
