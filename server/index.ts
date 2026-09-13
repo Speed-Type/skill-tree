@@ -28,11 +28,6 @@ app.use('/edges', skillEdgesRouter);
 app.use('/statuses', statusesRouter);
 app.use('/auth', authRouter);
 
-app.use((req, res, next) => {
-    console.log('req.ip:', req.ip, '| XFF header:', req.headers['x-forwarded-for']);
-    next();
-});
-
 // Start the server
 const port = process.env.PORT;
 app.listen(port, () => {
