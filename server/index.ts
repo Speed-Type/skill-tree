@@ -12,7 +12,7 @@ import { globalLimiter } from './middleware/rateLimit';
 import cookieParser from 'cookie-parser';
 
 const app = express();
-app.set('trust proxy', true); // Because render sits behind a reverse proxy; this setting is necessary for correct rate limiting
+app.set('trust proxy', 2); // Because render sits behind a reverse proxy; this setting is necessary for correct rate limiting
 app.use(express.json());
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
