@@ -7,6 +7,7 @@ import skillsRouter from './routes/skills';
 import skillEdgesRouter from './routes/edges';
 import statusesRouter from './routes/statuses';
 import authRouter from './routes/auth';
+import { globalLimiter } from './middleware/rateLimit';
 
 import cookieParser from 'cookie-parser';
 
@@ -17,6 +18,7 @@ app.use(cors({
   credentials: true,
 }));
 app.use(cookieParser());
+app.use(globalLimiter);
 
 app.use('/users', usersRouter);
 app.use('/trees', treesRouter);

@@ -1,4 +1,35 @@
 import rateLimit from 'express-rate-limit';
+import { Request } from 'express';
+
+// General-purpose baseline for every route
+// Generous enough not to bother normal usage, just there to cover 
+// blunt scraping/abuse that isn't already covered by a more specific limiter
+//
+// Skips certain high-frequency, low-risk traffic like repositioning nodes
+
+const isHighFrequencyBenignRoute = (req: Request) =>
+    (req.method === 'PUT' && /^\/skills\/\d+\/position$/.test(req.path)) ||
+    (req.method === 'POST' && req.path === '/edges') ||
+    (req.method === 'DELETE' && /^\/edges\/\d+$/.test(req.path));
+
+export const globalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 300,
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: isHighFrequencyBenignRoute,
+    message: { error: 'Too many requests. Please try again later.' },
+});
+
+// Dedicated limiter for edge creation specifically
+// Exempted from the global count (see isHighFrequencyBenignRoute above)
+export const edgeCreationLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 150,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many connections created. Please try again later.' },
+});
 
 // Brute-force guard for login: keyed by IP, fairly strict since a real user
 // rarely needs more than a handful of attempts in 15 minutes
