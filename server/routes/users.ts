@@ -3,8 +3,8 @@ import { PublicUser, ErrorResponse } from '../../shared/types';
 import { isPgError } from '../utils/utils';
 import { requireAuth } from '../middleware/auth';
 import { MAX_LENGTHS, PASSWORD_MIN_LENGTH } from '../../shared/constants';
+import { signupLimiter, reauthLimiter } from '../middleware/rateLimit';
 import bcrypt from 'bcrypt';
-
 import pool from '../db';
 
 const router = Router();
@@ -34,7 +34,7 @@ const DEFAULT_STATUSES: { label: string; color: string }[] = [
     { label: 'Mastered', color: '#bc0de3' },
 ];
 
-router.post('/', async (req: Request<{}, {}, CreateUserBody>, res: Response<PublicUser | ErrorResponse>) => {
+router.post('/', signupLimiter, async (req: Request<{}, {}, CreateUserBody>, res: Response<PublicUser | ErrorResponse>) => {
     const client = await pool.connect();
 
     try {
@@ -102,7 +102,7 @@ interface UpdateUserBody {
     current_password?: string; // Required to change email or password
 }
 
-router.put('/me', requireAuth, async(req: Request<{ id: string }, {}, UpdateUserBody>, res: Response<PublicUser | ErrorResponse>) => {
+router.put('/me', requireAuth, reauthLimiter, async(req: Request<{ id: string }, {}, UpdateUserBody>, res: Response<PublicUser | ErrorResponse>) => {
     try {
         const { email, display_name, password, current_password } = req.body;
 
@@ -166,7 +166,7 @@ interface DeleteUserBody {
 }
 
 // NOTE: The delete endpoint currently cascade deletes ALL of the user data; that might be something to change later
-router.delete('/me', requireAuth, async(req: Request<{}, {}, DeleteUserBody>, res: Response<ErrorResponse>) => {
+router.delete('/me', requireAuth, reauthLimiter, async(req: Request<{}, {}, DeleteUserBody>, res: Response<ErrorResponse>) => {
     try {
         // Check for reauth
         const { current_password } = req.body;
