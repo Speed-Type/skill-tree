@@ -15,16 +15,7 @@ import { ipKeyGenerator } from 'express-rate-limit';
 function resolveClientIp(req: Request): string {
     const cfIp = req.headers['cf-connecting-ip'];
     const rawIp = (typeof cfIp === 'string' && cfIp.length > 0) ? cfIp : (req.ip ?? '');
-    const normalized = ipKeyGenerator(rawIp);
-    console.log('rate-limit key:', {
-        time: new Date().toISOString(),
-        path: req.path,
-        method: req.method,
-        cfIp,
-        reqIp: req.ip,
-        normalized,
-    });
-    return normalized;
+    return ipKeyGenerator(rawIp);
 }
 
 interface RequestWithRateLimit extends Request {
