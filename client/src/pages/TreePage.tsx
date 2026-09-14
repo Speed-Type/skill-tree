@@ -325,6 +325,16 @@ function TreePage() {
                     onStatusUsed={bumpStatusUsage}
                 />
 
+                {skills.length === 0 && (
+                    <div className="tree-empty-state">
+                        <p>
+                            {isOwner
+                                ? <>Press <span className="tree-empty-state-fab-hint">+</span> to add your first skill</>
+                                : "This tree doesn't have any skills yet."}
+                        </p>
+                    </div>
+                )}
+
                 {isOwner && (
                     <PopupButton
                         label={(
