@@ -1,15 +1,23 @@
 import rateLimit from 'express-rate-limit';
 import { Request, Response, NextFunction } from 'express';
+import { ipKeyGenerator } from 'express-rate-limit';
 
 // Cloudflare sets this header at their edge to the original client IP, and it can't
 // be spoofed by the client (Cloudflare overwrites whatever the client sent). This is
 // more reliable than counting X-Forwarded-For hops via Express's trust proxy setting,
 // since the exact number of intermediate hops Render/Cloudflare insert isn't always
 // constant. Falls back to req.ip for local dev, where this header won't be present.
+
+// Both branches are piped through ipKeyGenerator, which normalizes IPv6 addresses
+// (masking the variable host portion) so the same client can't produce a different
+// rate-limit bucket key just by IPv6 formatting differences, and so IPv6 users can't
+// bypass the limit by varying their address's low bits.
 function resolveClientIp(req: Request): string {
     const cfIp = req.headers['cf-connecting-ip'];
-    if (typeof cfIp === 'string' && cfIp.length > 0) return cfIp;
-    return req.ip ?? 'unknown';
+    const rawIp = (typeof cfIp === 'string' && cfIp.length > 0) ? cfIp : (req.ip ?? '');
+    const normalized = ipKeyGenerator(rawIp);
+    console.log('rate-limit key:', { cfIp, reqIp: req.ip, normalized });
+    return normalized;
 }
 
 interface RequestWithRateLimit extends Request {
