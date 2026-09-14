@@ -1,6 +1,17 @@
 import rateLimit from 'express-rate-limit';
 import { Request, Response, NextFunction } from 'express';
 
+// Cloudflare sets this header at their edge to the original client IP, and it can't
+// be spoofed by the client (Cloudflare overwrites whatever the client sent). This is
+// more reliable than counting X-Forwarded-For hops via Express's trust proxy setting,
+// since the exact number of intermediate hops Render/Cloudflare insert isn't always
+// constant. Falls back to req.ip for local dev, where this header won't be present.
+function resolveClientIp(req: Request): string {
+    const cfIp = req.headers['cf-connecting-ip'];
+    if (typeof cfIp === 'string' && cfIp.length > 0) return cfIp;
+    return req.ip ?? 'unknown';
+}
+
 interface RequestWithRateLimit extends Request {
     rateLimit?: {
         resetTime?: Date;
@@ -49,6 +60,7 @@ export const globalLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     skip: isHighFrequencyBenignRoute,
+    keyGenerator: resolveClientIp,
     handler: rateLimitHandler('Too many requests.'),
 });
 
@@ -59,6 +71,7 @@ export const edgeCreationLimiter = rateLimit({
     max: 150,
     standardHeaders: true,
     legacyHeaders: false,
+    keyGenerator: resolveClientIp,
     handler: rateLimitHandler('Too many connections created.'),
 });
 
@@ -69,6 +82,7 @@ export const loginLimiter = rateLimit({
     max: 10,
     standardHeaders: true,
     legacyHeaders: false,
+    keyGenerator: resolveClientIp,
     handler: rateLimitHandler('Too many login attempts.'),
 });
 
@@ -78,6 +92,7 @@ export const signupLimiter = rateLimit({
     max: 10,
     standardHeaders: true,
     legacyHeaders: false,
+    keyGenerator: resolveClientIp,
     handler: rateLimitHandler('Too many accounts created from this IP.'),
 });
 
@@ -88,5 +103,6 @@ export const reauthLimiter = rateLimit({
     max: 15,
     standardHeaders: true,
     legacyHeaders: false,
+    keyGenerator: resolveClientIp,
     handler: rateLimitHandler('Too many attempts.'),
 });
