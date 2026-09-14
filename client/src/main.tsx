@@ -6,6 +6,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router';
 import App from './App';
 import SnackbarContainer from './components/ui/Snackbar';
+import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider } from './context/AuthContext';
 
 const rootElement = document.getElementById('root');
@@ -17,10 +18,12 @@ if (!rootElement) {
 createRoot(rootElement).render(
   <StrictMode>
     <BrowserRouter>
-      <AuthProvider>
-        <App />
-        <SnackbarContainer />
-      </AuthProvider>
+      <ErrorBoundary>
+        <AuthProvider>
+          <App />
+          <SnackbarContainer />
+        </AuthProvider>
+      </ErrorBoundary>
     </BrowserRouter>
   </StrictMode>,
 )
