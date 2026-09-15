@@ -3,7 +3,11 @@ import { useAuth } from '../../context/AuthContext';
 import { MAX_LENGTHS } from '../../../../shared/constants';
 import { snackbar } from '../../lib/snackbar';
 
-function EmailForm() {
+interface EmailFormProps {
+    onCancel?: () => void;
+}
+
+function EmailForm({ onCancel }: EmailFormProps) {
     const { user, updateEmail } = useAuth();
     const [email, setEmail] = useState(user?.email ?? '');
     const [currentPassword, setCurrentPassword] = useState('');
@@ -14,6 +18,7 @@ function EmailForm() {
             await updateEmail(email, currentPassword);
             setCurrentPassword('');
             snackbar.success('Email updated successfully');
+            onCancel?.(); // collapse the section now that the change is saved
         }
         catch (err) {
             console.error('Failed to update email: ', err);
@@ -28,6 +33,7 @@ function EmailForm() {
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
+                placeholder="New email"
                 required
                 maxLength={MAX_LENGTHS.userEmail}
             />
@@ -39,7 +45,11 @@ function EmailForm() {
                 placeholder="Current password"
                 required
             />
-            <button className="btn btn-primary" type="submit">Save</button>
+
+            <div className="btn-row">
+                <button className="btn btn-primary" type="submit">Save</button>
+                {onCancel && <button className="btn-link" type="button" onClick={onCancel}>Cancel</button>}
+            </div>
         </form>
     );
 }

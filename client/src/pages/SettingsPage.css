@@ -37,6 +37,18 @@
     align-self: flex-start;
 }
 
+.settings-form .btn-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.1rem;
+}
+
+.settings-section-toggle {
+    width: 100%;
+    justify-content: space-between;
+}
+
 .settings-danger-panel {
     border-color: var(--danger);
 }

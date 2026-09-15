@@ -3,7 +3,11 @@ import { useAuth } from '../../context/AuthContext';
 import { snackbar } from '../../lib/snackbar';
 import { PASSWORD_MIN_LENGTH } from '../../../../shared/constants';
 
-function PasswordForm() {
+interface PasswordFormProps {
+    onCancel?: () => void;
+}
+
+function PasswordForm({ onCancel }: PasswordFormProps) {
     const { updatePassword } = useAuth();
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
@@ -23,6 +27,7 @@ function PasswordForm() {
             setNewPassword('');
             setConfirmPassword('');
             snackbar.success('Password updated successfully');
+            onCancel?.(); // collapse the section now that the change is saved
         }
         catch (err) {
             console.error('Failed to update password: ', err);
@@ -57,7 +62,11 @@ function PasswordForm() {
                 placeholder="Confirm new password"
                 required
             />
-            <button className="btn btn-primary" type="submit">Save</button>
+            
+            <div className="btn-row">
+                <button className="btn btn-primary" type="submit">Save</button>
+                {onCancel && <button className="btn-link" type="button" onClick={onCancel}>Cancel</button>}
+            </div>
         </form>
     );
 }

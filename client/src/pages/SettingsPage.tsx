@@ -1,5 +1,6 @@
 import './SettingsPage.css';
 
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useAuth } from '../context/AuthContext';
@@ -8,11 +9,20 @@ import EmailForm from '../components/settings/EmailForm';
 import PasswordForm from '../components/settings/PasswordForm';
 import DeleteAccountSection from '../components/settings/DeleteAccountSection';
 
+type SettingsSection = 'display_name' | 'email' | 'password' | 'delete' | null;
+
 function SettingsPage() {
     useDocumentTitle('Settings');
 
     const { user, logout } = useAuth();
     const location = useLocation();
+    const [openSection, setOpenSection] = useState<SettingsSection>(null);
+
+    // Opening a section always closes whichever one was open before —
+    // toggling the same section again just closes it
+    function toggleSection(section: Exclude<SettingsSection, null>) {
+        setOpenSection(prev => (prev === section ? null : section));
+    }
 
     // Falls back to /trees if settings was reached directly (bookmark, refresh, typed URL)
     // rather than by clicking a link that recorded where the user came from
@@ -45,10 +55,61 @@ function SettingsPage() {
                     <button className="btn" onClick={logout}>Log out</button>
                 </div>
 
-                <div className="panel"><DisplayNameForm /></div>
-                <div className="panel"><EmailForm /></div>
-                <div className="panel"><PasswordForm /></div>
-                <div className="panel settings-danger-panel"><DeleteAccountSection /></div>
+                <div className="panel">
+                    {openSection === 'display_name' ? (
+                        <DisplayNameForm onCancel={() => setOpenSection(null)} />
+                    ) : (
+                        <button
+                            type="button"
+                            className="btn settings-section-toggle"
+                            onClick={() => toggleSection('display_name')}
+                        >
+                            Change Display Name
+                        </button>
+                    )}
+                </div>
+                
+                <div className="panel">
+                    {openSection === 'email' ? (
+                        <EmailForm onCancel={() => setOpenSection(null)} />
+                    ) : (
+                        <button
+                            type="button"
+                            className="btn settings-section-toggle"
+                            onClick={() => toggleSection('email')}
+                        >
+                            Change Email
+                        </button>
+                    )}
+                </div>
+
+                <div className="panel">
+                    {openSection === 'password' ? (
+                        <PasswordForm onCancel={() => setOpenSection(null)} />
+                    ) : (
+                        <button
+                            type="button"
+                            className="btn settings-section-toggle"
+                            onClick={() => toggleSection('password')}
+                        >
+                            Change Password
+                        </button>
+                    )}
+                </div>
+
+                <div className="panel settings-danger-panel">
+                    {openSection === 'delete' ? (
+                        <DeleteAccountSection onCancel={() => setOpenSection(null)} />
+                    ) : (
+                        <button
+                            type="button"
+                            className="btn btn-danger settings-section-toggle"
+                            onClick={() => toggleSection('delete')}
+                        >
+                            Delete Account
+                        </button>
+                    )}
+                </div>
             </main>
         </div>
     );

@@ -2,7 +2,12 @@ import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useDoubleConfirm } from '../../hooks/useDoubleConfirm';
 
-function DeleteAccountSection() {
+interface DeleteAccountSectionProps {
+    onCancel?: () => void;
+}
+
+function DeleteAccountSection({ onCancel }: DeleteAccountSectionProps) {
+
     const { deleteAccount } = useAuth();
     const [currentPassword, setCurrentPassword] = useState('');
 
@@ -32,13 +37,24 @@ function DeleteAccountSection() {
                 placeholder="Current password"
                 required
             />
-            <button
-                className={`btn btn-danger${deleteConfirm.pending ? ' is-confirming' : ''}`}
-                onClick={deleteConfirm.trigger}
-                disabled={!currentPassword}
-            >
-                {deleteConfirm.pending ? 'Click again to permanently delete' : 'Delete account'}
-            </button>
+            <div className="btn-row">
+                <button
+                    className={`btn btn-danger${deleteConfirm.pending ? ' is-confirming' : ''}`}
+                    onClick={deleteConfirm.trigger}
+                    disabled={!currentPassword}
+                >
+                    {deleteConfirm.pending ? 'Click again to permanently delete' : 'Delete account'}
+                </button>
+                {onCancel && (
+                    <button
+                        className="btn-link"
+                        type="button"
+                        onClick={() => { deleteConfirm.reset(); onCancel(); }}
+                    >
+                        Cancel
+                    </button>
+                )}
+            </div>
         </div>
     );
 }
