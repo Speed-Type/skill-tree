@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { Skill, ErrorResponse } from '../../shared/types';
 import { requireAuth, optionalAuth } from '../middleware/auth';
 import { isPgError } from '../utils/utils';
-import { MAX_LENGTHS } from '../../shared/constants';
+import { MAX_LENGTHS, MAX_SKILLS_PER_TREE } from '../../shared/constants';
 
 import pool from '../db';
 
@@ -79,6 +79,12 @@ router.post('/', requireAuth, async (req: Request<{}, {}, CreateSkillBody>, res:
         // Confirm the tree exists AND belongs to the requester before allowing an insert into it
         const treeCheck = await pool.query('SELECT id FROM skill_trees WHERE id = $1 AND user_id = $2', [tree_id, req.userId]);
         if (treeCheck.rows.length === 0) return res.status(404).json({ error: 'Not found' });
+
+        // Enforce a per-tree cap on skill count, so a single tree can't grow unbounded
+        const countResult = await pool.query('SELECT COUNT(*) FROM skills WHERE tree_id = $1', [tree_id]);
+        if (Number(countResult.rows[0].count) >= MAX_SKILLS_PER_TREE) {
+            return res.status(400).json({ error: `A tree can have at most ${MAX_SKILLS_PER_TREE} skills` });
+        }
 
         // Confirm the status (if provided) exists AND belongs to the requester, so a skill can't be assigned to another user's status
         if (status_id) {
