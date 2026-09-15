@@ -25,8 +25,8 @@ Server runs on `http://localhost:3000` by default.
 |--------|----------|-------------|------|
 | GET | `/users/me` | Get your own user record (auth required) | — |
 | POST | `/users` | Create a new user | `{ email, display_name, password }` |
-| PUT | `/users/:id` | Update your own user — must match logged-in user (auth required) | `{ email, display_name, password, current_password }` |
-| DELETE | `/users/:id` | Delete your own user — must match logged-in user, cascades (auth required) | `{ current_password }` |
+| PUT | `/users/me` | Update your own user — must match logged-in user (auth required) | `{ email, display_name, password, current_password }` |
+| DELETE | `/users/me` | Delete your own user — must match logged-in user, cascades (auth required) | `{ current_password }` |
 
 ### Skill Trees
 
@@ -44,7 +44,7 @@ Server runs on `http://localhost:3000` by default.
 |--------|----------|-------------|------|
 | GET | `/skills` | Get skills belonging to your own trees (auth required) | — |
 | GET | `/skills/:id` | Get a specific skill — its tree must be public or yours | — |
-| POST | `/skills` | Create a skill — `tree_id` must belong to the logged-in user (auth required) | `{ tree_id, label, description, status_id, x_position, y_position }` |
+| POST | `/skills` | Create a skill — `tree_id` must belong to the logged-in user; fails once the tree hits its skill cap (auth required) | `{ tree_id, label, description, status_id, x_position, y_position }` |
 | PUT | `/skills/:id` | Update skill details — its tree must be yours (auth required) | `{ label, description, status_id, x_position, y_position }` |
 | PUT | `/skills/:id/status` | Update skill status_id specifically — its tree must be yours (auth required) | `{ status_id }` |
 | PUT | `/skills/:id/position` | Update skill position specifically — its tree must be yours (auth required) | `{ x_position, y_position }` |
@@ -69,6 +69,18 @@ Server runs on `http://localhost:3000` by default.
 | PUT | `/statuses/:id` | Update a status — must be yours (auth required) | `{ label, sort_order, color }` |
 | DELETE | `/statuses/:id` | Delete a status — must be yours (auth required) | — |
 
+## Rate Limiting
+
+Several endpoints are rate-limited by IP and return `429` with a message indicating how long to wait:
+
+| Limiter | Applies to | Limit |
+|---|---|---|
+| Global | Every request, except `PUT /skills/:id/position`, `POST /edges`, and `DELETE /edges/:id` | 300 / 15 min |
+| Login | `POST /auth/login` | 10 / 15 min |
+| Signup | `POST /users` | 10 / hour |
+| Reauth | `PUT /users/me`, `DELETE /users/me` (when changing email/password or deleting) | 15 / 15 min |
+| Edge creation | `POST /edges` | 150 / 15 min |
+
 ## Testing
 
 Import `postman_collection.json` into Postman to test all endpoints. Run `POST /auth/login` first. Postman will carry the resulting cookie into subsequent requests automatically.
@@ -81,6 +93,7 @@ Import `postman_collection.json` into Postman to test all endpoints. Run `POST /
 - "Auth required" endpoints return `401` if no valid session is present
 - Edges can only connect two skills that belong to the same tree; this is enforced at creation time, not by the database schema
 - An edge from A to B blocks an edge from being created from B to A
+- A tree can have at most 300 skills (`MAX_SKILLS_PER_TREE` in `shared/constants.ts`); `POST /skills` returns `400` once a tree is at the cap
 - A skill's `tree_id` and a status's ownership are both validated server-side on creation/update; client-supplied IDs are never trusted to imply ownership
 - There is no endpoint to browse or discover other users' public trees. Public trees are only accessible via their direct `/trees/:slug` link.
 - Changing email or password, and deleting the account, all require current_password to match the account's existing password
