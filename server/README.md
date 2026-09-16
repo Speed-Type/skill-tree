@@ -100,3 +100,4 @@ Import `postman_collection.json` into Postman to test all endpoints. Run `POST /
 - Each tree has a random, unguessable `slug` (separate from its numeric `id`) used for the public-facing `GET /trees/:slug` route; the numeric `id` is never exposed in a shareable link
 - The `slug` rotates automatically whenever a tree is switched from public to private, permanently invalidating any previously shared link — re-publishing the same tree later issues a new link, not the old one
 - New users have three default statuses POSTed with their id
+- `skill_trees.user_id`, `statuses.user_id`, `skills.tree_id`, `skills.status_id`, `skill_edges.from_skill_id`, and `skill_edges.to_skill_id` all have plain B-tree indexes, since none of these are covered by the tables' own primary keys or the existing `unique_skill_edge_undirected` functional index (which only helps the `LEAST/GREATEST` uniqueness check, not a plain `WHERE from_skill_id = $1` lookup)
