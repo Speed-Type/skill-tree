@@ -11,8 +11,10 @@ const router = Router();
 router.get('/', requireAuth, async (req: Request, res: Response<SkillEdge[] | ErrorResponse>) => {
     try {
         const result = await pool.query(
-            `SELECT * FROM skill_edges WHERE from_skill_id IN (
-            SELECT id FROM skills WHERE tree_id IN (SELECT id FROM skill_trees WHERE user_id = $1))`,
+            `SELECT e.* FROM skill_edges e
+             JOIN skills s ON e.from_skill_id = s.id
+             JOIN skill_trees t ON s.tree_id = t.id
+             WHERE t.user_id = $1`,
             [req.userId]
         );
 

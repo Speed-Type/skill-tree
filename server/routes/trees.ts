@@ -23,38 +23,42 @@ router.get('/', requireAuth, async(req: Request, res: Response<SkillTree[] | Err
 router.get('/:slug', optionalAuth, async(req: Request<{ slug: string }>, res: Response<TreeWithDetails | ErrorResponse>) => {
     try {
         const treeResult = await pool.query(
-            `SELECT t.*, u.display_name AS owner_display_name
+            `SELECT
+                t.*,
+                u.display_name AS owner_display_name,
+                COALESCE(
+                    (SELECT json_agg(s.* ORDER BY s.id ASC) FROM skills s WHERE s.tree_id = t.id),
+                    '[]'
+                ) AS skills,
+                COALESCE(
+                    (SELECT json_agg(e.*) FROM skill_edges e
+                     WHERE e.from_skill_id IN (SELECT id FROM skills WHERE tree_id = t.id)),
+                    '[]'
+                ) AS edges,
+                COALESCE(
+                    (SELECT json_agg(st.*) FROM statuses st
+                     WHERE st.id IN (
+                         SELECT DISTINCT status_id FROM skills
+                         WHERE tree_id = t.id AND status_id IS NOT NULL
+                     )),
+                    '[]'
+                ) AS statuses
              FROM skill_trees t
              JOIN users u ON u.id = t.user_id
              WHERE t.slug = $1`,
             [req.params.slug]
         );
-
+        
         // Make sure the tree exists to begin with
         if(treeResult.rows.length === 0) return res.status(404).json({ error: 'Not found' });
 
-        // Make sure the tree is owned by the user or is public
         const tree = treeResult.rows[0];
+
+        // Make sure the tree is owned by the user or is public
         const isOwner = req.userId === tree.user_id;
         if (!tree.is_public && !isOwner) return res.status(404).json({ error: 'Not found' });
 
-        // Grab skills associated with this tree
-        const skillsResult = await pool.query('SELECT * FROM skills WHERE tree_id = $1 ORDER BY id ASC', [tree.id]);
-        const skillIDs = skillsResult.rows.map((s: Skill) => s.id);
-
-        // Grab edges associated with skills in this tree
-        const edgesResult = skillIDs.length
-        ? await pool.query('SELECT * FROM skill_edges WHERE from_skill_id = ANY($1)', [skillIDs]) // If there are skills associated with the tree...
-        : { rows: [] }; // If there were no skills associated with the tree, just return an empty array
-
-        // Only the statuses actually referenced by this tree's skills — scoped to the tree, not the viewer,
-        // so a logged-out visitor sees the same labels the owner assigned
-        const statusIDs = [...new Set(skillsResult.rows.map((s: Skill) => s.status_id).filter((id): id is number => id !== null))];
-        const statusesResult = statusIDs.length
-        ? await pool.query('SELECT * FROM statuses WHERE id = ANY($1)', [statusIDs])
-        : { rows: [] };
-
-        res.json({...tree, skills: skillsResult.rows, edges: edgesResult.rows, statuses: statusesResult.rows});
+        res.json(tree);
     }
     catch (err) {
         console.error(err); // Log what actually broke
