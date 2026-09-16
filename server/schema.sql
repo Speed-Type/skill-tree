@@ -16,6 +16,8 @@ CREATE TABLE skill_trees (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
+CREATE INDEX idx_skill_trees_user_id ON skill_trees (user_id);
+
 CREATE TABLE statuses (
   id SERIAL PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -24,6 +26,8 @@ CREATE TABLE statuses (
   color VARCHAR(7),
   created_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE INDEX idx_statuses_user_id ON statuses (user_id);
 
 CREATE TABLE skills (
   id SERIAL PRIMARY KEY,
@@ -36,11 +40,17 @@ CREATE TABLE skills (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
+CREATE INDEX idx_skills_tree_id ON skills (tree_id);
+CREATE INDEX idx_skills_status_id ON skills (status_id);
+
 CREATE TABLE skill_edges (
   id SERIAL PRIMARY KEY,
   from_skill_id INTEGER REFERENCES skills(id) ON DELETE CASCADE,
   to_skill_id INTEGER REFERENCES skills(id) ON DELETE CASCADE
 );
+
+CREATE INDEX idx_skill_edges_from_skill_id ON skill_edges (from_skill_id);
+CREATE INDEX idx_skill_edges_to_skill_id ON skill_edges (to_skill_id);
 
 CREATE UNIQUE INDEX unique_skill_edge_undirected
 ON skill_edges (
