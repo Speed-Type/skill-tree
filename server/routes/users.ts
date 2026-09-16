@@ -59,7 +59,7 @@ router.post('/', signupLimiter, async (req: Request<{}, {}, CreateUserBody>, res
 
         await client.query('BEGIN');
 
-        const result = await pool.query(
+        const result = await client.query(
             'INSERT INTO users (email, display_name, password_hash) VALUES ($1, $2, $3) RETURNING id, email, display_name, created_at',
             [email, display_name || 'Anonymous User', password_hash] // Default display name here
         );
@@ -67,7 +67,7 @@ router.post('/', signupLimiter, async (req: Request<{}, {}, CreateUserBody>, res
         const newUser = result.rows[0];
 
         // Seed default statuses for the new user
-        await pool.query(
+        await client.query(
             `INSERT INTO statuses (user_id, label, sort_order, color)
              SELECT $1, label, ordinality - 1, color
              FROM unnest($2::text[], $3::text[]) WITH ORDINALITY AS t(label, color)`,
