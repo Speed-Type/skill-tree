@@ -1,7 +1,7 @@
 import '@xyflow/react/dist/style.css';
 import './flow.css';
 
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback, useState } from 'react';
 import { useEdgeSelection } from '../../hooks/useEdgeSelection';
 import { 
     ReactFlow,
@@ -21,6 +21,7 @@ import {
 } from '@xyflow/react';
 import { nodeTypes } from './nodeTypes';
 import { edgeTypes } from './edgeTypes';
+import NewSkillAtPointPopup from './NewSkillAtPointPopup';
 import { SkillFlowNode } from './nodes/SkillNode'; // Exported as types
 import { FloatingSkillEdge } from './edges/FloatingEdge'; // Exported as types
 import CustomConnectionLine from './connectionLines/CustomConnectionLine';
@@ -31,10 +32,12 @@ import { apiFetch } from '../../lib/api';
 import { snackbar } from '../../lib/snackbar';
 
 interface SkillTreeViewProps {
+    treeId: number;
     skills: Skill[];
     edges: SkillEdge[];
     statuses: Status[];
     isOwner: boolean;
+    onSkillCreated: SkillChangedHandler;
     onSkillChanged: SkillChangedHandler;
     onSkillDeleted: SkillDeletedHandler;
     onEdgeCreated: (newEdge: SkillEdge) => void;
@@ -50,7 +53,7 @@ function SkillTreeView(props: SkillTreeViewProps) {
     );
 }
 
-function SkillTreeViewInner({ skills, edges, statuses, isOwner, onSkillChanged, onSkillDeleted, onEdgeCreated, onEdgeDeleted, onStatusUsed }: SkillTreeViewProps) {
+function SkillTreeViewInner({ treeId, skills, edges, statuses, isOwner, onSkillCreated, onSkillChanged, onSkillDeleted, onEdgeCreated, onEdgeDeleted, onStatusUsed }: SkillTreeViewProps) {
     
     // ======================= Blurry Text Prevention ==========================
 
@@ -74,6 +77,62 @@ function SkillTreeViewInner({ skills, edges, statuses, isOwner, onSkillChanged, 
     // ======================= Tracking Delete Popups for Edges ==========================
 
     const { selectedEdgeId, setSelectedEdgeId } = useEdgeSelection(isOwner, handleEdgeDelete);
+
+    // ====================== Recenter Logic =========================
+
+    const { fitView, screenToFlowPosition } = useReactFlow();
+
+    function handleRecenter() {
+        fitView({ maxZoom: 1.5, duration: 300 });
+    }
+
+    // ====================== Autospace Logic =========================
+
+    // Fallback dimensions in case a node hasn't been measured yet (shouldn't normally happen
+    // post-mount, but keeps this from silently no-op-ing if it does)
+    const FALLBACK_NODE_WIDTH = 200;
+    const FALLBACK_NODE_HEIGHT = 90;
+
+    async function handleAutoSpace() {
+        const spacingInput = nodes.map(n => ({
+            id: n.id,
+            x: n.position.x,
+            y: n.position.y,
+            width: n.measured?.width ?? FALLBACK_NODE_WIDTH,
+            height: n.measured?.height ?? FALLBACK_NODE_HEIGHT,
+        }));
+
+        const spaced = resolveOverlaps(spacingInput);
+
+        // Only nodes that actually needed to move
+        const moved = spaced.filter(s => {
+            const original = spacingInput.find(n => n.id === s.id)!;
+            return Math.abs(original.x - s.x) > 0.5 || Math.abs(original.y - s.y) > 0.5;
+        });
+
+        if (moved.length === 0) {
+            return;
+        }
+
+        // Update visually right away, ahead of the round-trip to the server
+        setNodes(nds => nds.map(n => {
+            const update = moved.find(m => m.id === n.id);
+            return update ? { ...n, position: { x: update.x, y: update.y } } : n;
+        }));
+
+        const results = await Promise.allSettled(moved.map(m =>
+            apiFetch<Skill>(`/skills/${m.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ x_position: m.x, y_position: m.y }),
+            }).then(onSkillChanged)
+        ));
+
+        const failures = results.filter(r => r.status === 'rejected').length;
+        if (failures > 0) {
+            console.error(`Failed to persist ${failures} node position(s) after auto-spacing`);
+            snackbar.error("Some positions couldn't be saved — try again");
+        }
+    }
 
     // ====================== Convert/maintain props to states for React Flow component =========================
 
@@ -197,29 +256,67 @@ function SkillTreeViewInner({ skills, edges, statuses, isOwner, onSkillChanged, 
         }
     }
 
+    // Create at connection end handling
+    const [pendingCreate, setPendingCreate] = useState<{
+        sourceNodeId: string;
+        screenX: number;
+        screenY: number;
+        flowX: number;
+        flowY: number;
+    } | null>(null);
+
     // Middleman function used to create connections when dragging from a border to the body of another node
+    // Also to open a "create new skill here" popup when dropped on empty canvas
     // Calls handleConnect for actual edge creation in backend
     const onConnectEnd: OnConnectEnd = useCallback((event, connectionState) => {
-        // If it ended on a valid handle, onConnect already fired — nothing more to do
+        // If it ended on a valid handle, onConnect already fired, so nothing else to do
         if (connectionState.isValid) return;
 
-        // Otherwise, check if the drop point landed inside a node's DOM element
+        const sourceNodeId = connectionState.fromNode?.id;
+        if (!sourceNodeId) return;
+
+        const clientX = 'changedTouches' in event ? event.changedTouches[0].clientX : (event as MouseEvent).clientX;
+        const clientY = 'changedTouches' in event ? event.changedTouches[0].clientY : (event as MouseEvent).clientY;
+
+        // Check if the drop point landed inside a node's DOM element
         const target = event.target as HTMLElement;
         const targetEl = target.closest('.react-flow__node');
-        if (!targetEl) return; // dropped on empty canvas, ignore
 
-        const targetNodeId = targetEl.getAttribute('data-id');
-        const sourceNodeId = connectionState.fromNode?.id;
+        if (targetEl) {
+            const targetNodeId = targetEl.getAttribute('data-id');
+            if (!targetNodeId || targetNodeId === sourceNodeId) return;
 
-        if (!targetNodeId || !sourceNodeId || targetNodeId === sourceNodeId) return;
+            handleConnect({
+                source: sourceNodeId,
+                target: targetNodeId,
+                sourceHandle: connectionState.fromHandle?.id ?? null,
+                targetHandle: null,
+            });
+            return;
+        }
 
-        handleConnect({
-            source: sourceNodeId,
-            target: targetNodeId,
-            sourceHandle: connectionState.fromHandle?.id ?? null,
-            targetHandle: null,
-        });
-    }, [handleConnect]);
+        // Dropped on empty canvas — offer to create a new skill here, pre-linked to the source node
+        const flowPos = screenToFlowPosition({ x: clientX, y: clientY });
+        setPendingCreate({ sourceNodeId, screenX: clientX, screenY: clientY, flowX: flowPos.x, flowY: flowPos.y });
+    }, [handleConnect, screenToFlowPosition]);
+
+    async function handleSkillCreatedFromDrag(newSkill: Skill) {
+        if (!pendingCreate) return;
+
+        onSkillCreated(newSkill);
+
+        try {
+            const newEdge = await apiFetch<SkillEdge>('/edges', {
+                method: 'POST',
+                body: JSON.stringify({ from_skill_id: pendingCreate.sourceNodeId, to_skill_id: newSkill.id }),
+            });
+            onEdgeCreated(newEdge);
+        } catch (err) {
+            console.error('Failed to link newly created skill: ', err);
+        }
+
+        setPendingCreate(null);
+    }
 
     // Handles deletion of a single edge
     async function handleEdgeDelete(deletedEdgeId: string) {
@@ -229,62 +326,6 @@ function SkillTreeViewInner({ skills, edges, statuses, isOwner, onSkillChanged, 
             snackbar.success('Connection deleted successfully');
         } catch (err) {
             console.error('Failed to delete edge: ', err);
-        }
-    }
-
-    // ====================== Recenter Logic =========================
-
-    const { fitView } = useReactFlow();
-
-    function handleRecenter() {
-        fitView({ maxZoom: 1.5, duration: 300 });
-    }
-
-    // ====================== Autospace Logic =========================
-
-    // Fallback dimensions in case a node hasn't been measured yet (shouldn't normally happen
-    // post-mount, but keeps this from silently no-op-ing if it does)
-    const FALLBACK_NODE_WIDTH = 200;
-    const FALLBACK_NODE_HEIGHT = 90;
-
-    async function handleAutoSpace() {
-        const spacingInput = nodes.map(n => ({
-            id: n.id,
-            x: n.position.x,
-            y: n.position.y,
-            width: n.measured?.width ?? FALLBACK_NODE_WIDTH,
-            height: n.measured?.height ?? FALLBACK_NODE_HEIGHT,
-        }));
-
-        const spaced = resolveOverlaps(spacingInput);
-
-        // Only nodes that actually needed to move
-        const moved = spaced.filter(s => {
-            const original = spacingInput.find(n => n.id === s.id)!;
-            return Math.abs(original.x - s.x) > 0.5 || Math.abs(original.y - s.y) > 0.5;
-        });
-
-        if (moved.length === 0) {
-            return;
-        }
-
-        // Update visually right away, ahead of the round-trip to the server
-        setNodes(nds => nds.map(n => {
-            const update = moved.find(m => m.id === n.id);
-            return update ? { ...n, position: { x: update.x, y: update.y } } : n;
-        }));
-
-        const results = await Promise.allSettled(moved.map(m =>
-            apiFetch<Skill>(`/skills/${m.id}`, {
-                method: 'PUT',
-                body: JSON.stringify({ x_position: m.x, y_position: m.y }),
-            }).then(onSkillChanged)
-        ));
-
-        const failures = results.filter(r => r.status === 'rejected').length;
-        if (failures > 0) {
-            console.error(`Failed to persist ${failures} node position(s) after auto-spacing`);
-            snackbar.error("Some positions couldn't be saved — try again");
         }
     }
 
@@ -370,6 +411,18 @@ function SkillTreeViewInner({ skills, edges, statuses, isOwner, onSkillChanged, 
                         <path d="m8 4.389-4.364.809a2 2 0 00-1.602 2.33l1.822 9.833a2 2 0 002.331 1.602l2.542-.47"/>
                     </svg>
                 </button>
+            )}
+
+            {isOwner && pendingCreate && (
+                <NewSkillAtPointPopup
+                    treeId={treeId}
+                    screenX={pendingCreate.screenX}
+                    screenY={pendingCreate.screenY}
+                    flowX={pendingCreate.flowX}
+                    flowY={pendingCreate.flowY}
+                    onCreated={handleSkillCreatedFromDrag}
+                    onCancel={() => setPendingCreate(null)}
+                />
             )}
         </div>
     );
