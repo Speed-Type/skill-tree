@@ -13,24 +13,21 @@ interface AddSkillFormProps {
     draft: AddSkillDraft;
     updateDraft: <K extends keyof AddSkillDraft>(key: K, value: AddSkillDraft[K]) => void;
     onCreated: SkillChangedHandler;
+    position?: { x: number; y: number }; // defaults to {0,0}
 }
 
-function AddSkillForm({ treeId, draft, updateDraft, onCreated }: AddSkillFormProps) {
+function AddSkillForm({ treeId, draft, updateDraft, onCreated, position = { x: 0, y: 0 } }: AddSkillFormProps) {
 
     async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
         e.preventDefault();
-
-        try
-        {
+        try {
             const newSkill = await apiFetch<Skill>('/skills', {
                 method: 'POST',
-                body: JSON.stringify({ tree_id: treeId, label: draft.label, description: draft.description, x_position: 0, y_position: 0 }),
+                body: JSON.stringify({ tree_id: treeId, label: draft.label, description: draft.description, x_position: position.x, y_position: position.y }),
             });
-
             onCreated(newSkill);
         }
-        catch(err)
-        {
+        catch (err) {
             console.error('Failed to add skill: ', err);
         }
     }

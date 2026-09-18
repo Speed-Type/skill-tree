@@ -314,10 +314,12 @@ function TreePage() {
             {/* Main content area */}
             <div className="tree-page-canvas-wrap">
                 <SkillTreeView
+                    treeId={tree.id}
                     skills={skills}
                     edges={edges}
                     statuses={displayStatuses}
                     isOwner={isOwner}
+                    onSkillCreated={handleSkillCreated}
                     onSkillChanged={handleSkillChanged}
                     onSkillDeleted={handleSkillDeleted}
                     onEdgeCreated={handleEdgeCreated}
