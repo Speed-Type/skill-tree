@@ -1,0 +1,37 @@
+/* =========================== New skill at point (drag-to-create popup) =========================== */
+
+.new-skill-at-point {
+    background: var(--panel-raised);
+    border: 1px solid var(--gold-line);
+    border-radius: var(--radius);
+    padding: 0.9rem 1rem 1rem;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45), 0 0 20px var(--gold-soft);
+    min-width: 280px;
+    max-width: 340px;
+
+    animation: new-skill-at-point-in 0.15s ease-out;
+}
+
+.new-skill-at-point .eyebrow {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+@keyframes new-skill-at-point-in {
+    from {
+        opacity: 0;
+        transform: scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .new-skill-at-point {
+        animation: none;
+    }
+}
