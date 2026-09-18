@@ -156,6 +156,18 @@ function TreePage() {
         }
     }
 
+    // ======================= Share Handling ==========================
+
+    async function handleShare() {
+        try {
+            await navigator.clipboard.writeText(window.location.href);
+            snackbar.success('Link copied to clipboard');
+        } catch (err) {
+            console.error('Failed to copy tree link: ', err);
+            snackbar.error("Couldn't copy link");
+        }
+    }
+
     // ===========================================================================================
 
     if (loading) return <LoadingPage message="Loading skill tree..." />;
@@ -185,6 +197,22 @@ function TreePage() {
 
                     {/* Header Actions */}
                     <div className="header-actions">
+                        {/* Share button — copies this tree's link to the clipboard */}
+                        {tree.is_public && (
+                            <button
+                                type="button"
+                                className="btn btn-icon"
+                                onClick={handleShare}
+                                title="Copy share link"
+                                aria-label="Copy share link"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M18 8a3 3 0 1 0-2.83-4H15a3 3 0 0 0 .05 3.11L8.91 10.7a3 3 0 1 0 0 2.6l6.14 3.59A3 3 0 1 0 15 15a3.1 3.1 0 0 0 .05.55l-6.14-3.6a3 3 0 0 0 0-1.9l6.14-3.6c.5.34 1.1.55 1.95.55Z"/>
+                                </svg>
+                                <span>Share</span>
+                            </button>
+                        )}
+                        
                         {/* Everyone gets a way back to main menu, either tree list or login page */}
                         <Link className="btn btn-icon" to={user ? '/trees' : '/login'}>
                             {user ? (
