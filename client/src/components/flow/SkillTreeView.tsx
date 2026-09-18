@@ -55,6 +55,12 @@ function SkillTreeView(props: SkillTreeViewProps) {
 
 function SkillTreeViewInner({ treeId, skills, edges, statuses, isOwner, onSkillCreated, onSkillChanged, onSkillDeleted, onEdgeCreated, onEdgeDeleted, onStatusUsed }: SkillTreeViewProps) {
     
+    // Fallback/default node dimensions, in flow-space units (== CSS pixels at zoom 1) —
+    // used both when a node hasn't been measured yet (handleAutoSpace) and when centering
+    // a brand-new node on a drop point before it's ever been rendered (onConnectEnd)
+    const FALLBACK_NODE_WIDTH = 200;
+    const FALLBACK_NODE_HEIGHT = 90;
+
     // ======================= Blurry Text Prevention ==========================
 
     const rfInstanceRef = useRef<ReactFlowInstance<SkillFlowNode, FloatingSkillEdge> | null>(null);
@@ -87,11 +93,6 @@ function SkillTreeViewInner({ treeId, skills, edges, statuses, isOwner, onSkillC
     }
 
     // ====================== Autospace Logic =========================
-
-    // Fallback dimensions in case a node hasn't been measured yet (shouldn't normally happen
-    // post-mount, but keeps this from silently no-op-ing if it does)
-    const FALLBACK_NODE_WIDTH = 200;
-    const FALLBACK_NODE_HEIGHT = 90;
 
     async function handleAutoSpace() {
         const spacingInput = nodes.map(n => ({
@@ -296,7 +297,16 @@ function SkillTreeViewInner({ treeId, skills, edges, statuses, isOwner, onSkillC
         }
 
         // Dropped on empty canvas — offer to create a new skill here, pre-linked to the source node
-        const flowPos = screenToFlowPosition({ x: clientX, y: clientY });
+        const dropPos = screenToFlowPosition({ x: clientX, y: clientY });
+
+        // React Flow positions nodes by their top-left corner, so the flow position passed to
+        // AddSkillForm needs to be offset by half the (expected) node size — otherwise the node's
+        // corner, not its center, ends up at the actual drop point
+        const flowPos = {
+            x: dropPos.x - FALLBACK_NODE_WIDTH / 2,
+            y: dropPos.y - FALLBACK_NODE_HEIGHT / 2,
+        };
+        
         setPendingCreate({ sourceNodeId, screenX: clientX, screenY: clientY, flowX: flowPos.x, flowY: flowPos.y });
     }, [handleConnect, screenToFlowPosition]);
 
