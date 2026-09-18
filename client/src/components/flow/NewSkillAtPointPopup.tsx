@@ -3,6 +3,7 @@ import './NewSkillAtPointPopup.css';
 
 import { createPortal } from 'react-dom';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useOnViewportChange } from '@xyflow/react';
 import { useDraft } from '../../hooks/useDraft';
 import AddSkillForm from '../tree/AddSkillForm';
 import { Skill } from '../../../../shared/types';
@@ -49,6 +50,25 @@ function NewSkillAtPointPopup({ treeId, screenX, screenY, flowX, flowY, onCreate
 
         setStyle({ left, top });
     }, [screenX, screenY]);
+
+    // Close the moment the canvas starts panning/zooming
+    useOnViewportChange({
+        onStart: () => onCancel(),
+    });
+
+    // Close on browser window resize or page scroll too
+    // (useOnViewportChange only covers the ReactFlow canvas's own pan/zoom, not the outer window/page moving)
+    useEffect(() => {
+        function handleWindowChange() {
+            onCancel();
+        }
+        window.addEventListener('resize', handleWindowChange);
+        window.addEventListener('scroll', handleWindowChange, true); // capture, so scrolling any ancestor counts too
+        return () => {
+            window.removeEventListener('resize', handleWindowChange);
+            window.removeEventListener('scroll', handleWindowChange, true);
+        };
+    }, [onCancel]);
 
     // Close on outside click or Escape
     useEffect(() => {
