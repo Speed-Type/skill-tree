@@ -35,7 +35,7 @@ function AddStatusForm({ onStatusCreated, currentCount }: AddStatusFormProps) {
     return (
         <form className="status-edit-fields" onSubmit={handleSubmit}>
             <span className="eyebrow">Add status</span>
-            
+
             <div className="input-wrap">
                 <input
                     className="input"
@@ -44,6 +44,7 @@ function AddStatusForm({ onStatusCreated, currentCount }: AddStatusFormProps) {
                     placeholder="New status"
                     required
                     maxLength={MAX_LENGTHS.statusLabel}
+                    autoFocus
                 />
                 <CharCounter value={label} max={MAX_LENGTHS.statusLabel} />
             </div>

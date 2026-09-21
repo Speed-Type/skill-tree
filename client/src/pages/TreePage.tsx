@@ -274,6 +274,7 @@ function TreePage() {
                                                     value={draft.title}
                                                     onChange={e => updateDraft('title', e.target.value)}
                                                     maxLength={MAX_LENGTHS.treeTitle}
+                                                    autoFocus
                                                 />
                                                 <CharCounter value={draft.title} max={MAX_LENGTHS.treeTitle} />
                                             </div>

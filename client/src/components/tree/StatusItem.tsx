@@ -78,6 +78,7 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
                                 value={draft.label}
                                 onChange={e => updateDraft('label', e.target.value)}
                                 maxLength={MAX_LENGTHS.statusLabel}
+                                autoFocus
                             />
 
                             <CharCounter value={draft.label} max={MAX_LENGTHS.statusLabel} />

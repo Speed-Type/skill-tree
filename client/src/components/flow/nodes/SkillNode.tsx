@@ -183,6 +183,7 @@ function SkillNode({ data, dragging, selected }: NodeProps<SkillFlowNode>) {
                                                 value={draft.label}
                                                 onChange={(e) => updateDraft('label', e.target.value)}
                                                 maxLength={MAX_LENGTHS.skillLabel}
+                                                autoFocus
                                             />
                                             <CharCounter value={draft.label} max={MAX_LENGTHS.skillLabel} />
                                         </div>

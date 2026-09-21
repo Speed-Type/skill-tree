@@ -42,6 +42,7 @@ function AddSkillForm({ treeId, draft, updateDraft, onCreated, position = { x: 0
                     placeholder="New skill"
                     required
                     maxLength={MAX_LENGTHS.skillLabel}
+                    autoFocus
                 />
                 <CharCounter value={draft.label} max={MAX_LENGTHS.skillLabel} />
             </div>
