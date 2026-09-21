@@ -69,7 +69,14 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
                 isDirty={draftIsDirty}
             >
                 {({ onClose }) => (
-                    <div className="status-edit-fields">
+                    <form
+                        className="status-edit-fields"
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            handleEdit();
+                            onClose();
+                        }}
+                    >
                         <span className="eyebrow">Edit status</span>
 
                         <div className="input-wrap">
@@ -87,9 +94,10 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
                         <ColorSwatchPicker value={draft.color} onChange={c => updateDraft('color', c)} />
 
                         <div className="btn-row">
-                            <button className="btn btn-primary" onClick={() => {handleEdit(); onClose();}}>Save Changes</button>
+                            <button type="submit" className="btn btn-primary" onClick={() => {handleEdit(); onClose();}}>Save Changes</button>
                             
                             <button
+                                type="button"
                                 className={`btn btn-danger${deleteConfirm.pending ? ' is-confirming' : ''}`}
                                 onClick={deleteConfirm.trigger}
                             >
@@ -97,7 +105,7 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
                             </button>
                         </div>
                                       
-                    </div>
+                    </form>
                 )}
             </PopupButton>
         </li>

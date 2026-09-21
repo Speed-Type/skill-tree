@@ -176,7 +176,14 @@ function SkillNode({ data, dragging, selected }: NodeProps<SkillFlowNode>) {
  
                                 {/* Contents of skill edit popup */}
                                 {isOwner ? (
-                                    <>
+                                    <form
+                                        className="status-edit-fields"
+                                        onSubmit={(e) => {
+                                            e.preventDefault();
+                                            handleEdit();
+                                            onClose();
+                                        }}
+                                    >
                                         <div className="input-wrap">
                                             <input
                                                 className="input skill-card-title-input"
@@ -201,16 +208,17 @@ function SkillNode({ data, dragging, selected }: NodeProps<SkillFlowNode>) {
                                         </div>
 
                                         <div className="btn-row">
-                                            <button className="btn btn-primary" onClick={() => { handleEdit(); onClose(); }}>Save Changes</button>
+                                            <button type="submit" className="btn btn-primary" onClick={() => { handleEdit(); onClose(); }}>Save Changes</button>
                                             
                                             <button
                                                 className={`btn btn-danger${deleteConfirm.pending ? ' is-confirming' : ''}`}
                                                 onClick={deleteConfirm.trigger}
+                                                type="button"
                                             >
                                                 {deleteConfirm.pending ? 'Click again to delete' : 'Delete'}
                                             </button>
                                         </div>
-                                    </>
+                                    </form>
                                 ) : (
                                     <>
                                         <h3 className="skill-card-title">{skill.label}</h3>

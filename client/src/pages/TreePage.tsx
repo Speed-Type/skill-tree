@@ -265,7 +265,14 @@ function TreePage() {
                             >
                                 {({ onClose }) => (
                                     isOwner ? (
-                                        <div className="status-edit-fields">
+                                        <form
+                                            className="status-edit-fields"
+                                            onSubmit={(e) => {
+                                                e.preventDefault();
+                                                handleTreeDetailsChange();
+                                                onClose();
+                                            }}
+                                        >
                                             <span className="eyebrow">Edit tree details</span>
                                             
                                             <div className="input-wrap">
@@ -292,9 +299,9 @@ function TreePage() {
                                             </div>
 
                                             <div className="btn-row">
-                                                <button className="btn btn-primary" onClick={() => { handleTreeDetailsChange(); onClose(); }}>Save Changes</button>
+                                                <button type="submit" className="btn btn-primary" onClick={() => { handleTreeDetailsChange(); onClose(); }}>Save Changes</button>
                                             </div>
-                                        </div>
+                                        </form>
                                     ) : (
                                         <div className="skill-card">
                                             <span className="eyebrow">Tree details</span>
