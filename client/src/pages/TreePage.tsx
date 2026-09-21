@@ -212,7 +212,7 @@ function TreePage() {
                                 <span>Share</span>
                             </button>
                         )}
-                        
+
                         {/* Everyone gets a way back to main menu, either tree list or login page */}
                         <Link className="btn btn-icon" to={user ? '/trees' : '/login'}>
                             {user ? (
@@ -266,6 +266,8 @@ function TreePage() {
                                 {({ onClose }) => (
                                     isOwner ? (
                                         <div className="status-edit-fields">
+                                            <span className="eyebrow">Edit tree details</span>
+                                            
                                             <div className="input-wrap">
                                                 <input
                                                     className="input"

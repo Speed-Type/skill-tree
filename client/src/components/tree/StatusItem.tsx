@@ -70,6 +70,8 @@ function StatusItem({ status, onStatusChanged, onStatusDeleted }: StatusItemProp
             >
                 {({ onClose }) => (
                     <div className="status-edit-fields">
+                        <span className="eyebrow">Edit status</span>
+
                         <div className="input-wrap">
                             <input
                                 className="input"

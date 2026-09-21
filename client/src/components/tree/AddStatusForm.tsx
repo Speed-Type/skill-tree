@@ -34,6 +34,8 @@ function AddStatusForm({ onStatusCreated, currentCount }: AddStatusFormProps) {
 
     return (
         <form className="status-edit-fields" onSubmit={handleSubmit}>
+            <span className="eyebrow">Add status</span>
+            
             <div className="input-wrap">
                 <input
                     className="input"
